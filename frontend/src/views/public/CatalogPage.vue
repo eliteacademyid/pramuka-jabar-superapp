@@ -5,19 +5,11 @@
         <span class="catalog-eyebrow">Marketplace Pramuka Jabar</span>
         <h1>Katalog Produk</h1>
         <p>Produk unggulan dari UMKM &amp; toko milik anggota Pramuka Jawa Barat</p>
-      <div class="catalog-search">
-        <SearchSuggest
-          v-model="filters.q"
-          placeholder="Cari produk, mis. kopi, kerajinan…"
-          @submit="load(1)"
-        />
-        <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
+        <router-link v-if="cartCount > 0" :to="{ name: 'cart' }" class="catalog-cart-badge">
+          <i class="fas fa-cart-shopping"></i> Keranjang ({{ cartCount }})
+        </router-link>
       </div>
-      <router-link v-if="cartCount > 0" :to="{ name: 'cart' }" class="catalog-cart-badge">
-        <i class="fas fa-cart-shopping"></i> Keranjang ({{ cartCount }})
-      </router-link>
-    </div>
-  </section>
+    </section>
 
     <section class="cat-cards">
       <button
@@ -34,62 +26,83 @@
     </section>
 
     <div class="page-container">
-      <div class="filters">
-        <div class="filter-group">
-          <label>Kategori</label>
-          <select v-model="filters.category" @change="load(1)">
-            <option value="">Semua kategori</option>
-            <option v-for="c in categories" :key="c.id" :value="c.slug">{{ c.name }}</option>
-          </select>
+      <div class="catalog-layout">
+        <aside class="catalog-sidebar">
+          <div class="sidebar-block">
+            <h3 class="sidebar-title"><i class="fas fa-magnifying-glass"></i> Pencarian</h3>
+            <div class="catalog-search">
+              <SearchSuggest
+                v-model="filters.q"
+                placeholder="Cari produk, mis. kopi…"
+                @submit="load(1)"
+              />
+              <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
+            </div>
+          </div>
+
+          <div class="sidebar-block">
+            <h3 class="sidebar-title"><i class="fas fa-sliders"></i> Filter</h3>
+            <div class="filters">
+              <div class="filter-group">
+                <label>Kategori</label>
+                <select v-model="filters.category" @change="load(1)">
+                  <option value="">Semua kategori</option>
+                  <option v-for="c in categories" :key="c.id" :value="c.slug">{{ c.name }}</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <label>Lokasi</label>
+                <input
+                  v-model="filters.city"
+                  list="city-list"
+                  placeholder="Cari lokasi, mis. Bandung"
+                  @keyup.enter="load(1)"
+                />
+                <datalist id="city-list">
+                  <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
+                </datalist>
+              </div>
+              <div class="filter-group">
+                <label>Urutkan</label>
+                <select v-model="filters.sort" @change="load(1)">
+                  <option value="newest">Terbaru</option>
+                  <option value="bestseller">Terlaris</option>
+                  <option value="cheapest">Termurah</option>
+                  <option value="expensive">Termahal</option>
+                  <option value="rating">Rating Tertinggi</option>
+                  <option value="reviewed">Terbanyak Diulas</option>
+                </select>
+              </div>
+              <button class="btn-filter-apply" @click="load(1)">Terapkan</button>
+            </div>
+          </div>
+        </aside>
+
+        <div class="catalog-main">
+          <div class="catalog-meta">
+            <span v-if="total">{{ total }} produk ditemukan</span>
+          </div>
+
+          <div v-if="!products.length" class="empty-row catalog-empty">
+            Tidak ada produk ditemukan. Coba ubah kata kunci atau filter.
+          </div>
+
+          <div v-if="products.length" class="product-grid">
+            <ProductCard
+              v-for="p in products"
+              :key="p.id"
+              :product="p"
+              @added="onAdded"
+              @error="onError"
+            />
+          </div>
+
+          <div v-if="products.length" class="pagination">
+            <button class="btn-small" :disabled="page <= 1" @click="load(page - 1)">‹ Sebelumnya</button>
+            <span class="page-info">Halaman {{ page }} dari {{ totalPages }}</span>
+            <button class="btn-small" :disabled="page >= totalPages" @click="load(page + 1)">Berikutnya ›</button>
+          </div>
         </div>
-        <div class="filter-group">
-          <label>Lokasi</label>
-          <input
-            v-model="filters.city"
-            list="city-list"
-            placeholder="Cari lokasi, mis. Bandung"
-            @keyup.enter="load(1)"
-          />
-          <datalist id="city-list">
-            <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
-          </datalist>
-        </div>
-        <div class="filter-group">
-          <label>Urutkan</label>
-          <select v-model="filters.sort" @change="load(1)">
-            <option value="newest">Terbaru</option>
-            <option value="bestseller">Terlaris</option>
-            <option value="cheapest">Termurah</option>
-            <option value="expensive">Termahal</option>
-            <option value="rating">Rating Tertinggi</option>
-            <option value="reviewed">Terbanyak Diulas</option>
-          </select>
-        </div>
-        <button class="btn-filter-apply" @click="load(1)">Terapkan</button>
-      </div>
-
-      <div class="catalog-meta">
-        <span v-if="total">{{ total }} produk ditemukan</span>
-      </div>
-
-      <div v-if="!products.length" class="empty-row catalog-empty">
-        Tidak ada produk ditemukan. Coba ubah kata kunci atau filter.
-      </div>
-
-      <div v-if="products.length" class="product-grid">
-        <ProductCard
-          v-for="p in products"
-          :key="p.id"
-          :product="p"
-          @added="onAdded"
-          @error="onError"
-        />
-      </div>
-
-      <div v-if="products.length" class="pagination">
-        <button class="btn-small" :disabled="page <= 1" @click="load(page - 1)">‹ Sebelumnya</button>
-        <span class="page-info">Halaman {{ page }} dari {{ totalPages }}</span>
-        <button class="btn-small" :disabled="page >= totalPages" @click="load(page + 1)">Berikutnya ›</button>
       </div>
 
       <div v-if="toast" class="catalog-toast">{{ toast }}</div>
