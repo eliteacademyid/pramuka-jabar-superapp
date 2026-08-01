@@ -1,28 +1,23 @@
 <template>
   <div class="landing">
     <section class="landing-hero">
-      <div class="landing-hero-grid">
-        <div class="landing-hero-inner">
-          <div class="landing-logo"><span>⚜️</span></div>
-          <span class="landing-eyebrow">Pramuka Jawa Barat</span>
-          <h1>Super Apps Pramuka<br />Jawa Barat</h1>
-          <p>
-            Satu aplikasi anggota pramuka untuk pemberdayaan ekonomi — katalog
-            marketplace UMKM &amp; toko anggota Pramuka dalam satu tempat.
-          </p>
-          <div class="landing-actions">
-            <router-link to="/catalog" class="btn-landing-solid">
-              <i class="fas fa-store"></i> Jelajahi Katalog
-            </router-link>
-            <router-link to="/register" class="btn-landing-ghost">
-              <i class="fas fa-user-plus"></i> Daftar Gratis
-            </router-link>
-          </div>
-          <span class="landing-note">Sudah punya akun? <router-link to="/login">Masuk</router-link></span>
+      <div class="landing-hero-inner">
+        <div class="landing-logo"><span>⚜️</span></div>
+        <span class="landing-eyebrow">Pramuka Jawa Barat</span>
+        <h1>SuperApps Pramuka<br />Jawa Barat</h1>
+        <p>
+          Satu aplikasi anggota pramuka untuk pemberdayaan ekonomi — katalog
+          marketplace UMKM &amp; toko anggota Pramuka dalam satu tempat.
+        </p>
+        <div class="landing-actions">
+          <router-link to="/catalog" class="btn-landing-solid">
+            <i class="fas fa-store"></i> Jelajahi Katalog
+          </router-link>
+          <router-link to="/register" class="btn-landing-ghost">
+            <i class="fas fa-user-plus"></i> Daftar Gratis
+          </router-link>
         </div>
-        <div class="landing-hero-photo">
-          <img src="/images/hero-ig.png" alt="Pramuka Jawa Barat" />
-        </div>
+        <span class="landing-note">Sudah punya akun? <router-link to="/login">Masuk</router-link></span>
       </div>
     </section>
 
