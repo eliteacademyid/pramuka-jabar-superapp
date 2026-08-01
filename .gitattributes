@@ -1,0 +1,52 @@
+# Normalize line endings to LF in the repository for all text files.
+# On Windows checkout, Git will convert LF → CRLF automatically (autocrlf).
+# This ensures consistency across macOS, Linux, and Windows contributors.
+
+* text=auto eol=lf
+
+# Python files — always LF
+*.py text eol=lf
+
+# JS/TS/Vue files — always LF
+*.js text eol=lf
+*.ts text eol=lf
+*.vue text eol=lf
+*.jsx text eol=lf
+*.tsx text eol=lf
+
+# Config files — always LF
+*.json text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+*.env text eol=lf
+*.md text eol=lf
+*.txt text eol=lf
+*.mako text eol=lf
+
+# Shell scripts — LF (will break if CRLF)
+*.sh text eol=lf
+
+# Windows batch files — keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary files — no conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.db binary
+*.sqlite binary
+*.zip binary
+*.tar binary
+*.gz binary
