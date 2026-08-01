@@ -11,13 +11,27 @@
           placeholder="Cari produk, mis. kopi, kerajinan…"
           @keyup.enter="load(1)"
         />
-        <button class="catalog-search-btn" @click="load(1)">Cari</button>
+        <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
       </div>
       <router-link v-if="cartCount > 0" :to="{ name: 'cart' }" class="catalog-cart-badge">
-        🛒 Keranjang ({{ cartCount }})
+        <i class="fas fa-cart-shopping"></i> Keranjang ({{ cartCount }})
       </router-link>
     </div>
   </section>
+
+    <section class="cat-cards">
+      <button
+        v-for="c in categories"
+        :key="c.id"
+        class="cat-card"
+        :class="{ active: filters.category === c.slug }"
+        @click="pickCategory(c.slug)"
+      >
+        <i :class="categoryIcon(c.slug)"></i>
+        <h3>{{ c.name }}</h3>
+        <p>Telusuri produk {{ c.name.toLowerCase() }}</p>
+      </button>
+    </section>
 
     <div class="page-container">
       <div class="filters">
@@ -101,6 +115,24 @@ function showToast(msg) {
   toast.value = msg
   clearTimeout(toastTimer)
   toastTimer = setTimeout(() => { toast.value = '' }, 2500)
+}
+
+const CATEGORY_ICONS = {
+  makanan: 'fa-utensils',
+  minuman: 'fa-mug-hot',
+  kerajinan: 'fa-hand-sparkles',
+  fashion: 'fa-tshirt',
+  jasa: 'fa-handshake',
+  lainnya: 'fa-box'
+}
+
+function categoryIcon(slug) {
+  return `fas ${CATEGORY_ICONS[slug] || 'fa-tag'}`
+}
+
+function pickCategory(slug) {
+  filters.value.category = filters.value.category === slug ? '' : slug
+  load(1)
 }
 
 function onAdded(name) {

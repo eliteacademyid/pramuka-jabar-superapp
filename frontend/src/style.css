@@ -520,13 +520,16 @@ button {
   flex: 1;
   display: flex;
   flex-direction: column;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f5f5;
+  min-height: 100vh;
 }
 
 .catalog-hero {
-  background: linear-gradient(135deg, var(--brown) 0%, var(--maroon-dark) 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
   color: var(--white);
-  padding: 3rem 1.5rem 3.5rem;
-  border-bottom: 3px solid var(--gold);
+  padding: 4rem 1.5rem;
+  border-bottom: none;
 }
 
 .catalog-hero-inner {
@@ -541,18 +544,21 @@ button {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: var(--gold);
+  color: #fef9c3;
   margin-bottom: 0.75rem;
 }
 
 .catalog-hero h1 {
-  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
   margin-bottom: 0.5rem;
 }
 
 .catalog-hero p {
-  color: #e8ddd3;
+  color: #dcfce7;
   margin-bottom: 1.75rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .catalog-search {
@@ -577,7 +583,7 @@ button {
 
 .catalog-search-btn {
   border: none;
-  background: var(--maroon);
+  background: #16a34a;
   color: var(--white);
   font-weight: 700;
   padding: 0.65rem 1.8rem;
@@ -586,7 +592,67 @@ button {
 }
 
 .catalog-search-btn:hover {
-  background: var(--maroon-dark);
+  background: #15803d;
+}
+
+.cat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 2.5rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.cat-card {
+  background: var(--white);
+  border: none;
+  border-radius: 12px;
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.cat-card i {
+  font-size: 2.2rem;
+  color: #16a34a;
+  margin-bottom: 0.9rem;
+}
+
+.cat-card h3 {
+  color: #1a1a1a;
+  margin-bottom: 0.35rem;
+  font-size: 1.05rem;
+}
+
+.cat-card p {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.cat-card.active {
+  background: #16a34a;
+  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+}
+
+.cat-card.active i {
+  color: var(--white);
+}
+
+.cat-card.active h3 {
+  color: var(--white);
+}
+
+.cat-card.active p {
+  color: #dcfce7;
 }
 
 .catalog-cart-badge {
@@ -594,19 +660,18 @@ button {
   align-items: center;
   gap: 0.4rem;
   margin-top: 1rem;
-  background: var(--maroon);
-  color: var(--white);
+  background: var(--white);
+  color: #16a34a;
   font-weight: 700;
   font-size: 0.95rem;
   padding: 0.55rem 1.4rem;
   border-radius: 999px;
   text-decoration: none;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition: transform 0.2s;
 }
 
 .catalog-cart-badge:hover {
-  background: var(--maroon-dark);
   transform: translateY(-2px);
 }
 
@@ -642,7 +707,7 @@ button {
   align-items: flex-end;
   gap: 1rem;
   background: var(--white);
-  border: 2px solid var(--gold);
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 1.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -668,7 +733,7 @@ button {
 .filter-group input,
 .filter-group select {
   padding: 0.6rem 0.8rem;
-  border: 1px solid #d6c7ba;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 0.95rem;
   background: var(--white);
@@ -677,14 +742,14 @@ button {
 
 .filter-group input:focus,
 .filter-group select:focus {
-  outline: 2px solid var(--gold);
-  border-color: var(--gold);
+  outline: 2px solid #16a34a;
+  border-color: #16a34a;
 }
 
 .btn-filter-apply {
   padding: 0.6rem 1.6rem;
   border: none;
-  background: var(--brown);
+  background: #16a34a;
   color: var(--white);
   font-weight: 700;
   border-radius: 8px;
@@ -692,11 +757,11 @@ button {
 }
 
 .btn-filter-apply:hover {
-  background: var(--brown-dark);
+  background: #15803d;
 }
 
 .catalog-meta {
-  color: #8a7a6d;
+  color: #6b7280;
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 1rem;
@@ -704,7 +769,7 @@ button {
 
 .catalog-empty {
   background: var(--white);
-  border: 2px solid var(--gold);
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   padding: 3rem 1.5rem;
   font-size: 1rem;
@@ -731,7 +796,7 @@ button {
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-  border-color: var(--gold);
+  border-color: #16a34a;
 }
 
 .pc-link {
@@ -842,14 +907,14 @@ button {
   padding: 0.6rem;
   border: none;
   border-radius: 8px;
-  background: var(--brown);
+  background: #16a34a;
   color: var(--white);
   font-weight: 700;
   transition: background 0.2s ease;
 }
 
 .pc-btn:hover {
-  background: var(--maroon);
+  background: #15803d;
 }
 
 .pc-btn:disabled {
