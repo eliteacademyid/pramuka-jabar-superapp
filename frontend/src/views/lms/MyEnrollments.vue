@@ -93,9 +93,9 @@ const getCertificate = async (enrollmentId) => {
               <router-link :to="{ name: 'lms-training-detail', params: { id: e.training_id } }" class="btn-small">
                 Lanjut Belajar
               </router-link>
-              <button v-if="e.status === 'Lulus'" class="btn-small" style="color: #1e7d34; border-color: #1e7d34;" @click="getCertificate(e.id)">
+              <router-link v-if="e.status === 'Lulus'" :to="{ name: 'lms-certificate', params: { id: e.id } }" class="btn-small" style="color: #1e7d34; border-color: #1e7d34;">
                 📄 Sertifikat
-              </button>
+              </router-link>
             </td>
           </tr>
         </tbody>

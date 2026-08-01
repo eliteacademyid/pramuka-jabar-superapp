@@ -9,6 +9,10 @@ import TrainingsList from '../views/lms/TrainingsList.vue'
 import TrainingDetail from '../views/lms/TrainingDetail.vue'
 import TrainingQuiz from '../views/lms/TrainingQuiz.vue'
 import MyEnrollments from '../views/lms/MyEnrollments.vue'
+import ManageTrainingsList from '../views/admin/lms/ManageTrainingsList.vue'
+import ManageTrainingDetail from '../views/admin/lms/ManageTrainingDetail.vue'
+import CertificateView from '../views/lms/CertificateView.vue'
+
 const routes = [
   {
     path: '/',
@@ -28,7 +32,11 @@ const routes = [
       { path: 'trainings', name: 'lms-trainings', component: TrainingsList },
       { path: 'trainings/:id', name: 'lms-training-detail', component: TrainingDetail },
       { path: 'trainings/:id/quiz', name: 'lms-training-quiz', component: TrainingQuiz },
-      { path: 'enrollments', name: 'lms-enrollments', component: MyEnrollments }    ]
+      { path: 'enrollments', name: 'lms-enrollments', component: MyEnrollments },
+      { path: 'manage-trainings', name: 'admin-manage-trainings', component: ManageTrainingsList },
+      { path: 'manage-trainings/:id', name: 'admin-manage-training-detail', component: ManageTrainingDetail },
+      { path: 'enrollments/:id/certificate', name: 'lms-certificate', component: CertificateView }
+    ]
   }
 ]
 

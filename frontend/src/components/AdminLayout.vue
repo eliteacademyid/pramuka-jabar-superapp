@@ -42,6 +42,9 @@ function logout() {
         <router-link to="/admin/enrollments" class="sidebar-link">
           Pelatihanku
         </router-link>
+        <router-link v-if="currentUser?.role === 'admin'" to="/admin/manage-trainings" class="sidebar-link">
+          Kelola Pelatihan
+        </router-link>
         <router-link v-if="currentUser?.role === 'admin'" to="/admin/users" class="sidebar-link">
           Manajemen User
         </router-link>
