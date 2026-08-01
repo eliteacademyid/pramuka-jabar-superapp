@@ -1,14 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-<<<<<<< HEAD
 from fastapi.openapi.utils import get_openapi
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
 from app.database import Base, engine
 from app.routers import admin as admin_router
 from app.routers import auth as auth_router
-<<<<<<< HEAD
 from app.routers import kegiatan as kegiatan_router
 from app.routers import organisasi as organisasi_router
 from app.routers import program as program_router
@@ -43,32 +39,13 @@ def custom_openapi():
     return app.openapi_schema
 
 
-# Configure FastAPI with OpenAPI/Swagger
 tags_metadata = [
-    {
-        "name": "Authentication",
-        "description": "Autentikasi pengguna - Login, Register, Refresh Token, Logout",
-    },
-    {
-        "name": "Organisasi",
-        "description": "Manajemen Organisasi Pramuka",
-    },
-    {
-        "name": "Programs",
-        "description": "Manajemen Program Pramuka dengan CRUD, search, filter, dan pagination",
-    },
-    {
-        "name": "Kegiatans",
-        "description": "Manajemen Kegiatan Pramuka dengan CRUD, search, filter, dan pagination",
-    },
-    {
-        "name": "Realisasi",
-        "description": "Input realisasi, upload dokumen, dan dashboard analytics",
-    },
-    {
-        "name": "Laporan",
-        "description": "Pelaporan kegiatan dan workflow approval",
-    },
+    {"name": "Authentication", "description": "Autentikasi pengguna - Login, Register, Refresh Token, Logout"},
+    {"name": "Organisasi", "description": "Manajemen Organisasi Pramuka"},
+    {"name": "Programs", "description": "Manajemen Program Pramuka dengan CRUD, search, filter, dan pagination"},
+    {"name": "Kegiatans", "description": "Manajemen Kegiatan Pramuka dengan CRUD, search, filter, dan pagination"},
+    {"name": "Realisasi", "description": "Input realisasi, upload dokumen, dan dashboard analytics"},
+    {"name": "Laporan", "description": "Pelaporan kegiatan dan workflow approval"},
 ]
 
 app = FastAPI(
@@ -81,13 +58,6 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 app.openapi = custom_openapi
-=======
-from app.seed import seed_default_admin
-
-Base.metadata.create_all(bind=engine)
-
-app = FastAPI(title="Super Apps Pramuka Jawa Barat")
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
 app.add_middleware(
     CORSMiddleware,
@@ -97,24 +67,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-<<<<<<< HEAD
-# Include routers
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(organisasi_router.router, prefix="/api")
 app.include_router(program_router.router, prefix="/api")
 app.include_router(kegiatan_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 app.include_router(radit_router.radit_router, prefix="/api")
-=======
-app.include_router(auth_router.router, prefix="/api")
-app.include_router(admin_router.router, prefix="/api")
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
 
 @app.on_event("startup")
 def startup_seed():
     seed_default_admin()
-<<<<<<< HEAD
     seed_realisasi_laporan_approval()
 
 
@@ -130,12 +93,5 @@ def root():
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    """Check API health status"""
+    """Check API health status."""
     return {"status": "ok"}
-=======
-
-
-@app.get("/")
-def root():
-    return {"message": "Super Apps Pramuka Jawa Barat API is running"}
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
