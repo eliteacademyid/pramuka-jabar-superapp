@@ -59,9 +59,9 @@ const formatDate = (dateString) => {
     
     <!-- Content: Grid -->
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-      <div v-for="(training, index) in trainings" :key="training.id" 
-           class="group bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col relative overflow-hidden"
-           :style="`animation: fade-in-up 0.5s ease forwards; animation-delay: ${index * 0.1}s; opacity: 0;`">
+        <div v-for="(training, index) in trainings" :key="training.id" 
+             class="group bg-white rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 flex flex-col relative overflow-hidden animate-fade-in"
+             :style="`animation-delay: ${index * 0.1}s;`">
         
         <!-- Decorative bg -->
         <div class="absolute -top-16 -right-16 w-32 h-32 bg-gradient-to-br from-[var(--gold)] to-[var(--brown)] opacity-10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>

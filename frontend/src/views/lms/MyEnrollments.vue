@@ -80,8 +80,8 @@ const getCertificate = async (enrollmentId) => {
     <!-- Content: Grid of Progress Cards -->
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="(e, index) in enrollments" :key="e.id" 
-           class="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col relative"
-           :style="`animation: fade-in-up 0.5s ease forwards; animation-delay: ${index * 0.1}s; opacity: 0;`">
+           class="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col relative animate-fade-in"
+           :style="`animation-delay: ${index * 0.1}s;`">
         
         <div class="flex justify-between items-start mb-4">
           <div class="bg-gray-50 p-3 rounded-2xl">
