@@ -76,6 +76,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../services/api'
+import ProductCard from '../../components/ProductCard.vue'
 
 const products = ref([])
 const categories = ref([])
