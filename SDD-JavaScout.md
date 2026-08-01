@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.2
+**Versi Dokumen** : 1.3
 **Tanggal** : 1 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -14,6 +14,10 @@
 > Pembaruan v1.2: penghapusan user tidak lagi gagal (500) — user yang masih punya
 > data transaksi otomatis dinonaktifkan (soft delete); katalog ditambah kartu
 > kategori (klik untuk memfilter), badge keranjang, dan toast konfirmasi tambah.
+> Pembaruan v1.3: landing page didesain ulang (hero foto Pramuka Jabar, strip
+> statistik, kartu fitur, kategori populer, band CTA, topbar/footer baru); semua
+> gambar produk kini foto nyata yang disimpan lokal (bukan URL CDN mati) dengan
+> seed diperbarui; ejaan "SuperApps" (satu kata) digunakan di UI publik.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -538,7 +542,11 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 | GET | `/api/admin/reports` | Laporan (user, toko, produk, order per status, volume) |
 | GET | `/api/admin/withdrawals` | List pencairan + approve/reject |
 
-Media: file produk/logo disajikan via subdomain/CDN `cdn.javascout.id` (rencana; saat ini gambar via URL eksternal).
+Media (v1.3): file gambar produk disajikan sebagai aset statis lokal dari
+`frontend/public/images/products/` (path relatif disimpan pada kolom `images`),
+termasuk gambar demo seed; foto hero landing disimpan di
+`frontend/public/images/hero-ig.png`. (CDN eksternal `cdn.javascout.id` tetap
+rencana pengembangan lanjutan.)
 
 ---
 
@@ -570,8 +578,17 @@ Media: file produk/logo disajikan via subdomain/CDN `cdn.javascout.id` (rencana;
   Toko Saya (Toko, Dashboard Penjual, Produk, Pesanan Masuk, Pencairan Dana).
   Modul superapp lain (Berita, Anggota, Kegiatan, Galeri, Dokumen, Pengaturan)
   ditandai "Segera Hadir".
-- **Landing page**: tombol masuk ke *Katalog Marketplace* dan Login; katalog dapat
-  diakses publik tanpa login.
+- **Topbar & footer publik** (v1.3): topbar berisi logo ⚜️ + nama "JavaScout
+  Pramuka Jabar", tautan Katalog Marketplace, tombol Masuk (outline) dan Daftar
+  (solid); footer gelap berisi brand, tautan cepat, dan hak cipta.
+- **Landing page** (redesain v1.3): hero dua tahap — foto resmi Pramuka Jawa
+  Barat (dari media sosial @pramukajabar, disimpan lokal) sebagai latar dengan
+  overlay coklat transparan agar teks terbaca; logo lingkaran berbingkai emas;
+  judul "SuperApps Pramuka Jawa Barat"; CTA "Jelajahi Katalog" (emas) dan
+  "Daftar Gratis" (ghost); strip statistik melayang (produk, toko aktif, escrow,
+  layanan); 4 kartu fitur (Katalog, Wallet & Escrow, Buka Toko, Chat Penjual);
+  kartu kategori populer yang menuju katalog dengan filter aktif; band CTA
+  maroon "Daftar & Buka Toko". Katalog dapat diakses publik tanpa login.
 - **Katalog marketplace** (redesain Iterasi 1): hero gradient coklat→maroon dengan
   aksen emas + kolom pencarian pill; **kartu kategori** berikon (makanan, minuman,
   kerajinan, fashion, jasa, lainnya) yang dapat diklik untuk memfilter grid;
