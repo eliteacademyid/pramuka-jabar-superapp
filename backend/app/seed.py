@@ -144,6 +144,33 @@ def _seed_demo_data(db):
             "active",
             28,
         ),
+        (
+            "Jasa Fotografi Kegiatan Pramuka",
+            "jasa",
+            "350000",
+            10,
+            "paket",
+            "active",
+            8,
+        ),
+        (
+            "Jasa Desain Logo & Umbul-umbul",
+            "jasa",
+            "150000",
+            20,
+            "desain",
+            "active",
+            15,
+        ),
+        (
+            "Jasa Sewa Tenda & Perlengkapan",
+            "jasa",
+            "250000",
+            5,
+            "paket",
+            "active",
+            6,
+        ),
     ]
     for name, cat_slug, price, stock, unit, status, sold in produk:
         db.add(
