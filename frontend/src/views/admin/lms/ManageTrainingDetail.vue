@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../../../services/api'
+import ActionModal from '../../../components/ActionModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -99,8 +100,9 @@ async function deleteMaterial(id) {
   try {
     await api.delete(`/admin/lms/materials/${id}`)
     await loadData()
+    showNotification('success', 'Berhasil Dihapus', 'Materi berhasil dihapus dari pelatihan ini.')
   } catch (err) {
-    alert('Gagal menghapus')
+    showNotification('error', 'Gagal', 'Gagal menghapus materi.')
   }
 }
 
@@ -161,6 +163,14 @@ onMounted(() => {
 
 <template>
   <div class="manage-detail">
+    <ActionModal
+      :show="notification.show"
+      :type="notification.type"
+      :title="notification.title"
+      :message="notification.message"
+      @close="notification.show = false"
+    />
+
     <div class="page-header" style="margin-bottom: 2rem;">
       <router-link to="/admin/manage-trainings" class="back-link">&larr; Kembali ke Daftar</router-link>
       <h2 style="margin-top: 1rem;">Kelola: {{ training?.title || 'Memuat...' }}</h2>
@@ -255,21 +265,6 @@ onMounted(() => {
 
     </div>
 
-    <!-- Modals -->
-    <!-- Notification Modal -->
-    <div v-if="notification.show" class="modal-overlay" style="z-index: 1000;">
-      <div class="modal-content" style="text-align: center; max-width: 400px; padding: 2rem;">
-        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);">
-          <span v-if="notification.type === 'success'" style="color: #2e7d32;">Berhasil</span>
-          <span v-else style="color: #c62828;">Pemberitahuan</span>
-        </div>
-        <h3 style="margin-bottom: 0.5rem; color: var(--brown-dark);">{{ notification.title }}</h3>
-        <p style="color: #555; margin-bottom: 1.5rem;">{{ notification.message }}</p>
-        <button class="btn-primary" style="width: 100%;" @click="notification.show = false">
-          Tutup
-        </button>
-      </div>
-    </div>
 
     <!-- Material Modal -->
     <div v-if="showMaterialModal" class="modal-overlay">

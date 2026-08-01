@@ -33,105 +33,86 @@ const formatDate = (dateString) => {
     year: 'numeric'
   })
 }
-
-const getCertificate = async (enrollmentId) => {
-  try {
-    const res = await lmsService.getCertificate(enrollmentId)
-    const cert = res.data
-    alert(`E-Certificate Diterbitkan!\n\nNo: ${cert.certificate_id}\nNama: ${cert.issued_to}\nPelatihan: ${cert.training_title}\nTanggal: ${cert.issue_date}\n\n${cert.message}`)
-  } catch (err) {
-    alert(err.response?.data?.detail || 'Gagal mengambil sertifikat')
-  }
-}
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 min-h-[80vh] flex flex-col">
+  <div class="page-container">
+
     <!-- Header -->
-    <div class="mb-10 animate-fade-in-down">
-      <h2 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--brown)] to-[var(--gold)] mb-2">
-        Riwayat Pelatihanku
-      </h2>
-      <p class="text-gray-500 text-sm sm:text-base">Pantau progres belajar dan unduh sertifikat kelulusan Anda di sini.</p>
+    <div class="page-header">
+      <h2 class="page-title">Riwayat Pelatihanku</h2>
+      <p class="page-subtitle">Pantau progres belajar dan unduh sertifikat kelulusan Anda di sini.</p>
     </div>
 
     <!-- State: Loading -->
-    <div v-if="loading" class="flex-1 flex flex-col items-center justify-center space-y-4 animate-pulse">
-      <div class="w-16 h-16 border-4 border-[var(--gold)] border-t-transparent rounded-full animate-spin"></div>
-      <p class="text-gray-500 font-medium">Memuat data riwayat...</p>
+    <div v-if="loading" class="state-center">
+      <div class="spinner"></div>
+      <p class="state-text">Memuat data riwayat...</p>
     </div>
 
     <!-- State: Error -->
-    <div v-else-if="error" class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center shadow-sm animate-fade-in">
-      <span class="text-2xl block mb-2">Pemberitahuan</span>
+    <div v-else-if="error" class="state-error">
       {{ error }}
     </div>
 
     <!-- State: Empty -->
-    <div v-else-if="enrollments.length === 0" class="flex-1 flex flex-col items-center justify-center text-center p-12 bg-white/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-300 animate-fade-in">
-      <span class="text-6xl mb-4 grayscale opacity-40 block">Kosong</span>
-      <h3 class="text-xl font-bold text-gray-700 mb-2">Anda belum mengikuti pelatihan</h3>
-      <p class="text-gray-500 mb-6">Jelajahi katalog pelatihan dan mulai tingkatkan kemampuan Anda.</p>
-      <router-link to="/admin/trainings" class="btn-primary rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-shadow">
+    <div v-else-if="enrollments.length === 0" class="state-empty">
+      <div class="empty-icon">📖</div>
+      <h3>Anda belum mengikuti pelatihan</h3>
+      <p>Jelajahi katalog pelatihan dan mulai tingkatkan kemampuan Anda.</p>
+      <router-link to="/admin/trainings" class="empty-btn">
         Lihat Katalog Pelatihan
       </router-link>
     </div>
 
-    <!-- Content: Grid of Progress Cards -->
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="(e, index) in enrollments" :key="e.id" 
-           class="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col relative animate-fade-in"
-           :style="`animation-delay: ${index * 0.1}s;`">
-        
-        <div class="flex justify-between items-start mb-4">
-          <div class="bg-gray-50 p-3 rounded-2xl">
-            <span class="text-3xl grayscale opacity-50 block" v-if="e.status === 'Lulus'">Lulus</span>
-            <span class="text-3xl grayscale opacity-50 block" v-else-if="e.status === 'Gagal'">Gagal</span>
-            <span class="text-3xl grayscale opacity-50 block" v-else>Belajar</span>
-          </div>
-          <span :class="[
-            'px-3 py-1 text-xs font-bold rounded-full border',
-            e.status === 'Lulus' ? 'bg-green-50 text-green-700 border-green-200' : 
-            (e.status === 'Gagal' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200')
-          ]">
-            {{ e.status }}
+    <!-- Content -->
+    <div v-else class="card-grid">
+      <div v-for="(e, index) in enrollments" :key="e.id"
+           class="enroll-card"
+           :style="`animation-delay: ${index * 0.08}s`">
+
+        <!-- Top row: status badge -->
+        <div class="card-top">
+          <span :class="['status-badge', 
+            e.status === 'Lulus' ? 'badge-lulus' : 
+            e.status === 'Gagal' ? 'badge-gagal' : 'badge-proses']">
+            {{ e.status === 'Lulus' ? 'Lulus' : e.status === 'Gagal' ? 'Tidak Lulus' : 'Sedang Belajar' }}
           </span>
+          <span class="enroll-date">{{ formatDate(e.enrolled_at) }}</span>
         </div>
 
-        <h3 class="text-xl font-bold text-gray-900 mb-2 leading-tight flex-1">
+        <!-- Title -->
+        <h3 class="card-title">
           {{ trainings[e.training_id]?.title || 'Memuat...' }}
         </h3>
-        
-        <!-- Progress Bar -->
-        <div class="mb-6">
-          <div class="flex items-center text-xs text-gray-500 font-medium mb-4">
-            <span>Terdaftar: {{ formatDate(e.enrolled_at) }}</span>
+
+        <!-- Progress -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Progres</span>
+            <span :class="['progress-pct', e.progress_percentage >= 100 ? 'pct-done' : '']">
+              {{ e.progress_percentage }}%
+            </span>
           </div>
-          <div class="flex justify-between text-sm font-semibold mb-2">
-            <span class="text-gray-600">Progres</span>
-            <span :class="e.progress_percentage >= 100 ? 'text-green-600' : 'text-[var(--brown)]'">{{ e.progress_percentage }}%</span>
-          </div>
-          <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden shadow-inner">
-            <div class="h-full rounded-full transition-all duration-1000 ease-out relative"
-                 :class="e.progress_percentage >= 70 ? 'bg-gradient-to-r from-green-400 to-green-600' : 'bg-gradient-to-r from-[var(--brown)] to-[var(--gold)]'"
-                 :style="`width: ${e.progress_percentage}%`">
-                 <!-- Shine effect -->
-                 <div class="absolute top-0 left-0 w-full h-full bg-white/20 animate-pulse"></div>
+          <div class="progress-track">
+            <div class="progress-fill"
+                 :class="e.progress_percentage >= 100 ? 'fill-done' : 'fill-active'"
+                 :style="{ width: `${e.progress_percentage}%` }">
             </div>
           </div>
         </div>
 
         <!-- Actions -->
-        <div class="flex flex-col sm:flex-row gap-3 mt-auto">
-          <router-link :to="{ name: 'lms-training-detail', params: { id: e.training_id } }" 
-             class="flex-1 text-center py-2.5 px-4 bg-gray-900 text-white text-sm font-semibold rounded-xl hover:bg-gray-800 transition-colors">
+        <div class="card-actions">
+          <router-link :to="{ name: 'lms-training-detail', params: { id: e.training_id } }"
+                       class="btn-secondary">
             Lanjut Belajar
           </router-link>
-          
-          <router-link v-if="e.status === 'Lulus'" :to="`/admin/enrollments/${e.id}/certificate`" class="flex-1 text-center py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/30 transition-all hover:-translate-y-0.5 relative overflow-hidden group">
-              <span class="relative z-10 flex items-center justify-center gap-2">Sertifikat</span>
-              <div class="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-            </router-link>
+          <router-link v-if="e.status === 'Lulus'"
+                       :to="`/admin/enrollments/${e.id}/certificate`"
+                       class="btn-cert">
+            Sertifikat
+          </router-link>
         </div>
       </div>
     </div>
@@ -139,18 +120,256 @@ const getCertificate = async (enrollmentId) => {
 </template>
 
 <style scoped>
-@keyframes fade-in-down {
-  from { opacity: 0; transform: translateY(-20px); }
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 80vh;
+}
+
+/* Header */
+.page-header {
+  margin-bottom: 2.5rem;
+  animation: fadeDown 0.5s ease-out;
+}
+.page-title {
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--brown), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+.page-subtitle {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* States */
+.state-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 2rem;
+}
+.state-text { color: #6b7280; font-weight: 500; }
+.spinner {
+  width: 52px;
+  height: 52px;
+  border: 4px solid #e5e7eb;
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+.state-error {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+}
+.state-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 24px;
+  border: 2px dashed #e5e7eb;
+  gap: 0.75rem;
+}
+.empty-icon { font-size: 3rem; }
+.state-empty h3 { font-size: 1.25rem; font-weight: 700; color: #374151; }
+.state-empty p { color: #9ca3af; }
+.empty-btn {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--maroon);
+  color: white;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.empty-btn:hover { background: var(--maroon-dark); }
+
+/* Grid */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Enrollment Card */
+.enroll-card {
+  background: white;
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid #f0ebe4;
+  box-shadow: 0 4px 20px rgba(92, 64, 51, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: fadeUp 0.4s ease-out both;
+}
+.enroll-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 40px rgba(92, 64, 51, 0.12);
+}
+
+/* Card Top */
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+.status-badge {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.badge-lulus {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+.badge-gagal {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+.badge-proses {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+.enroll-date {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  white-space: nowrap;
+}
+
+/* Card Title */
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Progress */
+.progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.progress-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+}
+.progress-pct {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--brown);
+}
+.pct-done { color: #16a34a; }
+.progress-track {
+  width: 100%;
+  height: 10px;
+  background: #f3f4f6;
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.08);
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 1s ease;
+}
+.fill-active {
+  background: linear-gradient(90deg, var(--gold), var(--brown));
+}
+.fill-done {
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+}
+
+/* Actions */
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: auto;
+}
+.btn-secondary {
+  display: block;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  background: #1f2937;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover {
+  background: #111827;
+  transform: translateY(-1px);
+}
+.btn-cert {
+  display: block;
+  text-align: center;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(135deg, #16a34a, #15803d);
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+  transition: all 0.2s ease;
+}
+.btn-cert:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(22, 163, 74, 0.35);
+}
+
+/* Animations */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(30px); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-fade-in-down {
-  animation: fade-in-down 0.6s ease-out forwards;
-}
-.animate-fade-in {
-  animation: fade-in-up 0.4s ease-out forwards;
+
+@media (max-width: 640px) {
+  .page-container { padding: 1.25rem 1rem; }
+  .card-grid { grid-template-columns: 1fr; }
 }
 </style>
