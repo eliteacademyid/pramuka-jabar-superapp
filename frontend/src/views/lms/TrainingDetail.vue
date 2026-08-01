@@ -81,7 +81,7 @@ async function enroll() {
 
     <!-- State: Error -->
     <div v-else-if="error" class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center shadow-sm animate-fade-in mt-12">
-      <span class="text-2xl block mb-2">⚠️</span>
+      <span class="text-2xl block mb-2">Pemberitahuan</span>
       {{ error }}
       <div class="mt-4">
         <router-link to="/admin/trainings" class="text-red-700 underline font-medium">Kembali ke Daftar</router-link>
@@ -126,10 +126,12 @@ async function enroll() {
                 {{ enrolling ? 'Memproses...' : 'Daftar Sekarang' }}
               </button>
             </div>
-            <div v-else>
-              <div class="text-3xl mb-2">🎉</div>
-              <h3 class="font-bold text-green-700">Terdaftar</h3>
-              <p class="text-xs text-gray-500 mt-1">Anda sudah memiliki akses</p>
+            <div v-else class="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center gap-3">
+              <div class="text-3xl grayscale opacity-50 block text-[var(--gold)]">Terdaftar</div>
+              <div>
+                <p class="font-bold text-green-600">Terdaftar</p>
+                <p class="text-xs text-gray-500">Anda sudah memiliki akses</p>
+              </div>
             </div>
           </div>
         </div>
@@ -167,7 +169,7 @@ async function enroll() {
             <div v-if="mat.media_url" class="bg-[#faf6f0] p-4 sm:p-6 border-t border-[var(--gold)]/20">
               <a :href="mat.media_url" target="_blank" 
                  class="inline-flex items-center gap-2 text-[var(--maroon)] font-bold hover:text-[var(--brown)] transition-colors group/link">
-                <span class="p-2 bg-white rounded-lg shadow-sm group-hover/link:shadow group-hover/link:-translate-y-0.5 transition-all">📺</span>
+                <span class="p-2 bg-white rounded-lg shadow-sm group-hover/link:shadow group-hover/link:-translate-y-0.5 transition-all block w-8 h-8 flex items-center justify-center">▶</span>
                 Buka Tautan Media / Video
                 <span class="group-hover/link:translate-x-1 transition-transform">&rarr;</span>
               </a>
@@ -179,13 +181,13 @@ async function enroll() {
         <div v-if="hasQuiz" class="mt-12 mb-8 relative">
           <div class="absolute inset-0 bg-gradient-to-r from-[var(--brown)] to-[var(--maroon)] rounded-3xl transform -rotate-1 opacity-20"></div>
           <div class="relative bg-white rounded-3xl p-8 sm:p-12 text-center border-2 border-[var(--gold)] shadow-xl flex flex-col items-center">
-            <span class="text-5xl mb-4">🎯</span>
+            <span class="text-5xl mb-4 opacity-50 block grayscale">Evaluasi</span>
             <h3 class="text-2xl font-extrabold text-gray-900 mb-2">Sudah Selesai Mempelajari Materi?</h3>
             <p class="text-gray-500 mb-8 max-w-md">Buktikan pemahaman Anda dengan mengikuti Evaluasi Akhir. Nilai yang baik akan membuka akses ke E-Certificate.</p>
             
             <router-link :to="{ name: 'lms-training-quiz', params: { id: training.id } }" 
                class="inline-flex items-center justify-center gap-3 bg-[var(--brown)] text-white font-bold text-lg py-4 px-10 rounded-2xl shadow-[0_10px_20px_rgba(92,64,51,0.3)] hover:shadow-[0_15px_30px_rgba(92,64,51,0.4)] hover:-translate-y-1 active:translate-y-0 transition-all">
-              Mulai Evaluasi Sekarang 📝
+              Mulai Evaluasi Sekarang
             </router-link>
           </div>
         </div>
