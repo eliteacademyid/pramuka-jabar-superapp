@@ -56,6 +56,13 @@ INDEXES = [
     ("ix_users_organisasi_id",        "users",       ["organisasi_id"], False),
     ("ix_users_is_active",            "users",       ["is_active"],    False),
     ("ix_users_created_at",           "users",       ["created_at"],   False),
+
+    # programs (dari migrasi 007)
+    ("ix_programs_creator_id",           "programs", ["creator_id"],             False),
+    ("ix_programs_organisasi_id",        "programs", ["organisasi_id"],           False),
+    ("ix_programs_created_at",           "programs", ["created_at"],             False),
+    ("ix_programs_tahun_status",         "programs", ["tahun", "status"],         False),
+    ("ix_programs_organisasi_status",    "programs", ["organisasi_id", "status"], False),
 ]
 
 

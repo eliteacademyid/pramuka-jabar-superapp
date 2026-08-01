@@ -95,10 +95,16 @@ class Program(Base):
     deskripsi = Column(String, nullable=True)
     tahun = Column(Integer, nullable=False, index=True)
     status = Column(String(20), nullable=False, default="active", index=True)
-    creator_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    organisasi_id = Column(Integer, ForeignKey("organisasi.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    creator_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    organisasi_id = Column(Integer, ForeignKey("organisasi.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Composite index: filter tahun + status (pola paling umum di list programs)
+    __table_args__ = (
+        Index("ix_programs_tahun_status", "tahun", "status"),
+        Index("ix_programs_organisasi_status", "organisasi_id", "status"),
+    )
 
     creator = relationship("User", back_populates="programs")
     organisasi = relationship("Organisasi", back_populates="programs")
