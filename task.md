@@ -47,7 +47,7 @@
 - [ ] **2.6. Halaman Layanan, Pustaka & Galeri**
   - [ ] Halaman Pustaka Dokumen (Download Table/List with PDF Viewer & Search).
   - [ ] Halaman Integrasi E-Services / KTA Online Info Page.
-  - [ ] Halaman e-Pelatihan (Daftar Pelatihan, Ruang Belajar, Kuis, Hasil & Sertifikat).
+  - [x] Halaman e-Pelatihan (Daftar Pelatihan, Ruang Belajar, Kuis, Hasil & Sertifikat).
   - [ ] Halaman Galeri Foto & Video (Lightbox Gallery).
   - [ ] Halaman Kontak & Maps (Form Kontak + Google Maps Embed).
 
@@ -61,7 +61,7 @@
 - [ ] **3.2. API Management Content (CRUD)**
   - [ ] API Berita & Pengumuman (Upload Thumbnail, Rich Text Editor Support).
   - [ ] API Agenda Kegiatan.
-  - [ ] API e-Pelatihan (Modul Pelatihan, Materi, Kuis, Progress Tracking, Certificate Generator).
+  - [x] API e-Pelatihan (Modul Pelatihan, Materi, Kuis, Progress Tracking, Certificate Generator).
   - [ ] API Dokumen & File Download.
   - [ ] API Galeri Foto/Video.
   - [ ] API Struktur Pengurus & Kwarran.
