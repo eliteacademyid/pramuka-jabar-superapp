@@ -1,4 +1,8 @@
-from fastapi import FastAPI
+import time
+from collections import defaultdict
+from typing import Dict
+
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
@@ -14,25 +18,45 @@ from app.seed import seed_default_admin, seed_realisasi_laporan_approval
 
 Base.metadata.create_all(bind=engine)
 
+# ─── Brute-force guard — in-memory rate limiter ────────────────────────────────
+# Untuk production multi-instance, ganti dengan Redis-backed rate limiter.
+_login_attempts: Dict[str, list] = defaultdict(list)
+_LOGIN_WINDOW_SECONDS = 60
+_LOGIN_MAX_ATTEMPTS = 10  # max 10 percobaan per IP per menit
+
+
+def _is_rate_limited(ip: str) -> bool:
+    now = time.time()
+    attempts = _login_attempts[ip]
+    # Buang attempt yang sudah di luar window
+    _login_attempts[ip] = [t for t in attempts if now - t < _LOGIN_WINDOW_SECONDS]
+    if len(_login_attempts[ip]) >= _LOGIN_MAX_ATTEMPTS:
+        return True
+    _login_attempts[ip].append(now)
+    return False
+
+
+# ─── App setup ─────────────────────────────────────────────────────────────────
+
+# Sembunyikan docs di production — tidak perlu publik melihat schema API
+_docs_url = None if settings.is_production else "/docs"
+_redoc_url = None if settings.is_production else "/redoc"
+_openapi_url = None if settings.is_production else "/openapi.json"
+
 
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
-
     openapi_schema = get_openapi(
         title="Super Apps Pramuka Jawa Barat",
         version="1.0.0",
-        description="API komprehensif untuk manajemen program, kegiatan, realisasi, laporan, dan approval Pramuka Jawa Barat",
+        description="API Pramuka Jawa Barat",
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {"url": "https://example.com/logo.png"}
-    openapi_schema["info"]["contact"] = {
-        "name": "Tim Backend Pramuka Jabar",
-        "email": "backend@pramuka-jabar.id",
-    }
+    openapi_schema["info"]["contact"] = {"name": "Tim Backend", "email": "backend@pramuka-jabar.id"}
     openapi_schema["info"]["version"] = "1.1.0"
     openapi_schema["servers"] = [
-        {"url": "http://localhost:8000", "description": "Local development"},
+        {"url": "http://localhost:8000", "description": "Local"},
         {"url": "https://api.pramuka-jabar.id", "description": "Production"},
     ]
     openapi_schema["tags"] = tags_metadata
@@ -41,28 +65,52 @@ def custom_openapi():
 
 
 tags_metadata = [
-    {"name": "Authentication", "description": "Autentikasi pengguna - Login, Register, Refresh Token, Logout"},
-    {"name": "Organisasi", "description": "Manajemen Organisasi Pramuka"},
-    {"name": "Programs", "description": "Manajemen Program Pramuka dengan CRUD, search, filter, dan pagination"},
-    {"name": "Kegiatans", "description": "Manajemen Kegiatan Pramuka dengan CRUD, search, filter, dan pagination"},
-    {"name": "Realisasi", "description": "Input realisasi, upload dokumen, dan dashboard analytics"},
-    {"name": "Laporan", "description": "Pelaporan kegiatan dan workflow approval"},
+    {"name": "Authentication", "description": "Login, Register, Refresh, Logout"},
+    {"name": "Organisasi", "description": "Manajemen Organisasi"},
+    {"name": "Programs", "description": "Manajemen Program"},
+    {"name": "Kegiatans", "description": "Manajemen Kegiatan"},
+    {"name": "Realisasi", "description": "Realisasi, Laporan, Approval, Dashboard"},
+    {"name": "Admin", "description": "Manajemen User (Admin only)"},
 ]
 
 app = FastAPI(
     title="Super Apps Pramuka Jawa Barat",
-    description="API komprehensif untuk manajemen program dan kegiatan Pramuka Jawa Barat dengan sistem autentikasi JWT",
     version="1.0.0",
     openapi_tags=tags_metadata,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json",
+    docs_url=_docs_url,
+    redoc_url=_redoc_url,
+    openapi_url=_openapi_url,
 )
 app.openapi = custom_openapi
 
-# CORS — allow_origins=["*"] + allow_credentials=True adalah kombinasi ILEGAL di spec CORS.
-# Browser akan memblokir semua request dengan Authorization header jika dikombinasikan.
-# Origin didaftarkan eksplisit via CORS_ORIGINS di .env agar aman dan fleksibel per environment.
+# ─── Security headers middleware ───────────────────────────────────────────────
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    # Rate limit endpoint login
+    if request.url.path in ("/api/auth/login", "/api/auth/register"):
+        client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
+        if _is_rate_limited(client_ip):
+            return Response(
+                content='{"detail":"Terlalu banyak percobaan. Coba lagi dalam 1 menit."}',
+                status_code=429,
+                media_type="application/json",
+            )
+
+    response = await call_next(request)
+
+    # Tambah security headers di setiap response
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    if settings.is_production:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+    return response
+
+
+# ─── CORS ──────────────────────────────────────────────────────────────────────
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.CORS_ORIGINS,
@@ -70,8 +118,10 @@ app.add_middleware(
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
     expose_headers=["Content-Length", "X-Total-Count"],
-    max_age=600,  # cache preflight response 10 menit, kurangi OPTIONS round-trip
+    max_age=600,
 )
+
+# ─── Routers ───────────────────────────────────────────────────────────────────
 
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(organisasi_router.router, prefix="/api")
@@ -92,15 +142,9 @@ def startup_seed():
 
 @app.get("/", tags=["Root"])
 def root():
-    return {
-        "message": "Super Apps Pramuka Jawa Barat API is running",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "redoc": "/redoc",
-    }
+    return {"message": "Super Apps Pramuka Jawa Barat API", "version": "1.0.0"}
 
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    """Check API health status."""
     return {"status": "ok"}

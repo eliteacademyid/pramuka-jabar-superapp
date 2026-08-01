@@ -51,33 +51,27 @@ git add \
 
 echo ""
 echo "=== [3/3] Commit ==="
-git commit -m "feat: optimasi auth+kegiatan+realisasi API, CORS fix, modul E-Reporting
-
-Performance:
-- auth: bcrypt rounds 10, migrasi python-jose ke PyJWT, eager load role
-- kegiatan: hapus COUNT redundan, joinedload program, EXISTS check, index baru
-- realisasi: selectinload documents (fix N+1), EXISTS validasi FK,
-  dashboard/grafik grouping di DB, statistik single query agregasi,
-  approval flush tanpa refresh, index baru semua tabel
+git commit -m "security: hardening auth, validation, rate-limit, role-check, file-upload
 
 Security:
-- CORS: ganti allow_origins=[*] ke eksplisit via CORS_ORIGINS env variable
-- allow_credentials=True sekarang aman (tidak dikombinasikan dengan *)
+- schemas.py: semua field punya max_length, Enum untuk status/role (RealisasiStatusEnum,
+  LaporanStatusEnum, ApprovalStatusEnum, RoleEnum) — tidak bisa inject nilai arbitrary,
+  username validator alphanumeric, password max 128
+- radit.py: POST /approval sekarang admin-only via get_current_admin
+- radit.py: dashboard/* sekarang require autentikasi (get_current_user)
+- radit.py: upload validasi ekstensi whitelist + max 10MB + sanitasi nama file
+  (cegah path traversal) + error Cloudinary tidak bocor ke client
+- program.py & kegiatan.py: ganti hardcoded role_id==1 dengan role.name=='admin'
+  via helper _is_admin() — tidak pecah jika role ID bergeser
+- kegiatan.py: guard null program pada permission check (cegah AttributeError)
+- main.py: rate limiter 10 req/menit per IP pada /login dan /register
+- main.py: security headers (X-Content-Type-Options, X-Frame-Options, HSTS di production)
+- main.py: docs/redoc/openapi disembunyikan di ENVIRONMENT=production
+- config.py: validasi SECRET_KEY kuat saat production + token expire turun 120→60 menit
+- .env: SECRET_KEY diperbarui ke 64-char hex
 
-Bug fix:
-- create_refresh_token sebelumnya memanggil create_access_token_impl
-
-Database:
-- Tambah index: kegiatans, realisasi, dokumen, laporans, approvals
-- Script migrasi manual: backend/migrate_manual.py
-
-Frontend (Modul 3 E-Reporting):
-- store/ereporting.js: Pinia store realisasi/laporan/approval/dashboard
-- pages/EReporting/RealisasiPage.vue: list + create + upload dokumen
-- pages/EReporting/LaporanPage.vue: list + create + stat cards
-- pages/EReporting/ApprovalPage.vue: review + approve/reject laporan
-- Sidebar: navigasi dikelompokkan (Dashboard, E-Reporting, Admin)
-- Router: route /e-reporting/realisasi|laporan|approval"
+Performance (tidak ada perubahan):
+- Semua bottleneck DB dari sesi sebelumnya sudah bersih"
 
 echo ""
 echo "=== DONE ==="

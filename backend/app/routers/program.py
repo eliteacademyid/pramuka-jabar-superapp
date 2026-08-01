@@ -9,7 +9,6 @@ from app.deps import get_current_user
 
 router = APIRouter(prefix="/programs", tags=["Programs"])
 
-# Peta kolom sort — dideklarasikan sekali, tidak dievaluasi ulang tiap request
 _SORT_MAP = {
     "nama": models.Program.nama,
     "tahun": models.Program.tahun,
@@ -17,18 +16,23 @@ _SORT_MAP = {
 }
 
 
+def _is_admin(user: models.User) -> bool:
+    """Cek admin via nama role — tidak bergantung pada hardcoded role_id."""
+    return user.role is not None and user.role.name == "admin"
+
+
 @router.get("", response_model=List[schemas.ProgramResponse])
 def get_all_programs(
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
-    search: Optional[str] = Query(None),
-    tahun: Optional[int] = Query(None),
-    status: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, max_length=100),
+    tahun: Optional[int] = Query(None, ge=1900, le=2100),
+    status: Optional[str] = Query(None, max_length=20),
     sort_by: Optional[str] = Query("created_at"),
     order: Optional[str] = Query("desc"),
     db: Session = Depends(get_db),
 ):
-    """Get all programs with filtering, search, and pagination."""
+    """Get all programs."""
     query = db.query(models.Program)
 
     if search:
@@ -42,8 +46,6 @@ def get_all_programs(
     query = query.order_by(
         order_column.asc() if order.lower() == "asc" else order_column.desc()
     )
-
-    # Hapus query.count() — tidak dikembalikan ke client, hanya buang 1 round-trip
     return query.offset(skip).limit(limit).all()
 
 
@@ -51,13 +53,8 @@ def get_all_programs(
 def get_program_by_id(program_id: int, db: Session = Depends(get_db)):
     """Get program by ID."""
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
-
     if not program:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Program tidak ditemukan",
-        )
-
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program tidak ditemukan")
     return program
 
 
@@ -68,19 +65,6 @@ def create_program(
     db: Session = Depends(get_db),
 ):
     """Create new program."""
-    if not program_data.nama or not program_data.nama.strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Nama program tidak boleh kosong",
-        )
-
-    if not (1900 <= program_data.tahun <= 2100):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Tahun tidak valid",
-        )
-
-    # EXISTS — tidak fetch semua kolom organisasi
     organisasi_exists = db.query(
         db.query(models.Organisasi)
         .filter(models.Organisasi.id == program_data.organisasi_id)
@@ -88,10 +72,7 @@ def create_program(
     ).scalar()
 
     if not organisasi_exists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Organisasi tidak ditemukan",
-        )
+        raise HTTPException(status_code=400, detail="Organisasi tidak ditemukan")
 
     new_program = models.Program(
         nama=program_data.nama,
@@ -101,11 +82,9 @@ def create_program(
         creator_id=current_user.id,
         organisasi_id=program_data.organisasi_id,
     )
-
     db.add(new_program)
     db.commit()
     db.refresh(new_program)
-
     return new_program
 
 
@@ -118,27 +97,19 @@ def update_program(
 ):
     """Update program."""
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
-
     if not program:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Program tidak ditemukan",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program tidak ditemukan")
 
-    if program.creator_id != current_user.id and current_user.role_id != 1:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Anda tidak memiliki izin untuk mengubah program ini",
-        )
+    # Pakai role name bukan hardcoded ID
+    if program.creator_id != current_user.id and not _is_admin(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Anda tidak memiliki izin untuk mengubah program ini")
 
-    # Kumpulkan field yang berubah saja, lalu satu UPDATE query
     updates = program_data.model_dump(exclude_unset=True)
     if updates:
         db.query(models.Program).filter(models.Program.id == program_id).update(
             updates, synchronize_session="fetch"
         )
         db.commit()
-        # Terapkan update ke object yang sudah ada di memory — tidak perlu SELECT ulang
         for k, v in updates.items():
             setattr(program, k, v)
 
@@ -153,21 +124,12 @@ def delete_program(
 ):
     """Delete program."""
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
-
     if not program:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Program tidak ditemukan",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program tidak ditemukan")
 
-    if program.creator_id != current_user.id and current_user.role_id != 1:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Anda tidak memiliki izin untuk menghapus program ini",
-        )
+    if program.creator_id != current_user.id and not _is_admin(current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Anda tidak memiliki izin untuk menghapus program ini")
 
-    # Langsung DELETE — tidak perlu SELECT lagi, object sudah ada di session
     db.delete(program)
     db.commit()
-
     return None

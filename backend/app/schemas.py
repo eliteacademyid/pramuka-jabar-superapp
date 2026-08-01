@@ -1,51 +1,81 @@
 from datetime import datetime
 from typing import List, Optional
+from enum import Enum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
+
+# ─── Enum untuk status — mencegah nilai arbitrary masuk ke DB ──────────────────
+
+class RealisasiStatusEnum(str, Enum):
+    draft = "draft"
+    submitted = "submitted"
+    approved = "approved"
+    rejected = "rejected"
+
+
+class LaporanStatusEnum(str, Enum):
+    draft = "draft"
+    submitted = "submitted"
+    approved = "approved"
+    rejected = "rejected"
+
+
+class ApprovalStatusEnum(str, Enum):
+    approved = "approved"
+    rejected = "rejected"
+
+
+class RoleEnum(str, Enum):
+    admin = "admin"
+    staff = "staff"
+
+
+# ─── Auth ──────────────────────────────────────────────────────────────────────
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=3, max_length=50, strip_whitespace=True)
+    password: str = Field(..., min_length=1, max_length=128)
 
 
 class UserCreate(BaseModel):
-    username: str
-    password: str
-    nama_lengkap: str
-    role: str = "staff"
+    username: str = Field(..., min_length=3, max_length=50, strip_whitespace=True)
+    password: str = Field(..., min_length=6, max_length=128)
+    nama_lengkap: str = Field(..., min_length=1, max_length=100, strip_whitespace=True)
+    role: RoleEnum = RoleEnum.staff
+
+    @field_validator("username")
+    @classmethod
+    def username_alphanumeric(cls, v: str) -> str:
+        if not v.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Username hanya boleh berisi huruf, angka, _ dan -")
+        return v.lower()
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    password: Optional[str] = None
-    nama_lengkap: Optional[str] = None
-    role: Optional[str] = None
+    username: Optional[str] = Field(None, min_length=3, max_length=50, strip_whitespace=True)
+    password: Optional[str] = Field(None, min_length=6, max_length=128)
+    nama_lengkap: Optional[str] = Field(None, min_length=1, max_length=100, strip_whitespace=True)
+    role: Optional[RoleEnum] = None
     is_active: Optional[bool] = None
+
+    @field_validator("username")
+    @classmethod
+    def username_alphanumeric(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not v.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Username hanya boleh berisi huruf, angka, _ dan -")
+        return v.lower() if v else v
 
 
 class UserOut(BaseModel):
     id: int
     username: str
     nama_lengkap: str
-    # role_name di-populate dari kolom computed lewat @property di model,
-    # bukan dari relasi — menghindari lazy load N+1
     role: str
     is_active: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}
-
-    @classmethod
-    def from_user(cls, user: "models.User") -> "UserOut":
-        return cls(
-            id=user.id,
-            username=user.username,
-            nama_lengkap=user.nama_lengkap,
-            role=user.role.name if user.role else "staff",
-            is_active=user.is_active,
-            created_at=user.created_at,
-        )
 
 
 class Token(BaseModel):
@@ -54,18 +84,20 @@ class Token(BaseModel):
 
 
 class TokenRefreshRequest(BaseModel):
-    refresh_token: str
+    refresh_token: str = Field(..., min_length=10)
 
+
+# ─── Realisasi ─────────────────────────────────────────────────────────────────
 
 class RealisasiBase(BaseModel):
-    judul: str = Field(..., min_length=1)
-    deskripsi: Optional[str] = None
-    target: Optional[int] = None
-    realisasi: Optional[int] = None
-    periode: Optional[str] = None
-    status: Optional[str] = "draft"
-    program_id: Optional[int] = None
-    kegiatan_id: Optional[int] = None
+    judul: str = Field(..., min_length=1, max_length=200, strip_whitespace=True)
+    deskripsi: Optional[str] = Field(None, max_length=2000)
+    target: Optional[int] = Field(None, ge=0, le=10_000_000)
+    realisasi: Optional[int] = Field(None, ge=0, le=10_000_000)
+    periode: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
+    status: Optional[RealisasiStatusEnum] = RealisasiStatusEnum.draft
+    program_id: Optional[int] = Field(None, gt=0)
+    kegiatan_id: Optional[int] = Field(None, gt=0)
 
 
 class RealisasiCreate(RealisasiBase):
@@ -73,14 +105,14 @@ class RealisasiCreate(RealisasiBase):
 
 
 class RealisasiUpdate(BaseModel):
-    judul: Optional[str] = None
-    deskripsi: Optional[str] = None
-    target: Optional[int] = None
-    realisasi: Optional[int] = None
-    periode: Optional[str] = None
-    status: Optional[str] = None
-    program_id: Optional[int] = None
-    kegiatan_id: Optional[int] = None
+    judul: Optional[str] = Field(None, min_length=1, max_length=200, strip_whitespace=True)
+    deskripsi: Optional[str] = Field(None, max_length=2000)
+    target: Optional[int] = Field(None, ge=0, le=10_000_000)
+    realisasi: Optional[int] = Field(None, ge=0, le=10_000_000)
+    periode: Optional[str] = Field(None, max_length=50)
+    status: Optional[RealisasiStatusEnum] = None
+    program_id: Optional[int] = Field(None, gt=0)
+    kegiatan_id: Optional[int] = Field(None, gt=0)
 
 
 class DokumenResponse(BaseModel):
@@ -114,12 +146,14 @@ class RealisasiResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ─── Laporan ───────────────────────────────────────────────────────────────────
+
 class LaporanBase(BaseModel):
-    judul: str = Field(..., min_length=1)
-    periode: Optional[str] = None
-    deskripsi: Optional[str] = None
-    status: Optional[str] = "draft"
-    realisasi_id: Optional[int] = None
+    judul: str = Field(..., min_length=1, max_length=200, strip_whitespace=True)
+    periode: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
+    deskripsi: Optional[str] = Field(None, max_length=2000)
+    status: Optional[LaporanStatusEnum] = LaporanStatusEnum.draft
+    realisasi_id: Optional[int] = Field(None, gt=0)
 
 
 class LaporanCreate(LaporanBase):
@@ -141,10 +175,13 @@ class LaporanResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ─── Approval ──────────────────────────────────────────────────────────────────
+
 class ApprovalCreate(BaseModel):
-    laporan_id: int
-    status: str = Field(..., min_length=1)
-    catatan: Optional[str] = None
+    laporan_id: int = Field(..., gt=0)
+    # Enum — hanya 'approved' atau 'rejected' yang valid, tidak ada nilai lain
+    status: ApprovalStatusEnum
+    catatan: Optional[str] = Field(None, max_length=1000, strip_whitespace=True)
 
 
 class ApprovalResponse(BaseModel):
@@ -157,6 +194,8 @@ class ApprovalResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
+# ─── Dashboard ─────────────────────────────────────────────────────────────────
 
 class DashboardStatsResponse(BaseModel):
     total_realisasi: int
