@@ -78,3 +78,49 @@ def list_quiz_questions(quiz_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Soal kuis tidak ditemukan")
     return questions
 
+@router.post("/quizzes/{quiz_id}/submit", response_model=schemas.QuizSubmitResponse)
+def submit_quiz(
+    quiz_id: int,
+    payload: schemas.QuizSubmitRequest,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    quiz = db.query(models.Quiz).filter(models.Quiz.id == quiz_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Kuis tidak ditemukan")
+        
+    training = db.query(models.Training).filter(models.Training.id == quiz.training_id).first()
+    enrollment = db.query(models.Enrollment).filter(
+        models.Enrollment.user_id == current_user.id,
+        models.Enrollment.training_id == training.id
+    ).first()
+    
+    if not enrollment:
+        raise HTTPException(status_code=400, detail="Anda belum terdaftar di pelatihan ini")
+
+    questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == quiz_id).all()
+    question_map = {q.id: q for q in questions}
+    
+    total_score = 0
+    max_score = sum(q.score_weight for q in questions)
+    
+    for ans in payload.answers:
+        q = question_map.get(ans.question_id)
+        if q and q.correct_answer == ans.answer:
+            total_score += q.score_weight
+            
+    # Normalize score to 100
+    final_score = int((total_score / max_score) * 100) if max_score > 0 else 0
+    passed = final_score >= training.passing_grade
+    
+    enrollment.progress_percentage = final_score
+    enrollment.status = "Lulus" if passed else "Gagal"
+    db.commit()
+    
+    return {
+        "total_score": final_score,
+        "passed": passed,
+        "status": enrollment.status,
+        "message": "Selamat, Anda Lulus!" if passed else "Maaf, Anda belum memenuhi nilai kelulusan."
+    }
+
