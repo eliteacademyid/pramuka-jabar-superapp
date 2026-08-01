@@ -142,11 +142,17 @@ class Realisasi(Base):
     status = Column(String(20), nullable=False, default=RealisasiStatus.draft.value, index=True)
     file_url = Column(String(500), nullable=True)
     file_name = Column(String(255), nullable=True)
-    program_id = Column(Integer, ForeignKey("programs.id"), nullable=True)
-    kegiatan_id = Column(Integer, ForeignKey("kegiatans.id"), nullable=True)
-    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    program_id = Column(Integer, ForeignKey("programs.id"), nullable=True, index=True)
+    kegiatan_id = Column(Integer, ForeignKey("kegiatans.id"), nullable=True, index=True)
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Composite index untuk filter + sort yang paling umum
+    __table_args__ = (
+        Index("ix_realisasi_status_created", "status", "created_at"),
+        Index("ix_realisasi_created_by_status", "created_by_id", "status"),
+    )
 
     creator = relationship("User", back_populates="realisasis")
     program = relationship("Program", back_populates="realisasis")
@@ -163,7 +169,8 @@ class Dokumen(Base):
     url = Column(String(500), nullable=False)
     tipe = Column(String(100), nullable=True)
     ukuran = Column(Integer, nullable=True)
-    realisasi_id = Column(Integer, ForeignKey("realisasi.id"), nullable=False)
+    # index=True agar selectinload Dokumen by realisasi_id cepat
+    realisasi_id = Column(Integer, ForeignKey("realisasi.id"), nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     realisasi = relationship("Realisasi", back_populates="documents")
@@ -177,11 +184,16 @@ class Laporan(Base):
     periode = Column(String(50), nullable=True)
     deskripsi = Column(Text, nullable=True)
     status = Column(String(20), nullable=False, default=LaporanStatus.draft.value, index=True)
-    realisasi_id = Column(Integer, ForeignKey("realisasi.id"), nullable=True)
-    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    realisasi_id = Column(Integer, ForeignKey("realisasi.id"), nullable=True, index=True)
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     approved_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Composite index untuk filter by status + sort by created_at (pola paling umum)
+    __table_args__ = (
+        Index("ix_laporans_status_created", "status", "created_at"),
+    )
 
     creator = relationship(
         "User",
@@ -201,8 +213,9 @@ class Approval(Base):
     __tablename__ = "approvals"
 
     id = Column(Integer, primary_key=True, index=True)
-    laporan_id = Column(Integer, ForeignKey("laporans.id"), nullable=False)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    # index=True agar query by laporan_id cepat
+    laporan_id = Column(Integer, ForeignKey("laporans.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     status = Column(String(20), nullable=False, default=ApprovalStatus.pending.value, index=True)
     catatan = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)

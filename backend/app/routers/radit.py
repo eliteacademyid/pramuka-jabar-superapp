@@ -10,8 +10,9 @@ try:
 except ImportError:  # pragma: no cover - optional dependency
     cloudinary = None
     uploader = None
-from sqlalchemy import func
-from sqlalchemy.orm import Session
+
+from sqlalchemy import func, case
+from sqlalchemy.orm import Session, selectinload
 
 from app import models, schemas
 from app.database import get_db
@@ -19,6 +20,8 @@ from app.deps import get_current_user
 
 radit_router = APIRouter(tags=["Realisasi"])
 
+
+# ─── Realisasi ─────────────────────────────────────────────────────────────────
 
 @radit_router.get("/realisasi", response_model=List[schemas.RealisasiResponse])
 def list_realisasi(
@@ -36,8 +39,11 @@ def list_realisasi(
     if status:
         query = query.filter(models.Realisasi.status == status)
 
-    realisasi = query.order_by(models.Realisasi.created_at.desc()).offset(skip).limit(limit).all()
-    return realisasi
+    # selectinload documents: satu IN query untuk semua dokumen sekaligus,
+    # bukan N query lazy-load per baris (N+1 problem)
+    query = query.options(selectinload(models.Realisasi.documents))
+
+    return query.order_by(models.Realisasi.created_at.desc()).offset(skip).limit(limit).all()
 
 
 @radit_router.post("/realisasi", response_model=schemas.RealisasiResponse, status_code=status.HTTP_201_CREATED)
@@ -50,14 +56,19 @@ def create_realisasi(
     if not payload.judul or not payload.judul.strip():
         raise HTTPException(status_code=400, detail="Judul realisasi tidak boleh kosong")
 
+    # EXISTS lebih ringan dari SELECT * — tidak fetch semua kolom
     if payload.program_id is not None:
-        program = db.query(models.Program).filter(models.Program.id == payload.program_id).first()
-        if not program:
+        exists = db.query(
+            db.query(models.Program).filter(models.Program.id == payload.program_id).exists()
+        ).scalar()
+        if not exists:
             raise HTTPException(status_code=400, detail="Program tidak ditemukan")
 
     if payload.kegiatan_id is not None:
-        kegiatan = db.query(models.Kegiatan).filter(models.Kegiatan.id == payload.kegiatan_id).first()
-        if not kegiatan:
+        exists = db.query(
+            db.query(models.Kegiatan).filter(models.Kegiatan.id == payload.kegiatan_id).exists()
+        ).scalar()
+        if not exists:
             raise HTTPException(status_code=400, detail="Kegiatan tidak ditemukan")
 
     realisasi = models.Realisasi(
@@ -77,6 +88,8 @@ def create_realisasi(
     return realisasi
 
 
+# ─── Upload ────────────────────────────────────────────────────────────────────
+
 @radit_router.post("/upload", tags=["Realisasi"])
 def upload_file(
     file: UploadFile = File(...),
@@ -86,7 +99,6 @@ def upload_file(
     if not file.filename:
         raise HTTPException(status_code=400, detail="Nama file tidak valid")
 
-    ext = os.path.splitext(file.filename)[1]
     stored_name = f"{current_user.id}_{file.filename.replace(' ', '_')}"
     content = file.file.read()
     if not content:
@@ -110,8 +122,7 @@ def upload_file(
 
     upload_dir = Path(__file__).resolve().parent.parent / "uploads"
     upload_dir.mkdir(parents=True, exist_ok=True)
-    target_path = upload_dir / stored_name
-    target_path.write_bytes(content)
+    (upload_dir / stored_name).write_bytes(content)
 
     return {
         "filename": file.filename,
@@ -119,6 +130,8 @@ def upload_file(
         "message": "File berhasil disimpan secara lokal karena Cloudinary belum dikonfigurasi",
     }
 
+
+# ─── Laporan ───────────────────────────────────────────────────────────────────
 
 @radit_router.get("/laporan", response_model=List[schemas.LaporanResponse])
 def list_laporan(
@@ -144,9 +157,12 @@ def create_laporan(
     if not payload.judul or not payload.judul.strip():
         raise HTTPException(status_code=400, detail="Judul laporan tidak boleh kosong")
 
+    # EXISTS — tidak perlu fetch semua kolom realisasi
     if payload.realisasi_id is not None:
-        realisasi = db.query(models.Realisasi).filter(models.Realisasi.id == payload.realisasi_id).first()
-        if not realisasi:
+        exists = db.query(
+            db.query(models.Realisasi).filter(models.Realisasi.id == payload.realisasi_id).exists()
+        ).scalar()
+        if not exists:
             raise HTTPException(status_code=400, detail="Realisasi tidak ditemukan")
 
     laporan = models.Laporan(
@@ -163,6 +179,8 @@ def create_laporan(
     return laporan
 
 
+# ─── Approval ──────────────────────────────────────────────────────────────────
+
 @radit_router.post("/approval", response_model=schemas.ApprovalResponse, status_code=status.HTTP_201_CREATED)
 def process_approval(
     payload: schemas.ApprovalCreate,
@@ -170,15 +188,16 @@ def process_approval(
     db: Session = Depends(get_db),
 ):
     """Approve or reject a laporan entry."""
+    if payload.status not in {"approved", "rejected"}:
+        raise HTTPException(status_code=400, detail="Status approval tidak valid")
+
     laporan = db.query(models.Laporan).filter(models.Laporan.id == payload.laporan_id).first()
     if not laporan:
         raise HTTPException(status_code=404, detail="Laporan tidak ditemukan")
     if laporan.status == "approved":
         raise HTTPException(status_code=400, detail="Laporan yang sudah disetujui tidak dapat diubah lagi")
 
-    if payload.status not in {"approved", "rejected"}:
-        raise HTTPException(status_code=400, detail="Status approval tidak valid")
-
+    # Update laporan dan buat approval dalam satu transaksi
     laporan.status = payload.status
     laporan.approved_by_id = current_user.id
 
@@ -189,45 +208,73 @@ def process_approval(
         catatan=payload.catatan,
     )
     db.add(approval)
+    db.flush()   # flush agar approval.id tersedia tanpa round-trip commit dulu
     db.commit()
-    db.refresh(approval)
+
+    # Return langsung dari object yang sudah di-flush — tidak perlu db.refresh()
     return approval
 
 
+# ─── Dashboard ─────────────────────────────────────────────────────────────────
+
 @radit_router.get("/dashboard/statistik", response_model=schemas.DashboardStatsResponse)
 def dashboard_statistik(db: Session = Depends(get_db)):
-    """Get card statistics for the dashboard."""
-    total_realisasi = db.query(models.Realisasi).count()
-    total_laporan = db.query(models.Laporan).count()
-    total_disetujui = db.query(models.Laporan).filter(models.Laporan.status == "approved").count()
-    total_pending = db.query(models.Laporan).filter(models.Laporan.status.in_(["draft", "submitted"])).count()
+    """Get card statistics for the dashboard — satu query agregasi."""
+    # Satu query dengan conditional aggregation, bukan 4 COUNT terpisah
+    row = db.query(
+        func.count(models.Laporan.id).label("total_laporan"),
+        func.sum(case((models.Laporan.status == "approved", 1), else_=0)).label("total_disetujui"),
+        func.sum(
+            case((models.Laporan.status.in_(["draft", "submitted"]), 1), else_=0)
+        ).label("total_pending"),
+    ).first()
+
+    total_realisasi = db.query(func.count(models.Realisasi.id)).scalar()
 
     return {
-        "total_realisasi": total_realisasi,
-        "total_laporan": total_laporan,
-        "total_disetujui": total_disetujui,
-        "total_pending": total_pending,
+        "total_realisasi": total_realisasi or 0,
+        "total_laporan": row.total_laporan or 0,
+        "total_disetujui": row.total_disetujui or 0,
+        "total_pending": row.total_pending or 0,
     }
 
 
 @radit_router.get("/dashboard/grafik", response_model=List[schemas.DashboardChartPoint])
 def dashboard_grafik(db: Session = Depends(get_db)):
-    """Get chart data for monthly progress."""
-    laporan_rows = db.query(models.Laporan).all()
-    realisasi_rows = db.query(models.Realisasi).all()
+    """Get chart data for monthly progress — agregasi di DB, bukan di Python."""
+    # Grouping dilakukan di database dengan strftime/date_trunc,
+    # bukan menarik semua baris ke memory Python lalu loop
+    laporan_rows = (
+        db.query(
+            func.strftime("%Y-%m", models.Laporan.created_at).label("bulan"),
+            func.count(models.Laporan.id).label("total"),
+        )
+        .filter(models.Laporan.created_at.isnot(None))
+        .group_by(func.strftime("%Y-%m", models.Laporan.created_at))
+        .all()
+    )
 
-    grouped = {}
+    realisasi_rows = (
+        db.query(
+            func.strftime("%Y-%m", models.Realisasi.created_at).label("bulan"),
+            func.count(models.Realisasi.id).label("total"),
+        )
+        .filter(models.Realisasi.created_at.isnot(None))
+        .group_by(func.strftime("%Y-%m", models.Realisasi.created_at))
+        .all()
+    )
+
+    # Gabungkan hasil kedua query di Python (jumlah baris sudah kecil — per bulan)
+    grouped: dict = {}
     for row in laporan_rows:
-        month_key = row.created_at.strftime("%Y-%m") if row.created_at else "unknown"
-        grouped.setdefault(month_key, {"bulan": month_key, "total_laporan": 0, "total_realisasi": 0})
-        grouped[month_key]["total_laporan"] += 1
+        grouped.setdefault(row.bulan, {"bulan": row.bulan, "total_laporan": 0, "total_realisasi": 0})
+        grouped[row.bulan]["total_laporan"] = row.total
 
     for row in realisasi_rows:
-        month_key = row.created_at.strftime("%Y-%m") if row.created_at else "unknown"
-        grouped.setdefault(month_key, {"bulan": month_key, "total_laporan": 0, "total_realisasi": 0})
-        grouped[month_key]["total_realisasi"] += 1
+        grouped.setdefault(row.bulan, {"bulan": row.bulan, "total_laporan": 0, "total_realisasi": 0})
+        grouped[row.bulan]["total_realisasi"] = row.total
 
-    return [grouped[key] for key in sorted(grouped)]
+    return [grouped[k] for k in sorted(grouped)]
 
 
 @radit_router.get("/dashboard/perbandingan", response_model=schemas.DashboardComparisonResponse)
@@ -240,12 +287,10 @@ def dashboard_perbandingan(db: Session = Depends(get_db)):
 
     target_sum = int(totals.target_sum or 0)
     realisasi_sum = int(totals.realisasi_sum or 0)
-    selisih = realisasi_sum - target_sum
-    persentase = round((realisasi_sum / target_sum) * 100, 2) if target_sum else 0.0
 
     return {
         "target": target_sum,
         "realisasi": realisasi_sum,
-        "selisih": selisih,
-        "persentase": persentase,
+        "selisih": realisasi_sum - target_sum,
+        "persentase": round((realisasi_sum / target_sum) * 100, 2) if target_sum else 0.0,
     }
