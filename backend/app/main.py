@@ -22,7 +22,10 @@ app.include_router(auth_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 
 from app.routers import lms as lms_router
+from app.routers import admin_lms as admin_lms_router
+
 app.include_router(lms_router.router, prefix="/api")
+app.include_router(admin_lms_router.router, prefix="/api")
 
 
 @app.on_event("startup")
