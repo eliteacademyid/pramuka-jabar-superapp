@@ -28,11 +28,24 @@ class UserOut(BaseModel):
     id: int
     username: str
     nama_lengkap: str
+    # role_name di-populate dari kolom computed lewat @property di model,
+    # bukan dari relasi — menghindari lazy load N+1
     role: str
     is_active: bool
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+    @classmethod
+    def from_user(cls, user: "models.User") -> "UserOut":
+        return cls(
+            id=user.id,
+            username=user.username,
+            nama_lengkap=user.nama_lengkap,
+            role=user.role.name if user.role else "staff",
+            is_active=user.is_active,
+            created_at=user.created_at,
+        )
 
 
 class Token(BaseModel):

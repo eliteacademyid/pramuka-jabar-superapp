@@ -50,6 +50,12 @@ INDEXES = [
     # organisasi (dari migrasi 005)
     ("ix_organisasi_created_at",      "organisasi",  ["created_at"],  False),
     ("ix_organisasi_is_active",       "organisasi",  ["is_active"],   False),
+
+    # users (dari migrasi 006)
+    ("ix_users_role_id",              "users",       ["role_id"],      False),
+    ("ix_users_organisasi_id",        "users",       ["organisasi_id"], False),
+    ("ix_users_is_active",            "users",       ["is_active"],    False),
+    ("ix_users_created_at",           "users",       ["created_at"],   False),
 ]
 
 
