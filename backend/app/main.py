@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 
 from app.database import Base, engine
 from app.routers import admin as admin_router
@@ -11,10 +12,34 @@ from app.seed import seed_default_admin
 
 Base.metadata.create_all(bind=engine)
 
+# Configure FastAPI with OpenAPI/Swagger
+tags_metadata = [
+    {
+        "name": "Authentication",
+        "description": "Autentikasi pengguna - Login, Register, Refresh Token, Logout",
+    },
+    {
+        "name": "Organisasi",
+        "description": "Manajemen Organisasi Pramuka",
+    },
+    {
+        "name": "Programs",
+        "description": "Manajemen Program Pramuka dengan CRUD, search, filter, dan pagination",
+    },
+    {
+        "name": "Kegiatans",
+        "description": "Manajemen Kegiatan Pramuka dengan CRUD, search, filter, dan pagination",
+    },
+]
+
 app = FastAPI(
     title="Super Apps Pramuka Jawa Barat",
-    description="API untuk manajemen program dan kegiatan Pramuka Jawa Barat",
+    description="API komprehensif untuk manajemen program dan kegiatan Pramuka Jawa Barat dengan sistem autentikasi JWT",
     version="1.0.0",
+    openapi_tags=tags_metadata,
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 app.add_middleware(
@@ -38,15 +63,17 @@ def startup_seed():
     seed_default_admin()
 
 
-@app.get("/")
+@app.get("/", tags=["Root"])
 def root():
     return {
         "message": "Super Apps Pramuka Jawa Barat API is running",
         "version": "1.0.0",
         "docs": "/docs",
+        "redoc": "/redoc",
     }
 
 
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 def health_check():
+    """Check API health status"""
     return {"status": "ok"}
