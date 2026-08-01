@@ -42,3 +42,38 @@ class TrainingMaterial(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class Quiz(Base):
+    __tablename__ = "quizzes"
+
+    id = Column(Integer, primary_key=True, index=True)
+    training_id = Column(Integer, index=True)
+    title = Column(String, nullable=False)
+    time_limit_minutes = Column(Integer, default=30)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class QuizQuestion(Base):
+    __tablename__ = "quiz_questions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    quiz_id = Column(Integer, index=True)
+    question_text = Column(String, nullable=False)
+    options = Column(String, nullable=False) # JSON string
+    correct_answer = Column(String, nullable=False)
+    score_weight = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Enrollment(Base):
+    __tablename__ = "enrollments"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True)
+    training_id = Column(Integer, index=True)
+    progress_percentage = Column(Integer, default=0)
+    status = Column(String, default="Enrolled") # Enrolled, Completed, Dropped
+    enrolled_at = Column(DateTime, default=datetime.utcnow)
+
+
+
+
