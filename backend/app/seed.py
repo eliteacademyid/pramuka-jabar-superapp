@@ -26,12 +26,12 @@ CATEGORIES_DEFAULT = [
 
 DEMO_IMAGES = {
     "makanan": [
-        "https://cdn.javascout.test/images/makanan-1.jpg",
-        "https://cdn.javascout.test/images/makanan-2.jpg",
+        "/images/products/keripik-pisang-1.jpg",
+        "/images/products/keripik-pisang-2.jpg",
     ],
-    "minuman": ["https://cdn.javascout.test/images/minuman-1.jpg"],
-    "kerajinan": ["https://cdn.javascout.test/images/kerajinan-1.jpg"],
-    "fashion": ["https://cdn.javascout.test/images/fashion-1.jpg"],
+    "minuman": ["/images/products/es-kopi-gula-aren.jpg"],
+    "kerajinan": ["/images/products/gelang-tali-kur.jpg"],
+    "fashion": ["/images/products/tote-bag-pramuka.jpg"],
 }
 
 
