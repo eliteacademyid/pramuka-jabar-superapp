@@ -32,40 +32,61 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="cert-page">
-    <div class="cert-actions no-print">
+  <div class="max-w-5xl mx-auto p-4 sm:p-8 min-h-screen flex flex-col justify-center">
+    <div class="flex flex-col sm:flex-row justify-between items-center mb-8 no-print gap-4">
       <router-link to="/admin/enrollments" class="btn-secondary">&larr; Kembali</router-link>
-      <button class="btn-primary" @click="printCertificate" v-if="certData">Cetak / Download PDF</button>
+      <button class="btn-primary shadow-lg hover:shadow-xl transition-all" @click="printCertificate" v-if="certData">
+        🖨️ Cetak / Download PDF
+      </button>
     </div>
 
-    <div v-if="loading" style="text-align: center; margin-top: 3rem;">
+    <div v-if="loading" class="text-center mt-12 text-gray-500 animate-pulse font-medium text-lg">
       Memuat data sertifikat...
     </div>
 
-    <div v-else-if="certData" class="cert-container">
-      <div class="cert-border">
-        <div class="cert-content">
-          <div class="cert-header">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Lambang_Pramuka.svg/1200px-Lambang_Pramuka.svg.png" alt="Logo Pramuka" class="cert-logo" />
-            <h1>SERTIFIKAT KELULUSAN</h1>
-            <p class="cert-subtitle">Kwartir Cabang Gerakan Pramuka Kabupaten Bandung Barat</p>
+    <div v-else-if="certData" class="cert-container w-full bg-white shadow-2xl rounded-2xl overflow-hidden relative">
+      <!-- Decorative Modern Elements -->
+      <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-[var(--brown)] via-[var(--gold)] to-[var(--maroon)]"></div>
+      <div class="absolute -top-32 -right-32 w-64 h-64 bg-[var(--gold)] opacity-10 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-32 -left-32 w-64 h-64 bg-[var(--maroon)] opacity-10 rounded-full blur-3xl"></div>
+
+      <div class="cert-border m-2 sm:m-4 md:m-8 border-[6px] md:border-[12px] border-double border-[var(--brown)] p-2 md:p-4 bg-[#fffdfa] rounded-xl relative z-10">
+        <div class="cert-content border-2 border-[var(--gold)] p-6 sm:p-12 md:p-16 text-center flex flex-col justify-center rounded-lg min-h-[500px]">
+          
+          <div class="cert-header flex flex-col items-center">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Lambang_Pramuka.svg/1200px-Lambang_Pramuka.svg.png" alt="Logo Pramuka" class="h-16 md:h-24 opacity-90 drop-shadow-md mb-4" />
+            <h1 class="font-serif text-[var(--brown)] text-3xl sm:text-4xl md:text-5xl lg:text-6xl tracking-widest font-bold mb-2">
+              SERTIFIKAT KELULUSAN
+            </h1>
+            <p class="text-sm sm:text-base md:text-lg text-gray-600 uppercase tracking-widest font-medium">
+              Kwartir Cabang Gerakan Pramuka Kabupaten Bandung Barat
+            </p>
           </div>
 
-          <div class="cert-body">
-            <p>Diberikan kepada:</p>
-            <h2 class="participant-name">{{ certData.issued_to }}</h2>
-            <p>Atas kelulusannya dalam menyelesaikan program e-Pelatihan:</p>
-            <h3 class="training-title">"{{ certData.training_title }}"</h3>
+          <div class="cert-body my-8 sm:my-12">
+            <p class="text-gray-500 italic mb-2 sm:mb-4">Diberikan dengan bangga kepada:</p>
+            <h2 class="font-serif text-3xl sm:text-4xl md:text-5xl text-gray-900 border-b-2 border-gray-300 inline-block px-4 sm:px-8 pb-2 sm:pb-4 mb-4 sm:mb-6 font-semibold text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600">
+              {{ certData.issued_to }}
+            </h2>
+            <p class="text-gray-500 italic mb-2 sm:mb-4 max-w-2xl mx-auto">
+              Atas dedikasi dan kelulusannya dalam menyelesaikan program e-Pelatihan:
+            </p>
+            <h3 class="text-xl sm:text-2xl md:text-3xl text-[var(--maroon)] font-bold px-4">
+              "{{ certData.training_title }}"
+            </h3>
           </div>
 
-          <div class="cert-footer">
-            <div class="cert-meta">
-              <p><strong>Nomor Sertifikat:</strong> {{ certData.certificate_id }}</p>
-              <p><strong>Tanggal Diterbitkan:</strong> {{ certData.issue_date }}</p>
+          <div class="cert-footer mt-auto flex flex-col sm:flex-row justify-between items-center sm:items-end text-left gap-8 sm:gap-0">
+            <div class="cert-meta text-center sm:text-left text-sm md:text-base text-gray-600 space-y-1">
+              <p><strong class="text-gray-800">Nomor Sertifikat:</strong> <br class="sm:hidden"/> {{ certData.certificate_id }}</p>
+              <p><strong class="text-gray-800">Tanggal Diterbitkan:</strong> <br class="sm:hidden"/> {{ certData.issue_date }}</p>
             </div>
-            <div class="cert-signature">
-              <div class="signature-line"></div>
-              <p>Ketua Kwarcab KBB</p>
+            <div class="cert-signature text-center flex flex-col items-center">
+              <div class="w-40 sm:w-48 h-12 md:h-16 border-b border-gray-800 mb-2 relative">
+                 <!-- Dummy Signature for aesthetics -->
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Signature_of_Robert_Baden-Powell.svg" class="absolute bottom-1 w-24 left-1/2 -translate-x-1/2 opacity-60" alt="TTD">
+              </div>
+              <p class="font-semibold text-gray-800">Ketua Kwarcab KBB</p>
             </div>
           </div>
         </div>
@@ -75,104 +96,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.cert-page {
-  padding: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.cert-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-}
-
-.cert-container {
-  background: white;
-  padding: 1.5rem;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-  border-radius: 4px;
-}
-
-.cert-border {
-  border: 12px double var(--brown);
-  padding: 1rem;
-  background: #fffdfa;
-}
-
-.cert-content {
-  border: 2px solid var(--primary);
-  padding: 3rem 4rem;
-  text-align: center;
-  position: relative;
-}
-
-.cert-header h1 {
-  font-family: 'Times New Roman', serif;
-  color: var(--brown);
-  font-size: 2.8rem;
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  letter-spacing: 2px;
-}
-
-.cert-subtitle {
-  font-size: 1.2rem;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.cert-logo {
-  height: 80px;
-  opacity: 0.9;
-}
-
-.cert-body {
-  margin: 3rem 0;
-}
-
-.participant-name {
-  font-family: 'Georgia', serif;
-  font-size: 2.5rem;
-  color: #111;
-  margin: 1rem 0;
-  border-bottom: 1px solid #ccc;
-  display: inline-block;
-  padding: 0 2rem 0.5rem;
-}
-
-.training-title {
-  font-size: 1.6rem;
-  color: var(--brown);
-  margin-top: 1rem;
-}
-
-.cert-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: 4rem;
-  text-align: left;
-}
-
-.cert-meta p {
-  margin: 0.25rem 0;
-  font-size: 0.9rem;
-  color: #666;
-}
-
-.cert-signature {
-  text-align: center;
-}
-
-.signature-line {
-  width: 200px;
-  border-bottom: 1px solid #333;
-  margin-bottom: 0.5rem;
-  height: 40px;
-}
-
 /* Print Specific Styles */
 @media print {
   @page {
@@ -191,8 +114,10 @@ onMounted(() => {
     top: 0;
     width: 100vw;
     height: 100vh;
-    box-shadow: none;
+    box-shadow: none !important;
+    border-radius: 0 !important;
     padding: 0;
+    margin: 0;
   }
   .cert-border {
     height: 96vh;
