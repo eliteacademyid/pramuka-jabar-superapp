@@ -20,7 +20,7 @@ def create_access_token(data: dict) -> str:
 
 
 def create_refresh_token(data: dict) -> str:
-    return create_access_token_impl(data)
+    return create_refresh_token_impl(data)
 
 
 def verify_token(token: str) -> dict | None:
