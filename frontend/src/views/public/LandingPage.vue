@@ -11,11 +11,10 @@
         </p>
         <form class="landing-search" @submit.prevent="doSearch">
           <i class="fas fa-search"></i>
-          <input
+          <SearchSuggest
             v-model="keyword"
-            type="text"
             placeholder="Cari produk, mis. kopi, kerajinan…"
-            aria-label="Cari produk"
+            @submit="doSearch"
           />
           <span class="landing-search-sep"></span>
           <i class="fas fa-location-dot"></i>
@@ -116,6 +115,7 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import SearchSuggest from '../../components/SearchSuggest.vue'
 
 const router = useRouter()
 const keyword = ref('')

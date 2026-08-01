@@ -31,6 +31,26 @@ def test_product_search_and_filter(client):
     assert prices == sorted(prices, reverse=True)
 
 
+def test_product_suggest(client):
+    r = client.get("/api/products/suggest", params={"q": "ko"})
+    assert r.status_code == 200
+    items = r.json()
+    assert len(items) <= 6
+    assert items, "harus ada saran produk"
+    for s in items:
+        assert "ko" in s["name"].lower()
+        assert s["slug"] and s["price"] and s["store_name"]
+
+    r = client.get("/api/products/suggest", params={"q": "kopi", "limit": 2})
+    assert len(r.json()) == 1
+
+    r = client.get("/api/products/suggest", params={"q": "xyzabc"})
+    assert r.json() == []
+
+    r = client.get("/api/products/suggest", params={"q": ""})
+    assert r.status_code == 422
+
+
 def test_product_location_filter_and_cities(client):
     r = client.get("/api/products", params={"city": "band"})
     assert r.status_code == 200

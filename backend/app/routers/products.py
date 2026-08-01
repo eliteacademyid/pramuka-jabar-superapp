@@ -78,6 +78,41 @@ def list_cities(db: Session = Depends(get_db)):
     return [city for (city,) in rows]
 
 
+@router.get("/products/suggest", response_model=List[schemas.ProductSuggestionOut])
+def suggest_products(
+    q: str = Query(min_length=1, max_length=80),
+    limit: int = Query(default=6, ge=1, le=10),
+    db: Session = Depends(get_db),
+):
+    like = f"%{q.lower()}%"
+    rows = (
+        db.query(models.Product)
+        .join(models.Store, models.Product.store_id == models.Store.id)
+        .join(models.Category, models.Product.category_id == models.Category.id)
+        .filter(
+            models.Product.status == "active",
+            models.Store.status == "active",
+            func.lower(models.Product.name).like(like),
+        )
+        .order_by(models.Product.sold.desc(), models.Product.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return [
+        schemas.ProductSuggestionOut(
+            id=p.id,
+            name=p.name,
+            slug=p.slug,
+            price=p.price,
+            image=(p.images or [None])[0],
+            category_slug=p.category.slug,
+            store_name=p.store.name,
+            sold=p.sold,
+        )
+        for p in rows
+    ]
+
+
 @router.get("/products", response_model=schemas.ProductPage)
 def list_products(
     q: Optional[str] = None,

@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.7
+**Versi Dokumen** : 1.8
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -43,6 +43,11 @@
 > bintang 1–5, sebelumnya dropdown); halaman detail produk menampilkan bintang
 > per ulasan dan ringkasan rata-rata bintang; kartu produk menampilkan rating
 > bintang emas.
+> Pembaruan v1.8: **saran pencarian otomatis** — saat mengetik di kolom
+> pencarian landing page maupun katalog, muncul dropdown saran produk serupa
+> (komponen `SearchSuggest.vue` dengan debounce 250 ms) dari endpoint baru
+> `GET /api/products/suggest?q=…&limit=6` (cocok nama, urut produk terlaris);
+> pilih saran langsung menuju halaman detail produk.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -145,7 +150,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 75 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga) |
+| Testing | pytest + httpx (TestClient, SQLite) | 76 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian) |
 
 ---
 
@@ -216,6 +221,11 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
   partial-match, tidak peka huruf besar/kecil); sort harga termurah/termahal
   (`?sort=cheapest|expensive`); kombinasi dengan filter kategori didukung;
   tanpa hasil menampilkan state kosong.
+- **Implementasi v1.8**: saran otomatis saat mengetik — `SearchSuggest.vue`
+  (debounce 250 ms) memanggil `GET /api/products/suggest?q=…&limit=6` dan
+  menampilkan dropdown produk serupa (nama, gambar, harga, toko, jumlah
+  terjual); navigasi keyboard (↑/↓/Enter/Esc) didukung; memilih saran
+  langsung membuka halaman detail produk.
 
 ### 3.2 Kebutuhan Non-Fungsional
 
@@ -515,6 +525,7 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 | GET | `/api/categories` | Daftar kategori produk |
 | GET | `/api/cities` | Daftar kota toko aktif (saran lokasi pencarian) |
 | GET | `/api/products` | Katalog + filter (q, city **parsial-match**, category, min/max price, sort: newest/cheapest/expensive/bestseller, page, size) |
+| GET | `/api/products/suggest` | Saran produk saat mengetik (q, limit ≤10; nama cocok, urut terlaris) — v1.8 |
 | GET | `/api/products/{slug}` | Detail produk + rating + ulasan |
 | GET | `/api/stores/{slug}` | Halaman toko publik + produk toko |
 
@@ -661,6 +672,9 @@ rencana pengembangan lanjutan.)
 - **Rating bintang** (v1.7): komponen `StarRating.vue` dua mode — input
   interaktif (klik bintang 1–5) pada form ulasan di detail pesanan, readonly
   pada detail produk (per ulasan + ringkasan rata-rata) dan kartu produk.
+- **Saran pencarian** (v1.8): komponen `SearchSuggest.vue` di kolom pencarian
+  landing page & katalog — dropdown saran produk serupa saat mengetik (nama,
+  gambar, harga, toko, jumlah terjual; navigasi keyboard; pilih → detail produk).
 - **Skema warna**: coklat `#5c4033`, maroon `#7b241c`, emas `#d4ac0d`, krem `#faf6f0`
   (token CSS `--brown`, `--maroon`, `--gold`, `--cream`).
 
@@ -718,9 +732,11 @@ rencana pengembangan lanjutan.)
 
 ## 10. Pengujian
 
-**Terimplementasi (pytest + TestClient, 75 test lulus):**
+**Terimplementasi (pytest + TestClient, 76 test lulus):**
 1. **Unit/Integration (API level)**: auth (registrasi, login, akses), toko & produk
-   (katalog, filter q/kategori/lokasi parsial, sort termurah–termahal, seller CRUD,
+   (katalog, filter q/kategori/lokasi parsial, sort termurah–termahal, **saran
+   pencarian `/api/products/suggest`** — hasil cocok kata kunci, batas limit,
+   kosong tanpa hasil, 422 tanpa q, seller CRUD,
    moderasi admin), keranjang (lintas toko, stok,
    produk non-aktif), checkout (alamat wajib, ongkir per tier provinsi, pengurangan
    stok), order (bayar, escrow, double-pay ditolak, cancel/refund, akses kontrol,

@@ -256,6 +256,17 @@ class ProductPage(BaseModel):
     size: int
 
 
+class ProductSuggestionOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    price: Decimal
+    image: Optional[str] = None
+    category_slug: Optional[str] = None
+    store_name: str
+    sold: int
+
+
 # ---------- Cart ----------
 
 class CartAdd(BaseModel):

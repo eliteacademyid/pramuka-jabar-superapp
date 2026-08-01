@@ -6,10 +6,10 @@
         <h1>Katalog Produk</h1>
         <p>Produk unggulan dari UMKM &amp; toko milik anggota Pramuka Jawa Barat</p>
       <div class="catalog-search">
-        <input
+        <SearchSuggest
           v-model="filters.q"
           placeholder="Cari produk, mis. kopi, kerajinan…"
-          @keyup.enter="load(1)"
+          @submit="load(1)"
         />
         <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
       </div>
@@ -100,6 +100,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api from '../../services/api'
 import ProductCard from '../../components/ProductCard.vue'
+import SearchSuggest from '../../components/SearchSuggest.vue'
 
 const route = useRoute()
 const products = ref([])
