@@ -14,8 +14,9 @@ export const useAuthStore = defineStore('auth', () => {
     }
 
     const response = await api.post('/auth/login', payload)
-    token.value = response.data.access_token
-    localStorage.setItem('token', token.value)
+    const accessToken = response.data.access_token
+    token.value = accessToken
+    localStorage.setItem('token', accessToken)
     await getProfile()
     return response
   }
@@ -48,5 +49,9 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('user')
   }
 
-  return { token, user, isAuthenticated, login, logout, getProfile, initialize }
+  function clearSession() {
+    logout()
+  }
+
+  return { token, user, isAuthenticated, login, logout, clearSession, getProfile, initialize }
 })
