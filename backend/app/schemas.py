@@ -133,4 +133,28 @@ class QuizQuestionOut(QuizQuestionBase):
     model_config = {"from_attributes": True}
 
 
+class EnrollmentBase(BaseModel):
+    progress_percentage: int = 0
+    status: str = "Enrolled"
+
+
+class EnrollmentCreate(EnrollmentBase):
+    training_id: int
+
+
+class EnrollmentUpdate(BaseModel):
+    progress_percentage: Optional[int] = None
+    status: Optional[str] = None
+
+
+class EnrollmentOut(EnrollmentBase):
+    id: int
+    user_id: int
+    training_id: int
+    enrolled_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+
 
