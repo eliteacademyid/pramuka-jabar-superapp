@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.4
+**Versi Dokumen** : 1.5
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -28,6 +28,10 @@
 > Back-office mendapat halaman baru **Keranjang Belanja** (`GET /api/admin/carts`)
 > untuk memantau isi keranjang setiap user (jumlah item, qty, subtotal, waktu
 > terakhir diubah).
+> Pembaruan v1.5: **pencarian produk di landing page** — kolom pencarian pill di
+> hero beranda; menekan Cari/Enter mengarahkan ke `/catalog?q=…` dengan kata
+> kunci otomatis terisi pada kolom pencarian katalog dan hasil langsung terfilter
+> (FR-12, backend `GET /api/products?q=…` mencocokkan nama & deskripsi).
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -191,6 +195,10 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 
 #### FR-12 Pencarian Global
 - Pencarian produk, toko, dan kategori secara terpadu dengan saran otomatis.
+- **Implementasi v1.5**: pencarian produk dari landing page (kolom pencarian di
+  hero) → katalog dengan kata kunci terisi (`GET /api/products?q=…`, cocok nama
+  & deskripsi, tidak peka huruf besar/kecil); kombinasi dengan filter kategori
+  & kota didukung; tanpa hasil menampilkan state kosong.
 
 ### 3.2 Kebutuhan Non-Fungsional
 
@@ -612,7 +620,8 @@ rencana pengembangan lanjutan.)
 - **Landing page** (redesain v1.3): hero dua tahap — foto resmi Pramuka Jawa
   Barat (dari media sosial @pramukajabar, disimpan lokal) sebagai latar dengan
   overlay coklat transparan agar teks terbaca; logo lingkaran berbingkai emas;
-  judul "SuperApps Pramuka Jawa Barat"; CTA "Jelajahi Katalog" (emas) dan
+  judul "SuperApps Pramuka Jawa Barat"; **kolom pencarian pill** (v1.5) di bawah
+  deskripsi — kirim ke `/catalog?q=…`; CTA "Jelajahi Katalog" (emas) dan
   "Daftar Gratis" (ghost); strip statistik melayang (produk, toko aktif, escrow,
   layanan); 4 kartu fitur (Katalog, Wallet & Escrow, Buka Toko, Chat Penjual);
   kartu kategori populer yang menuju katalog dengan filter aktif; band CTA
