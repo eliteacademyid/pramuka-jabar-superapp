@@ -23,7 +23,22 @@ async function fetchCertificate() {
 }
 
 function printCertificate() {
-  window.print()
+  const element = document.querySelector('.cert-container');
+  const opt = {
+    margin:       0,
+    filename:     `Sertifikat-${certData.value.issued_to.replace(/\s+/g, '_')}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
+  };
+  
+  // Use html2pdf if available globally (from CDN)
+  if (window.html2pdf) {
+    window.html2pdf().set(opt).from(element).save();
+  } else {
+    // Fallback to print if CDN failed to load
+    window.print();
+  }
 }
 
 onMounted(() => {
