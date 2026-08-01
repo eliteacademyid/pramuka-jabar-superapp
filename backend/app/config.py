@@ -6,6 +6,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def _parse_cors_origins(raw: str) -> List[str]:
+    """Parse comma-separated CORS origins dari environment variable."""
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
 class Settings:
     """Application configuration settings."""
 
@@ -22,11 +27,16 @@ class Settings:
     REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
     DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-    CORS_ORIGINS: List[str] = [
-        "http://localhost:3000",
-        "http://localhost:5173",
-        "http://localhost:8000",
-    ]
+
+    # CORS_ORIGINS dibaca dari env agar mudah dikonfigurasi per environment.
+    # Contoh .env: CORS_ORIGINS=http://localhost:5173,https://app.pramuka-jabar.id
+    CORS_ORIGINS: List[str] = _parse_cors_origins(
+        os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://localhost:5173,http://localhost:8080",
+        )
+    )
+
     APP_NAME: str = "Super Apps Pramuka Jawa Barat"
     API_VERSION: str = "1.0.0"
 

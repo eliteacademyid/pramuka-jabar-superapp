@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
+from app.config import settings
 from app.database import Base, engine
 from app.routers import admin as admin_router
 from app.routers import auth as auth_router
@@ -59,12 +60,17 @@ app = FastAPI(
 )
 app.openapi = custom_openapi
 
+# CORS — allow_origins=["*"] + allow_credentials=True adalah kombinasi ILEGAL di spec CORS.
+# Browser akan memblokir semua request dengan Authorization header jika dikombinasikan.
+# Origin didaftarkan eksplisit via CORS_ORIGINS di .env agar aman dan fleksibel per environment.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Length", "X-Total-Count"],
+    max_age=600,  # cache preflight response 10 menit, kurangi OPTIONS round-trip
 )
 
 app.include_router(auth_router.router, prefix="/api")
