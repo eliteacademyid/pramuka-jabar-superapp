@@ -114,8 +114,3 @@ def logout(current_user: models.User = Depends(get_current_user)):
 def get_current_user_info(current_user: models.User = Depends(get_current_user)):
     """Get current logged-in user information"""
     return current_user
-
-
-@router.get("/me", response_model=schemas.UserOut)
-def me(current_user: models.User = Depends(get_current_user)):
-    return current_user
