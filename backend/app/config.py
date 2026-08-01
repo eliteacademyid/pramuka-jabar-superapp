@@ -45,7 +45,10 @@ class Settings:
     DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
 
     CORS_ORIGINS: List[str] = _parse_cors_origins(
-        os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:5173,http://localhost:8080")
+        os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,http://localhost:5173,http://localhost:8080,http://127.0.0.1:3000,http://127.0.0.1:5173,http://127.0.0.1:8080",
+        )
     )
 
     APP_NAME: str = "Super Apps Pramuka Jawa Barat"
