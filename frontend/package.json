@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@heroicons/vue": "^2.1.1",
+    "@vueuse/core": "^14.4.0",
     "axios": "^1.7.9",
     "chart.js": "^3.9.1",
+    "dayjs": "^1.11.21",
     "jwt-decode": "^4.0.0",
     "pinia": "^2.3.1",
     "sweetalert2": "^11.16.0",
