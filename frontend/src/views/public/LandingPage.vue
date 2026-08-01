@@ -104,7 +104,7 @@
 
     <section class="landing-cta">
       <h2>Siap berjualan di marketplace Pramuka?</h2>
-      <p>Buka tokomu hari ini dan raih pembeli dari seluruh Jawa Barat.</p>
+      <p>Buka tokomu hari ini — aplikasi dari Kwartir Daerah Jawa Barat yang terbuka untuk seluruh Indonesia.</p>
       <router-link to="/register" class="btn-landing-cta">
         <i class="fas fa-user-plus"></i> Daftar &amp; Buka Toko
       </router-link>
