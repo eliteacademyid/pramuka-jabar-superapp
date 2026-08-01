@@ -40,3 +40,33 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+class TrainingBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    passing_grade: int = 70
+    status: str = "Draft"
+
+
+class TrainingCreate(TrainingBase):
+    pass
+
+
+class TrainingUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    passing_grade: Optional[int] = None
+    status: Optional[str] = None
+
+
+class TrainingOut(TrainingBase):
+    id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
