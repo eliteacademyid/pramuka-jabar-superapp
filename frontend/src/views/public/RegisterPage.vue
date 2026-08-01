@@ -1,7 +1,7 @@
 <template>
   <div class="login-page">
     <div class="login-card">
-      <h2>Daftar JavaScout</h2>
+      <h2>Daftar LomaScout</h2>
       <p class="subtitle">Bergabung untuk belanja & membuka toko</p>
 
       <div v-if="error" class="alert-error">{{ error }}</div>

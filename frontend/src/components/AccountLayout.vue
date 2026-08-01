@@ -3,7 +3,7 @@
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="sidebar-logo"></div>
-        <div class="sidebar-title">JavaScout</div>
+        <div class="sidebar-title">LomaScout</div>
       </div>
 
       <nav class="sidebar-nav">
