@@ -33,10 +33,18 @@ onMounted(async () => {
     <h2 v-else>Memuat...</h2>
     <p class="greeting">Ringkasan data Super Apps Pramuka Jawa Barat.</p>
 
-    <div class="card-grid">
+    <div class="card-grid" v-if="user?.role === 'admin'">
       <div v-for="stat in stats" :key="stat.label" class="stat-card">
         <span class="stat-value">{{ stat.value }}</span>
         <span class="stat-label">{{ stat.label }}</span>
+      </div>
+    </div>
+    
+    <div class="card-grid" v-else-if="user?.role === 'staff'">
+      <div class="stat-card">
+        <h3 style="color: var(--brown); margin-bottom: 0.5rem;">Pusat Pelatihan</h3>
+        <p style="font-size: 0.9rem; color: #8a7a6d; margin-bottom: 1rem;">Ikuti berbagai pelatihan untuk meningkatkan kompetensi kepramukaan Anda.</p>
+        <router-link to="/admin/trainings" class="btn-primary" style="text-align: center; font-size: 0.9rem; padding: 0.5rem;">Lihat Pelatihan</router-link>
       </div>
     </div>
   </div>

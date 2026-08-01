@@ -42,13 +42,13 @@ function logout() {
         <router-link to="/admin/enrollments" class="sidebar-link">
           Pelatihanku
         </router-link>
-        <router-link to="/admin/users" class="sidebar-link">
+        <router-link v-if="currentUser?.role === 'admin'" to="/admin/users" class="sidebar-link">
           Manajemen User
         </router-link>
       </nav>
 
-      <div class="sidebar-section-label">Menu Lainnya (Segera Hadir)</div>
-      <nav class="sidebar-nav">
+      <div class="sidebar-section-label" v-if="currentUser?.role === 'admin'">Menu Lainnya (Segera Hadir)</div>
+      <nav class="sidebar-nav" v-if="currentUser?.role === 'admin'">
         <span v-for="item in comingSoon" :key="item" class="sidebar-link disabled">
           {{ item }}
         </span>
