@@ -115,8 +115,8 @@ async function submit() {
       <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-6 sm:p-10">
         <div class="space-y-10">
           <div v-for="(q, index) in questions" :key="q.id" 
-               class="p-6 bg-gray-50 border border-gray-100 rounded-2xl relative transition-all duration-300 hover:shadow-md hover:border-[var(--gold)]/30"
-               :style="`animation: fade-in-up 0.5s ease forwards; animation-delay: ${index * 0.1}s; opacity: 0;`">
+               class="p-6 bg-gray-50 border border-gray-100 rounded-2xl relative transition-all duration-300 hover:shadow-md hover:border-[var(--gold)]/30 animate-fade-in"
+               :style="`animation-delay: ${index * 0.1}s;`">
             
             <div class="absolute -top-3 -left-3 w-8 h-8 bg-[var(--brown)] text-white font-bold rounded-lg flex items-center justify-center shadow-md">
               {{ index + 1 }}

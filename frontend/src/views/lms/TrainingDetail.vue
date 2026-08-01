@@ -148,8 +148,8 @@ async function enroll() {
         
         <div v-else class="space-y-6">
           <div v-for="(mat, idx) in materials" :key="mat.id" 
-               class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-shadow"
-               :style="`animation: fade-in-up 0.5s ease forwards; animation-delay: ${idx * 0.1}s; opacity: 0;`">
+               class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden group hover:shadow-md transition-shadow animate-fade-in"
+               :style="`animation-delay: ${idx * 0.1}s;`">
             
             <div class="border-b border-gray-50 bg-gray-50/50 p-4 sm:p-6 flex items-center gap-4">
               <div class="w-10 h-10 shrink-0 bg-[var(--brown)] text-white font-bold rounded-xl flex items-center justify-center text-lg shadow-inner">
