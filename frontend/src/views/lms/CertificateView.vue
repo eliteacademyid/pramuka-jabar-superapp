@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import api from '../../../services/api'
+import api from '../../services/api'
 
 const route = useRoute()
 const router = useRouter()
