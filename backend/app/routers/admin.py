@@ -1,6 +1,7 @@
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
@@ -126,5 +127,10 @@ def delete_user(
             detail="Tidak bisa menghapus akun sendiri",
         )
     user = _get_user_or_404(db, user_id)
-    db.delete(user)
-    db.commit()
+    try:
+        db.delete(user)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        user.is_active = False
+        db.commit()
