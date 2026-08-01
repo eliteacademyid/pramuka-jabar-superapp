@@ -246,6 +246,22 @@ onMounted(() => {
     </div>
 
     <!-- Modals -->
+    <!-- Notification Modal -->
+    <div v-if="notification.show" class="modal-overlay" style="z-index: 1000;">
+      <div class="modal-content" style="text-align: center; max-width: 400px; padding: 2rem;">
+        <div style="font-size: 3rem; margin-bottom: 1rem; color: var(--gold);">
+          <span v-if="notification.type === 'success'" style="color: #2e7d32;">Berhasil</span>
+          <span v-else style="color: #c62828;">Pemberitahuan</span>
+        </div>
+        <h3 style="margin-bottom: 0.5rem; color: var(--brown-dark);">{{ notification.title }}</h3>
+        <p style="color: #555; margin-bottom: 1.5rem;">{{ notification.message }}</p>
+        <button class="btn-primary" style="width: 100%;" @click="notification.show = false">
+          Tutup
+        </button>
+      </div>
+    </div>
+
+    <!-- Material Modal -->
     <div v-if="showMaterialModal" class="modal-overlay">
       <div class="modal-content">
         <h3>Tambah Materi</h3>
