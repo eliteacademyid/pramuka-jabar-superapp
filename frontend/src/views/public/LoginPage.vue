@@ -38,7 +38,8 @@ async function handleSubmit() {
     <form class="login-card" @submit.prevent="handleSubmit">
       <div class="logo-circle small"></div>
       <h2>Masuk</h2>
-      <p class="subtitle">Super Apps Pramuka Jawa Barat</p>
+      <p class="subtitle">SuperApps Pramuka Jawa Barat</p>
+      <p class="subtitle kw">Kwartir Daerah Jawa Barat — terbuka untuk semua</p>
 
       <div v-if="errorMessage" class="alert-error">{{ errorMessage }}</div>
 

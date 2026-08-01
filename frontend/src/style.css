@@ -574,7 +574,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, var(--brown) 0%, var(--brown-dark) 100%);
+  background: linear-gradient(160deg, #faf6f0 0%, #f1e8dc 100%);
   padding: 1.5rem;
 }
 
@@ -582,16 +582,19 @@ button {
   width: 100%;
   max-width: 400px;
   background: var(--white);
-  border-radius: 12px;
-  padding: 2.5rem 2rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border-radius: 18px;
+  padding: 2.5rem 2.5rem;
+  box-shadow: 0 12px 40px rgba(92, 64, 51, 0.12);
+  border: 1px solid #efe4d4;
   text-align: center;
 }
 
 .logo-circle.small {
   width: 72px;
   height: 72px;
-  margin: 0 auto 1rem;
+  margin: 0 auto 1.25rem;
+  border-color: var(--gold);
+  box-shadow: 0 8px 18px rgba(92, 64, 51, 0.15);
 }
 
 .login-card h2 {
@@ -603,6 +606,14 @@ button {
   color: #8a7a6d;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
+}
+
+.login-card .subtitle.kw {
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.78rem;
+  color: var(--maroon);
+  font-weight: 600;
 }
 
 .form-group {
