@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.5
+**Versi Dokumen** : 1.6
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -32,6 +32,12 @@
 > hero beranda; menekan Cari/Enter mengarahkan ke `/catalog?q=…` dengan kata
 > kunci otomatis terisi pada kolom pencarian katalog dan hasil langsung terfilter
 > (FR-12, backend `GET /api/products?q=…` mencocokkan nama & deskripsi).
+> Pembaruan v1.6: **pencarian berdasarkan lokasi & sort harga** — kolom pencarian
+> landing kini dua bagian (produk + kota) mengarah ke `/catalog?q=…&city=…`;
+> filter lokasi di katalog memakai partial-match (`%city%`) dengan saran kota
+> dari `GET /api/cities` (datalist); sort harga termurah/termahal
+> (`?sort=cheapest|expensive`) di katalog; respons produk menyertakan kota toko
+> (`store.city`).
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -134,7 +140,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 74 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff & monitor keranjang user) |
+| Testing | pytest + httpx (TestClient, SQLite) | 75 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga) |
 
 ---
 
@@ -195,10 +201,12 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 
 #### FR-12 Pencarian Global
 - Pencarian produk, toko, dan kategori secara terpadu dengan saran otomatis.
-- **Implementasi v1.5**: pencarian produk dari landing page (kolom pencarian di
-  hero) → katalog dengan kata kunci terisi (`GET /api/products?q=…`, cocok nama
-  & deskripsi, tidak peka huruf besar/kecil); kombinasi dengan filter kategori
-  & kota didukung; tanpa hasil menampilkan state kosong.
+- **Implementasi v1.5 & v1.6**: pencarian produk dari landing page (kolom
+  pencarian produk + kota di hero) → katalog dengan kata kunci/lokasi terisi
+  (`GET /api/products?q=…&city=…`, cocok nama & deskripsi serta lokasi
+  partial-match, tidak peka huruf besar/kecil); sort harga termurah/termahal
+  (`?sort=cheapest|expensive`); kombinasi dengan filter kategori didukung;
+  tanpa hasil menampilkan state kosong.
 
 ### 3.2 Kebutuhan Non-Fungsional
 
@@ -494,7 +502,8 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 | Metode | Route | Fungsi |
 |---|---|---|
 | GET | `/api/categories` | Daftar kategori produk |
-| GET | `/api/products` | Katalog + filter (q, category, city, min/max price, sort: newest/cheapest/expensive/bestseller, page, size) |
+| GET | `/api/cities` | Daftar kota toko aktif (saran lokasi pencarian) |
+| GET | `/api/products` | Katalog + filter (q, city **parsial-match**, category, min/max price, sort: newest/cheapest/expensive/bestseller, page, size) |
 | GET | `/api/products/{slug}` | Detail produk + rating + ulasan |
 | GET | `/api/stores/{slug}` | Halaman toko publik + produk toko |
 
@@ -620,8 +629,9 @@ rencana pengembangan lanjutan.)
 - **Landing page** (redesain v1.3): hero dua tahap — foto resmi Pramuka Jawa
   Barat (dari media sosial @pramukajabar, disimpan lokal) sebagai latar dengan
   overlay coklat transparan agar teks terbaca; logo lingkaran berbingkai emas;
-  judul "SuperApps Pramuka Jawa Barat"; **kolom pencarian pill** (v1.5) di bawah
-  deskripsi — kirim ke `/catalog?q=…`; CTA "Jelajahi Katalog" (emas) dan
+  judul "SuperApps Pramuka Jawa Barat"; **kolom pencarian pill** (v1.5, diperluas
+  v1.6 dengan kolom **kota**) di bawah deskripsi — kirim ke `/catalog?q=…&city=…`;
+  CTA "Jelajahi Katalog" (emas) dan
   "Daftar Gratis" (ghost); strip statistik melayang (produk, toko aktif, escrow,
   layanan); 4 kartu fitur (Katalog, Wallet & Escrow, Buka Toko, Chat Penjual);
   kartu kategori populer yang menuju katalog dengan filter aktif; band CTA
@@ -630,7 +640,8 @@ rencana pengembangan lanjutan.)
   aksen emas + kolom pencarian pill; **kartu kategori** berikon (makanan, minuman,
   kerajinan, fashion, jasa, lainnya) yang dapat diklik untuk memfilter grid;
   **badge keranjang** di hero (jumlah item, tautan ke halaman keranjang); baris
-  filter dalam kartu (kategori, kota, urutan); penghitung hasil; grid kartu produk
+  filter dalam kartu (kategori, **lokasi** — partial-match + saran kota dari
+  `/api/cities`, urutan — termasuk **Termurah/Termahal** v1.6); penghitung hasil; grid kartu produk
   responsif (min 240px) — gambar rasio 4:3 dengan efek zoom saat hover, badge
   "Stok Habis", nama maks 2 baris, rating bintang emas, harga maroon tebal, tombol
   "+ Tambah ke Keranjang" full-width (berubah "Menambahkan…" → "✓ Ditambahkan"
