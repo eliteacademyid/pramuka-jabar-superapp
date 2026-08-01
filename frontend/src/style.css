@@ -412,6 +412,9 @@ button {
 }
 
 .landing-feature {
+  display: block;
+  text-decoration: none;
+  color: inherit;
   background: var(--white);
   border: 1px solid #eadfd3;
   border-radius: 14px;

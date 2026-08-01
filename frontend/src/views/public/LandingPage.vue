@@ -63,26 +63,26 @@
       <h2 class="landing-title">Kenapa SuperApps-JavaScout?</h2>
       <p class="landing-subtitle">Ekonomi Pramuka yang berdaya saing</p>
       <div class="landing-features">
-        <div class="landing-feature">
+        <router-link :to="{ name: 'catalog' }" class="landing-feature">
           <i class="fas fa-store"></i>
           <h3>Katalog Marketplace</h3>
           <p>Jelajahi produk unggulan UMKM dan toko anggota Pramuka Jawa Barat.</p>
-        </div>
-        <div class="landing-feature">
+        </router-link>
+        <router-link :to="{ name: 'wallet' }" class="landing-feature">
           <i class="fas fa-wallet"></i>
           <h3>Wallet &amp; Escrow</h3>
           <p>Pembayaran aman lewat escrow — dana baru dilepas saat pesanan diterima.</p>
-        </div>
-        <div class="landing-feature">
+        </router-link>
+        <router-link :to="{ name: 'register' }" class="landing-feature">
           <i class="fas fa-shop"></i>
           <h3>Buka Toko Sendiri</h3>
           <p>Anggota &amp; UMKM bisa membuka toko dan berjualan dengan mudah.</p>
-        </div>
-        <div class="landing-feature">
+        </router-link>
+        <router-link :to="{ name: 'orders' }" class="landing-feature">
           <i class="fas fa-comments"></i>
           <h3>Chat Penjual</h3>
           <p>Komunikasi langsung pembeli–penjual untuk transaksi yang lancar.</p>
-        </div>
+        </router-link>
       </div>
     </section>
 
