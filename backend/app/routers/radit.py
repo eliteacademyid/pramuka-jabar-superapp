@@ -2,9 +2,14 @@ import os
 from pathlib import Path
 from typing import List, Optional
 
-import cloudinary
-from cloudinary import uploader
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+
+try:
+    import cloudinary
+    from cloudinary import uploader
+except ImportError:  # pragma: no cover - optional dependency
+    cloudinary = None
+    uploader = None
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -91,7 +96,7 @@ def upload_file(
     api_key = os.getenv("CLOUDINARY_API_KEY")
     api_secret = os.getenv("CLOUDINARY_API_SECRET")
 
-    if cloud_name and api_key and api_secret:
+    if cloud_name and api_key and api_secret and cloudinary and uploader:
         cloudinary.config(cloud_name=cloud_name, api_key=api_key, api_secret=api_secret)
         try:
             upload_result = uploader.upload(content, resource_type="auto", public_id=stored_name)
