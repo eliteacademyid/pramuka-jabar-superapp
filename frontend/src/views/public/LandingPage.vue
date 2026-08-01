@@ -6,6 +6,7 @@
       Satu aplikasi untuk mengelola seluruh kegiatan, data anggota, dan informasi
       kepramukaan di Jawa Barat.
     </p>
+    <router-link to="/catalog" class="btn-primary">Katalog Marketplace</router-link>
     <router-link to="/login" class="btn-primary">Masuk</router-link>
   </section>
 </template>

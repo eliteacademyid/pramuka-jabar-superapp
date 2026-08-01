@@ -2,8 +2,19 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
-from app.routers import admin as admin_router
-from app.routers import auth as auth_router
+from app.routers import (
+    admin as admin_router,
+    admin_shop,
+    auth as auth_router,
+    cart,
+    chat,
+    me as me_router,
+    orders,
+    products,
+    reviews,
+    stores,
+    wallet,
+)
 from app.seed import seed_default_admin
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +31,17 @@ app.add_middleware(
 
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
+app.include_router(me_router.router, prefix="/api")
+app.include_router(stores.router, prefix="/api")
+app.include_router(products.router, prefix="/api")
+app.include_router(cart.router, prefix="/api")
+app.include_router(orders.router, prefix="/api")
+app.include_router(wallet.router, prefix="/api")
+app.include_router(wallet.admin_router, prefix="/api")
+app.include_router(reviews.router, prefix="/api")
+app.include_router(chat.router, prefix="/api")
+app.include_router(admin_shop.router, prefix="/api")
+app.include_router(admin_shop.seller_router, prefix="/api")
 
 
 @app.on_event("startup")

@@ -41,6 +41,25 @@ function logout() {
         </router-link>
       </nav>
 
+      <div class="sidebar-section-label">Marketplace</div>
+      <nav class="sidebar-nav">
+        <router-link to="/admin/stores" class="sidebar-link">
+          Moderasi Toko
+        </router-link>
+        <router-link to="/admin/products" class="sidebar-link">
+          Produk
+        </router-link>
+        <router-link to="/admin/orders" class="sidebar-link">
+          Pesanan
+        </router-link>
+        <router-link to="/admin/withdrawals" class="sidebar-link">
+          Penarikan Dana
+        </router-link>
+        <router-link to="/admin/reports" class="sidebar-link">
+          Laporan
+        </router-link>
+      </nav>
+
       <div class="sidebar-section-label">Menu Lainnya (Segera Hadir)</div>
       <nav class="sidebar-nav">
         <span v-for="item in comingSoon" :key="item" class="sidebar-link disabled">
