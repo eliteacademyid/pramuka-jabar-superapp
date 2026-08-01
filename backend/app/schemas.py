@@ -156,5 +156,17 @@ class EnrollmentOut(EnrollmentBase):
     model_config = {"from_attributes": True}
 
 
+class QuizAnswer(BaseModel):
+    question_id: int
+    answer: str
 
 
+class QuizSubmitRequest(BaseModel):
+    answers: list[QuizAnswer]
+
+
+class QuizSubmitResponse(BaseModel):
+    total_score: int
+    passed: bool
+    status: str
+    message: str
