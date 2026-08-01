@@ -279,7 +279,9 @@ JavaScout SuperApp
 2. Checkout: pilih alamat, ekspedisi, metode bayar → sistem buat order + tagihan.
 3. Pembeli bayar (wallet/gateway) → dana masuk escrow.
 4. Penjual proses & kirim (input resi) → pembeli terima & konfirmasi.
-5. Sistem lepas escrow ke penjual (dikurangi komisi) → pembeli beri ulasan.
+5. Sistem lepas escrow ke penjual (dikurangi komisi) → pembeli beri ulasan
+   (klik **bintang 1–5** + komentar pada halaman detail pesanan; rating tampil
+   di detail produk & kartu katalog).
 
 **C. Alur Pencairan Dana Penjual**
 1. Penjual buka dashboard → saldo tersedia.
@@ -596,11 +598,11 @@ rencana pengembangan lanjutan.)
 ### 7.1 Struktur Aplikasi (PWA)
 1. **Beranda**: header (logo, pencarian, login/keranjang), banner promosi, kategori populer, produk unggulan, toko pilihan, program "UMKM Pramuka".
 2. **Katalog**: filter (kategori, harga, lokasi, rating), sorting (terlaris/terbaru/termurah), grid produk.
-3. **Detail Produk**: galeri gambar, harga, varian, stok, ulasan, tombol "Beli"/"Keranjang", info toko & ongkir, chat penjual.
-4. **Toko**: header toko (logo, nama, rating, alamat), produk toko, tombol chat.
-5. **Keranjang**: grup per toko, subtotal, lanjut checkout.
-6. **Checkout**: alamat, pilih kurir + ongkir, kupon, ringkasan, pilih pembayaran.
-7. **Order**: daftar & detail status, tracking resi, tombol konfirmasi terima.
+ 3. **Detail Produk**: galeri gambar, harga, varian, stok, bintang rating rata-rata, ulasan per item (bintang readonly), tombol "Beli"/"Keranjang", info toko & ongkir, chat penjual.
+ 4. **Toko**: header toko (logo, nama, rating, alamat), produk toko, tombol chat.
+ 5. **Keranjang**: grup per toko, subtotal, lanjut checkout.
+ 6. **Checkout**: alamat, pilih kurir + ongkir, kupon, ringkasan, pilih pembayaran.
+ 7. **Order**: daftar & detail status, tracking resi, tombol konfirmasi terima, form ulasan bintang (klik 1–5) setelah pesanan selesai.
 8. **Wallet**: saldo, top-up, mutasi, pencairan.
 9. **Dashboard Penjual**: ringkasan penjualan, kelola produk/pesanan/kupon, pengaturan toko.
 10. **Admin**: moderasi, laporan, pengaturan.
@@ -716,15 +718,21 @@ rencana pengembangan lanjutan.)
 
 ## 10. Pengujian
 
-**Terimplementasi (pytest + TestClient, 73 test lulus):**
+**Terimplementasi (pytest + TestClient, 75 test lulus):**
 1. **Unit/Integration (API level)**: auth (registrasi, login, akses), toko & produk
-   (katalog, filter, seller CRUD, moderasi admin), keranjang (lintas toko, stok,
+   (katalog, filter q/kategori/lokasi parsial, sort termurah–termahal, seller CRUD,
+   moderasi admin), keranjang (lintas toko, stok,
    produk non-aktif), checkout (alamat wajib, ongkir per tier provinsi, pengurangan
    stok), order (bayar, escrow, double-pay ditolak, cancel/refund, akses kontrol,
    alur lengkap penjual s.d. komisi), wallet (top-up, mutasi, withdraw +
    approve/reject, saldo penjual bertambah 95%), ulasan (setelah selesai, duplikat
    ditolak, rating 1–5, tampil di detail produk), chat (auto-buat saat checkout,
-   akses peserta), admin (moderasi toko/produk, laporan, dashboard penjual).
+   akses peserta), admin (moderasi toko/produk, RBAC admin+staff, monitor
+   keranjang user, laporan, dashboard penjual).
+2. **UI (manual, per fitur)**: rating bintang — input klik 1–5 di form ulasan
+   detail pesanan (menggantikan dropdown), tampilan readonly di detail produk
+   (per ulasan + rata-rata) dan kartu katalog; flow teruji: pesanan completed →
+   ulasan 4★/5★ → rating produk terbarui di katalog & detail.
 
 **Rencana pengujian lanjutan:**
 1. Unit test service level (harga, escrow, wallet) secara terisolasi.
