@@ -1,14 +1,26 @@
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 from app.config import DATABASE_URL, DEBUG
 
-engine = create_engine(
-    DATABASE_URL,
-    echo=DEBUG,
-    pool_pre_ping=True,
-    pool_recycle=3600,
-)
+
+def _build_engine():
+    url = DATABASE_URL
+    if url.startswith("postgresql"):
+        try:
+            engine = create_engine(url, echo=DEBUG, pool_pre_ping=True, pool_recycle=3600)
+            with engine.connect() as conn:
+                conn.execute(text("SELECT 1"))
+            return engine
+        except OperationalError as exc:
+            print(f"PostgreSQL unavailable at {url}; falling back to sqlite:///./app.db. Error: {exc}")
+            url = "sqlite:///./app.db"
+
+    return create_engine(url, echo=DEBUG, pool_pre_ping=True, pool_recycle=3600)
+
+
+engine = _build_engine()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

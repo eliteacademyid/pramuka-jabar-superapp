@@ -74,7 +74,16 @@ class User(Base):
     organisasi = relationship("Organisasi", back_populates="users")
     programs = relationship("Program", back_populates="creator")
     realisasis = relationship("Realisasi", back_populates="creator")
-    laporans = relationship("Laporan", back_populates="creator")
+    laporans = relationship(
+        "Laporan",
+        back_populates="creator",
+        primaryjoin="User.id == Laporan.created_by_id",
+    )
+    reviewed_laporans = relationship(
+        "Laporan",
+        back_populates="reviewer",
+        primaryjoin="User.id == Laporan.approved_by_id",
+    )
     approvals = relationship("Approval", back_populates="reviewer")
 
 
@@ -168,7 +177,16 @@ class Laporan(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    creator = relationship("User", back_populates="laporans")
+    creator = relationship(
+        "User",
+        back_populates="laporans",
+        primaryjoin="Laporan.created_by_id == User.id",
+    )
+    reviewer = relationship(
+        "User",
+        back_populates="reviewed_laporans",
+        primaryjoin="Laporan.approved_by_id == User.id",
+    )
     realisasi = relationship("Realisasi", back_populates="laporans")
     approvals = relationship("Approval", back_populates="laporan")
 

@@ -40,6 +40,10 @@ class Token(BaseModel):
     token_type: str
 
 
+class TokenRefreshRequest(BaseModel):
+    refresh_token: str
+
+
 class RealisasiBase(BaseModel):
     judul: str = Field(..., min_length=1)
     deskripsi: Optional[str] = None

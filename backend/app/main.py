@@ -77,8 +77,11 @@ app.include_router(radit_router.radit_router, prefix="/api")
 
 @app.on_event("startup")
 def startup_seed():
-    seed_default_admin()
-    seed_realisasi_laporan_approval()
+    try:
+        seed_default_admin()
+        seed_realisasi_laporan_approval()
+    except Exception as exc:
+        print(f"Startup seed warning: {exc}")
 
 
 @app.get("/", tags=["Root"])
