@@ -906,6 +906,46 @@ button {
   padding: 1.5rem;
 }
 
+.review-box {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid #e8ddcd;
+  border-radius: 12px;
+  background: var(--cream);
+}
+
+.review-box input {
+  display: block;
+  width: 100%;
+  margin: 0.75rem 0;
+}
+
+.review-stars {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--brown);
+  font-weight: 600;
+}
+
+.review-avg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--maroon);
+  font-size: 0.95rem;
+  vertical-align: middle;
+  margin-left: 0.4rem;
+}
+
+.review-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.25rem;
+}
+
 .badge {
   display: inline-block;
   padding: 0.2rem 0.7rem;

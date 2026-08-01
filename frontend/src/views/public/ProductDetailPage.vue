@@ -23,12 +23,18 @@
     </div>
 
     <div class="reviews">
-      <h3>Ulasan ({{ product.reviews?.length || 0 }})</h3>
+      <h3>
+        Ulasan ({{ product.reviews?.length || 0 }})
+        <span v-if="avgRating" class="review-avg">
+          <StarRating :model-value="Math.round(avgRating)" readonly />
+          {{ avgRating.toFixed(1) }}
+        </span>
+      </h3>
       <div v-if="!product.reviews || !product.reviews.length" class="empty-row">Belum ada ulasan</div>
       <div v-for="r in product.reviews" :key="r.id" class="review-item">
         <div class="review-head">
           <strong>{{ r.username }}</strong>
-          <span>★ {{ r.rating }}</span>
+          <StarRating :model-value="r.rating" readonly />
         </div>
         <p>{{ r.comment || '—' }}</p>
       </div>
@@ -37,12 +43,19 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import api, { getErrorMessage } from '../../services/api'
+import StarRating from '../../components/StarRating.vue'
 
 const route = useRoute()
 const product = ref(null)
+
+const avgRating = computed(() => {
+  if (!product.value?.reviews?.length) return 0
+  const sum = product.value.reviews.reduce((n, r) => n + r.rating, 0)
+  return sum / product.value.reviews.length
+})
 
 function formatPrice(v) {
   return Number(v).toLocaleString('id-ID')

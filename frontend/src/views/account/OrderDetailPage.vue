@@ -54,13 +54,10 @@
 
         <div v-if="canReview" class="review-box">
           <h3>Beri Ulasan</h3>
-          <select v-model.number="review.rating">
-            <option :value="5">5 ★</option>
-            <option :value="4">4 ★</option>
-            <option :value="3">3 ★</option>
-            <option :value="2">2 ★</option>
-            <option :value="1">1 ★</option>
-          </select>
+          <div class="review-stars">
+            <span>Rating:</span>
+            <StarRating v-model="review.rating" />
+          </div>
           <input v-model="review.comment" placeholder="Komentar (opsional)" />
           <button class="btn-small" @click="submitReview(order.items[0])">Kirim Ulasan</button>
         </div>
@@ -80,6 +77,7 @@ import { useRoute } from 'vue-router'
 import api, { getErrorMessage } from '../../services/api'
 import OrderStatusChip from '../../components/OrderStatusChip.vue'
 import ChatPanel from '../../components/ChatPanel.vue'
+import StarRating from '../../components/StarRating.vue'
 
 const route = useRoute()
 const order = ref(null)
