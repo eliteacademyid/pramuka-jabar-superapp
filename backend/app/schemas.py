@@ -97,3 +97,40 @@ class TrainingMaterialOut(TrainingMaterialBase):
     model_config = {"from_attributes": True}
 
 
+class QuizBase(BaseModel):
+    title: str
+    time_limit_minutes: int = 30
+
+
+class QuizCreate(QuizBase):
+    training_id: int
+
+
+class QuizOut(QuizBase):
+    id: int
+    training_id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class QuizQuestionBase(BaseModel):
+    question_text: str
+    options: str  # Valid JSON string of options
+    correct_answer: str
+    score_weight: int = 1
+
+
+class QuizQuestionCreate(QuizQuestionBase):
+    quiz_id: int
+
+
+class QuizQuestionOut(QuizQuestionBase):
+    id: int
+    quiz_id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+
