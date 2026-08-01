@@ -33,7 +33,7 @@ function logout() {
       </div>
 
       <nav class="sidebar-nav">
-        <router-link to="/admin" class="sidebar-link">
+        <router-link to="/admin" class="sidebar-link" active-class="" exact-active-class="router-link-active">
           Dashboard
         </router-link>
         <router-link to="/admin/trainings" class="sidebar-link">

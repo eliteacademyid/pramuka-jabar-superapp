@@ -51,7 +51,7 @@ onMounted(() => {
     <div class="flex flex-col sm:flex-row justify-between items-center mb-8 no-print gap-4">
       <router-link to="/admin/enrollments" class="btn-secondary">&larr; Kembali</router-link>
       <button class="btn-primary shadow-lg hover:shadow-xl transition-all" @click="printCertificate" v-if="certData">
-        🖨️ Cetak / Download PDF
+        Cetak / Download PDF
       </button>
     </div>
 

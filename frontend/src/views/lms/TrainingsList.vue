@@ -46,13 +46,13 @@ const formatDate = (dateString) => {
 
     <!-- State: Error -->
     <div v-else-if="error" class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center shadow-sm animate-fade-in">
-      <span class="text-2xl block mb-2">⚠️</span>
+      <span class="text-2xl block mb-2">Pemberitahuan</span>
       {{ error }}
     </div>
 
     <!-- State: Empty -->
     <div v-else-if="trainings.length === 0" class="flex-1 flex flex-col items-center justify-center text-center p-12 bg-white/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-300 animate-fade-in">
-      <span class="text-6xl mb-4 grayscale opacity-50">⛺</span>
+      <span class="text-6xl mb-4 grayscale opacity-50 block">Belum Ada Pelatihan</span>
       <h3 class="text-xl font-bold text-gray-700 mb-2">Belum ada pelatihan tersedia</h3>
       <p class="text-gray-500">Silakan kembali lagi nanti saat admin sudah mempublikasikan modul baru.</p>
     </div>
@@ -79,11 +79,11 @@ const formatDate = (dateString) => {
         
         <div class="bg-gray-50 rounded-2xl p-4 mb-6 space-y-2 text-xs sm:text-sm text-gray-600 border border-gray-100">
           <div class="flex justify-between items-center">
-            <span class="flex items-center gap-1.5 font-medium"><span class="text-[var(--gold)]">📅</span> Mulai</span>
+            <span class="flex items-center gap-1.5 font-medium"><span class="text-[var(--gold)]">Mulai</span></span>
             <span class="font-semibold text-gray-800">{{ formatDate(training.start_date) }}</span>
           </div>
           <div class="flex justify-between items-center">
-            <span class="flex items-center gap-1.5 font-medium"><span class="text-[var(--brown)]">🎯</span> KKM</span>
+            <span class="flex items-center gap-1.5 font-medium"><span class="text-[var(--brown)]">KKM</span></span>
             <span class="font-semibold text-gray-800">{{ training.passing_grade }} Poin</span>
           </div>
         </div>

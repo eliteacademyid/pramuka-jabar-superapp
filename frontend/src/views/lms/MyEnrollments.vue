@@ -63,13 +63,13 @@ const getCertificate = async (enrollmentId) => {
 
     <!-- State: Error -->
     <div v-else-if="error" class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center shadow-sm animate-fade-in">
-      <span class="text-2xl block mb-2">⚠️</span>
+      <span class="text-2xl block mb-2">Pemberitahuan</span>
       {{ error }}
     </div>
 
     <!-- State: Empty -->
     <div v-else-if="enrollments.length === 0" class="flex-1 flex flex-col items-center justify-center text-center p-12 bg-white/50 backdrop-blur-sm rounded-3xl border border-dashed border-gray-300 animate-fade-in">
-      <span class="text-6xl mb-4 grayscale opacity-50">📚</span>
+      <span class="text-6xl mb-4 grayscale opacity-40 block">Kosong</span>
       <h3 class="text-xl font-bold text-gray-700 mb-2">Anda belum mengikuti pelatihan</h3>
       <p class="text-gray-500 mb-6">Jelajahi katalog pelatihan dan mulai tingkatkan kemampuan Anda.</p>
       <router-link to="/admin/trainings" class="btn-primary rounded-xl px-6 py-3 shadow-lg hover:shadow-xl transition-shadow">
@@ -85,7 +85,9 @@ const getCertificate = async (enrollmentId) => {
         
         <div class="flex justify-between items-start mb-4">
           <div class="bg-gray-50 p-3 rounded-2xl">
-            <span class="text-3xl">{{ e.status === 'Lulus' ? '🏆' : (e.status === 'Gagal' ? '💔' : '📖') }}</span>
+            <span class="text-3xl grayscale opacity-50 block" v-if="e.status === 'Lulus'">Lulus</span>
+            <span class="text-3xl grayscale opacity-50 block" v-else-if="e.status === 'Gagal'">Gagal</span>
+            <span class="text-3xl grayscale opacity-50 block" v-else>Belajar</span>
           </div>
           <span :class="[
             'px-3 py-1 text-xs font-bold rounded-full border',
@@ -100,13 +102,11 @@ const getCertificate = async (enrollmentId) => {
           {{ trainings[e.training_id]?.title || 'Memuat...' }}
         </h3>
         
-        <p class="text-sm text-gray-500 mb-6 flex items-center gap-2">
-          <span class="opacity-70">📅 Terdaftar:</span> 
-          <span class="font-medium text-gray-700">{{ formatDate(e.enrolled_at) }}</span>
-        </p>
-
         <!-- Progress Bar -->
         <div class="mb-6">
+          <div class="flex items-center text-xs text-gray-500 font-medium mb-4">
+            <span>Terdaftar: {{ formatDate(e.enrolled_at) }}</span>
+          </div>
           <div class="flex justify-between text-sm font-semibold mb-2">
             <span class="text-gray-600">Progres</span>
             <span :class="e.progress_percentage >= 100 ? 'text-green-600' : 'text-[var(--brown)]'">{{ e.progress_percentage }}%</span>
@@ -128,10 +128,10 @@ const getCertificate = async (enrollmentId) => {
             Lanjut Belajar
           </router-link>
           
-          <router-link v-if="e.status === 'Lulus'" :to="{ name: 'lms-certificate', params: { id: e.id } }" 
-             class="flex-1 text-center py-2.5 px-4 bg-gradient-to-r from-green-600 to-green-500 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-green-500/30 transition-all flex items-center justify-center gap-2">
-            <span>📄</span> Sertifikat
-          </router-link>
+          <router-link v-if="e.status === 'Lulus'" :to="`/admin/enrollments/${e.id}/certificate`" class="flex-1 text-center py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-green-500/30 transition-all hover:-translate-y-0.5 relative overflow-hidden group">
+              <span class="relative z-10 flex items-center justify-center gap-2">Sertifikat</span>
+              <div class="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+            </router-link>
         </div>
       </div>
     </div>
