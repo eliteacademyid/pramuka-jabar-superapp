@@ -36,3 +36,9 @@ export function isAdmin(me) {
 export function hasActiveStore(me) {
   return me && me.store && me.store.status === 'active'
 }
+
+export function homeForRole(me) {
+  if (isAdmin(me)) return '/admin'
+  if (hasActiveStore(me)) return '/account/seller/dashboard'
+  return '/catalog'
+}

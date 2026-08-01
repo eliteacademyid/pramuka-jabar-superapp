@@ -27,6 +27,7 @@ import ProductsPage from '../views/admin/ProductsPage.vue'
 import OrdersPage from '../views/admin/OrdersPage.vue'
 import WithdrawalsPage from '../views/admin/WithdrawalsPage.vue'
 import ReportsPage from '../views/admin/ReportsPage.vue'
+import CartsPage from '../views/admin/CartsPage.vue'
 
 const routes = [
   {
@@ -52,13 +53,13 @@ const routes = [
       { path: 'orders/:code', name: 'order-detail', component: OrderDetailPage },
       { path: 'wallet', name: 'wallet', component: WalletPage },
       { path: 'profile', name: 'profile', component: ProfilePage },
-      { path: 'seller/store', name: 'seller-store', component: SellerStorePage },
-      { path: 'seller/products', name: 'seller-products', component: SellerProductsPage },
-      { path: 'seller/products/new', name: 'seller-product-new', component: SellerProductFormPage },
-      { path: 'seller/products/:id', name: 'seller-product-edit', component: SellerProductFormPage },
-      { path: 'seller/orders', name: 'seller-orders', component: SellerOrdersPage },
-      { path: 'seller/dashboard', name: 'seller-dashboard', component: SellerDashboardPage },
-      { path: 'seller/withdraw', name: 'seller-withdraw', component: WithdrawPage }
+      { path: 'seller/store', name: 'seller-store', component: SellerStorePage, meta: { requiresSeller: true } },
+      { path: 'seller/products', name: 'seller-products', component: SellerProductsPage, meta: { requiresSeller: true } },
+      { path: 'seller/products/new', name: 'seller-product-new', component: SellerProductFormPage, meta: { requiresSeller: true } },
+      { path: 'seller/products/:id', name: 'seller-product-edit', component: SellerProductFormPage, meta: { requiresSeller: true } },
+      { path: 'seller/orders', name: 'seller-orders', component: SellerOrdersPage, meta: { requiresSeller: true } },
+      { path: 'seller/dashboard', name: 'seller-dashboard', component: SellerDashboardPage, meta: { requiresSeller: true } },
+      { path: 'seller/withdraw', name: 'seller-withdraw', component: WithdrawPage, meta: { requiresSeller: true } }
     ]
   },
   {
@@ -71,6 +72,7 @@ const routes = [
       { path: 'stores', name: 'admin-stores', component: StoresPage },
       { path: 'products', name: 'admin-products', component: ProductsPage },
       { path: 'orders', name: 'admin-orders', component: OrdersPage },
+      { path: 'carts', name: 'admin-carts', component: CartsPage },
       { path: 'withdrawals', name: 'admin-withdrawals', component: WithdrawalsPage },
       { path: 'reports', name: 'admin-reports', component: ReportsPage }
     ]
@@ -90,28 +92,35 @@ router.beforeEach(async (to) => {
   const token = localStorage.getItem('token')
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin)
+  const requiresSeller = to.matched.some((record) => record.meta.requiresSeller)
 
   if (requiresAuth && !token) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  if (to.name === 'login' && token) {
-    return { name: 'admin-dashboard' }
+  if (!token) return
+
+  let session
+  let me
+  try {
+    session = await import('../services/session')
+    me = await session.fetchMe()
+  } catch (err) {
+    console.error('GUARD_ERROR', err)
+    if (session) session.clearSession()
+    return { name: 'login' }
   }
 
-  if (requiresAuth && token) {
-    let session
-    try {
-      session = await import('../services/session')
-      const me = await session.fetchMe()
-      if (requiresAdmin && !isStaffAdmin(me)) {
-        return { name: 'landing' }
-      }
-    } catch (err) {
-      console.error('GUARD_ERROR', err)
-      if (session) session.clearSession()
-      return { name: 'login' }
-    }
+  if (to.name === 'login') {
+    return { path: session.homeForRole(me) }
+  }
+
+  if (requiresAdmin && !isStaffAdmin(me)) {
+    return { path: session.homeForRole(me) }
+  }
+
+  if (requiresSeller && !session.hasActiveStore(me)) {
+    return { name: 'cart' }
   }
 })
 

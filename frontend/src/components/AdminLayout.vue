@@ -52,6 +52,9 @@ function logout() {
         <router-link to="/admin/orders" class="sidebar-link">
           Pesanan
         </router-link>
+        <router-link to="/admin/carts" class="sidebar-link">
+          Keranjang Belanja
+        </router-link>
         <router-link to="/admin/withdrawals" class="sidebar-link">
           Penarikan Dana
         </router-link>

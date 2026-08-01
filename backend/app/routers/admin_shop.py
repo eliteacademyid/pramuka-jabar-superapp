@@ -235,6 +235,61 @@ def admin_reports(
     )
 
 
+@router.get("/carts", response_model=List[schemas.AdminCartEntryOut])
+def admin_list_carts(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(require_staff_or_admin),
+):
+    users = db.query(models.User).order_by(models.User.id).all()
+    items = (
+        db.query(models.CartItem)
+        .join(models.Product, models.CartItem.product_id == models.Product.id)
+        .order_by(models.CartItem.user_id, models.CartItem.id)
+        .all()
+    )
+    by_user: dict[int, List[models.CartItem]] = {}
+    for it in items:
+        by_user.setdefault(it.user_id, []).append(it)
+
+    entries: List[schemas.AdminCartEntryOut] = []
+    for u in users:
+        u_items = by_user.get(u.id, [])
+        item_rows: List[schemas.AdminCartItemOut] = []
+        subtotal = Decimal("0.00")
+        qty_total = 0
+        updated_at: Optional[datetime] = None
+        for it in u_items:
+            price = Decimal(it.product.price)
+            sub = price * it.qty
+            subtotal += sub
+            qty_total += it.qty
+            if updated_at is None or it.created_at > updated_at:
+                updated_at = it.created_at
+            item_rows.append(
+                schemas.AdminCartItemOut(
+                    product_id=it.product_id,
+                    name=it.product.name,
+                    price=price,
+                    qty=it.qty,
+                    subtotal=sub.quantize(Decimal("0.01")),
+                )
+            )
+        entries.append(
+            schemas.AdminCartEntryOut(
+                user_id=u.id,
+                username=u.username,
+                nama_lengkap=u.nama_lengkap,
+                is_active=u.is_active,
+                item_count=len(u_items),
+                qty_total=qty_total,
+                subtotal=subtotal.quantize(Decimal("0.01")),
+                updated_at=updated_at,
+                items=item_rows,
+            )
+        )
+    return entries
+
+
 # ---------- Seller dashboard ----------
 
 seller_router = APIRouter(prefix="/seller", tags=["seller"])

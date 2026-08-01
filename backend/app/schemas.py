@@ -450,6 +450,26 @@ class AdminReport(BaseModel):
     period_days: int
 
 
+class AdminCartItemOut(BaseModel):
+    product_id: int
+    name: str
+    price: Decimal
+    qty: int
+    subtotal: Decimal
+
+
+class AdminCartEntryOut(BaseModel):
+    user_id: int
+    username: str
+    nama_lengkap: str
+    is_active: bool
+    item_count: int
+    qty_total: int
+    subtotal: Decimal
+    updated_at: Optional[datetime]
+    items: List[AdminCartItemOut]
+
+
 class SellerDashboardOut(BaseModel):
     active_products: int
     orders_by_status: dict

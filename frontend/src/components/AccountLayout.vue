@@ -14,12 +14,14 @@
         <router-link class="sidebar-link" to="/account/wallet">Wallet</router-link>
         <router-link class="sidebar-link" to="/account/profile">Profil & Alamat</router-link>
 
-        <div class="sidebar-section-label">Toko Saya</div>
-        <router-link class="sidebar-link" to="/account/seller/store">Toko</router-link>
-        <router-link class="sidebar-link" to="/account/seller/dashboard">Dashboard Penjual</router-link>
-        <router-link class="sidebar-link" to="/account/seller/products">Produk</router-link>
-        <router-link class="sidebar-link" to="/account/seller/orders">Pesanan Masuk</router-link>
-        <router-link class="sidebar-link" to="/account/seller/withdraw">Pencairan Dana</router-link>
+        <template v-if="me && hasActiveStore(me)">
+          <div class="sidebar-section-label">Toko Saya</div>
+          <router-link class="sidebar-link" to="/account/seller/store">Toko</router-link>
+          <router-link class="sidebar-link" to="/account/seller/dashboard">Dashboard Penjual</router-link>
+          <router-link class="sidebar-link" to="/account/seller/products">Produk</router-link>
+          <router-link class="sidebar-link" to="/account/seller/orders">Pesanan Masuk</router-link>
+          <router-link class="sidebar-link" to="/account/seller/withdraw">Pencairan Dana</router-link>
+        </template>
       </nav>
 
       <div class="sidebar-footer">
@@ -40,7 +42,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { fetchMe, clearSession } from '../services/session'
+import { fetchMe, clearSession, hasActiveStore } from '../services/session'
 
 const router = useRouter()
 const me = ref(null)

@@ -79,7 +79,34 @@ def test_staff_can_view_stores_products_orders(client):
     assert client.get("/api/admin/products", headers=headers(st)).status_code == 200
     assert client.get("/api/admin/orders", headers=headers(st)).status_code == 200
     assert client.get("/api/admin/reports", headers=headers(st)).status_code == 200
-    assert client.get("/api/admin/withdrawals", headers=headers(st)).status_code == 403
+    assert client.get("/api/admin/withdrawals", headers=headers(st)).status_code == 200
+
+
+def test_admin_carts_per_user(client):
+    a = _admin(client)
+    r = client.get("/api/admin/carts", headers=headers(a))
+    assert r.status_code == 200
+    entries = {e["user_id"]: e for e in r.json()}
+    assert all(e["item_count"] == 0 and e["subtotal"] == "0.00" for e in entries.values())
+
+    register(client, "cart_watcher")
+    buyer = login(client, "cart_watcher")
+    product = demo_product(client)
+    add_cart(client, buyer, product["id"], qty=3)
+
+    st = _staff(client)
+    entries = {e["user_id"]: e for e in client.get("/api/admin/carts", headers=headers(st)).json()}
+    buyer_id = next(
+        u["id"] for u in client.get("/api/admin/users", headers=headers(a)).json()
+        if u["username"] == "cart_watcher"
+    )
+    entry = entries[buyer_id]
+    assert entry["item_count"] == 1
+    assert entry["qty_total"] == 3
+    assert float(entry["subtotal"]) == float(product["price"]) * 3
+    assert entry["items"][0]["name"] == product["name"]
+    assert entry["items"][0]["qty"] == 3
+    assert entry["updated_at"] is not None
 
 
 def test_admin_approve_reject_store_flow(client):

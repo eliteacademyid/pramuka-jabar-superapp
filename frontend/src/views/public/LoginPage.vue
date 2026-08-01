@@ -1,8 +1,9 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../../services/api'
 
+const route = useRoute()
 const router = useRouter()
 
 const username = ref('')
@@ -19,7 +20,10 @@ async function handleSubmit() {
       password: password.value
     })
     localStorage.setItem('token', res.data.access_token)
-    router.push({ name: 'admin-dashboard' })
+    const { fetchMe, homeForRole } = await import('../../services/session')
+    const me = await fetchMe(true)
+    const redirect = route.query.redirect
+    router.push(redirect ? String(redirect) : homeForRole(me))
   } catch (err) {
     errorMessage.value =
       err.response?.data?.detail || 'Terjadi kesalahan. Coba lagi.'
@@ -33,7 +37,7 @@ async function handleSubmit() {
   <div class="login-page">
     <form class="login-card" @submit.prevent="handleSubmit">
       <div class="logo-circle small"></div>
-      <h2>Masuk Admin</h2>
+      <h2>Masuk</h2>
       <p class="subtitle">Super Apps Pramuka Jawa Barat</p>
 
       <div v-if="errorMessage" class="alert-error">{{ errorMessage }}</div>
