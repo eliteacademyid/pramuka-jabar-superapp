@@ -1,20 +1,14 @@
 from datetime import datetime
-<<<<<<< HEAD
 from enum import Enum
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
-=======
-
-from sqlalchemy import Boolean, Column, DateTime, Integer, String
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
 from app.database import Base
 
 ROLES = ("admin", "staff")
 
 
-<<<<<<< HEAD
 class RealisasiStatus(str, Enum):
     draft = "draft"
     submitted = "submitted"
@@ -35,32 +29,6 @@ class ApprovalStatus(str, Enum):
     rejected = "rejected"
 
 
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
-class User(Base):
-    __tablename__ = "users"
-
-    id = Column(Integer, primary_key=True, index=True)
-<<<<<<< HEAD
-    username = Column(String(50), unique=True, index=True, nullable=False)
-    email = Column(String(100), unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    nama_lengkap = Column(String(100), nullable=False)
-    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False, default=2)  # default to staff
-    organisasi_id = Column(Integer, ForeignKey("organisasi.id"), nullable=True)
-    is_active = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    role = relationship("Role", back_populates="users")
-    organisasi = relationship("Organisasi", back_populates="users")
-    programs = relationship("Program", back_populates="creator")
-    realisasis = relationship("Realisasi", back_populates="creator")
-    laporans = relationship("Laporan", back_populates="creator")
-    approvals = relationship("Approval", back_populates="reviewer")
-
-
 class Role(Base):
     __tablename__ = "roles"
 
@@ -69,7 +37,6 @@ class Role(Base):
     description = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Relationships
     users = relationship("User", back_populates="role")
 
 
@@ -85,9 +52,30 @@ class Organisasi(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     users = relationship("User", back_populates="organisasi")
     programs = relationship("Program", back_populates="organisasi")
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(50), unique=True, index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    nama_lengkap = Column(String(100), nullable=False)
+    role_id = Column(Integer, ForeignKey("roles.id"), nullable=False, default=2)
+    organisasi_id = Column(Integer, ForeignKey("organisasi.id"), nullable=True)
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    role = relationship("Role", back_populates="users")
+    organisasi = relationship("Organisasi", back_populates="users")
+    programs = relationship("Program", back_populates="creator")
+    realisasis = relationship("Realisasi", back_populates="creator")
+    laporans = relationship("Laporan", back_populates="creator")
+    approvals = relationship("Approval", back_populates="reviewer")
 
 
 class Program(Base):
@@ -97,17 +85,16 @@ class Program(Base):
     nama = Column(String(150), index=True, nullable=False)
     deskripsi = Column(String, nullable=True)
     tahun = Column(Integer, nullable=False, index=True)
-    status = Column(String(20), nullable=False, default="active", index=True)  # active, inactive, archived
+    status = Column(String(20), nullable=False, default="active", index=True)
     creator_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     organisasi_id = Column(Integer, ForeignKey("organisasi.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     creator = relationship("User", back_populates="programs")
     organisasi = relationship("Organisasi", back_populates="programs")
     kegiatans = relationship("Kegiatan", back_populates="program")
-    realisis = relationship("Realisasi", back_populates="program")
+    realisasis = relationship("Realisasi", back_populates="program")
 
 
 class Kegiatan(Base):
@@ -119,14 +106,13 @@ class Kegiatan(Base):
     program_id = Column(Integer, ForeignKey("programs.id"), nullable=False)
     tanggal_mulai = Column(DateTime, nullable=False)
     tanggal_selesai = Column(DateTime, nullable=True)
-    status = Column(String(20), nullable=False, default="active", index=True)  # active, inactive, completed
+    status = Column(String(20), nullable=False, default="active", index=True)
     lokasi = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
     program = relationship("Program", back_populates="kegiatans")
-    realisis = relationship("Realisasi", back_populates="kegiatan")
+    realisasis = relationship("Realisasi", back_populates="kegiatan")
 
 
 class Realisasi(Base):
@@ -148,8 +134,8 @@ class Realisasi(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     creator = relationship("User", back_populates="realisasis")
-    program = relationship("Program", back_populates="realisis")
-    kegiatan = relationship("Kegiatan", back_populates="realisis")
+    program = relationship("Program", back_populates="realisasis")
+    kegiatan = relationship("Kegiatan", back_populates="realisasis")
     documents = relationship("Dokumen", back_populates="realisasi")
     laporans = relationship("Laporan", back_populates="realisasi")
 
@@ -200,12 +186,3 @@ class Approval(Base):
 
     laporan = relationship("Laporan", back_populates="approvals")
     reviewer = relationship("User", back_populates="approvals")
-
-=======
-    username = Column(String, unique=True, index=True, nullable=False)
-    hashed_password = Column(String, nullable=False)
-    nama_lengkap = Column(String, nullable=False)
-    role = Column(String, nullable=False, default="staff")
-    is_active = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
