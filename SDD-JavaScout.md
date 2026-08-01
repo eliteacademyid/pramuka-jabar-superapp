@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.9
+**Versi Dokumen** : 1.10
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -52,6 +52,11 @@
 > "Rating Tertinggi" (`?sort=rating`, rata-rata bintang ulasan terbaik,
 > produk tanpa ulasan di belakang) dan "Terbanyak Diulas" (`?sort=reviewed`,
 > jumlah ulasan terbanyak) di dropdown urutkan katalog.
+> Pembaruan v1.10: **produk jasa dummy & gambar ilustrasi** — kategori Jasa
+> kini terisi 3 contoh layanan (fotografi kegiatan, desain logo & umbul-umbul,
+> sewa tenda & perlengkapan) lengkap dengan gambar ilustrasi lokal
+> (`frontend/public/images/products/jasa-*.jpg`); kartu kategori "Semua
+> Barang" di katalog; pencarian & filter dipindah ke panel samping katalog.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -605,11 +610,13 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 RBAC (v1.4): seluruh endpoint admin (`get_current_admin` & `require_staff_or_admin`)
 menerima role `admin` atau `staff`; role `member` tetap ditolak (403).
 
-Media (v1.3): file gambar produk disajikan sebagai aset statis lokal dari
-`frontend/public/images/products/` (path relatif disimpan pada kolom `images`),
-termasuk gambar demo seed; foto hero landing disimpan di
-`frontend/public/images/hero-ig.png`. (CDN eksternal `cdn.javascout.id` tetap
-rencana pengembangan lanjutan.)
+Media (v1.3, dilengkapi v1.10): file gambar produk disajikan sebagai aset statis
+lokal dari `frontend/public/images/products/` (path relatif disimpan pada kolom
+`images`), termasuk gambar demo seed — produk barang (kue kering, keripik
+pisang, es kopi, gelang tali kur, tote bag) dan produk jasa baru (fotografi,
+desain logo, sewa tenda, masing-masing 1 gambar `jasa-*.jpg`); foto hero landing
+disimpan di `frontend/public/images/hero-ig.png`. (CDN eksternal
+`cdn.javascout.id` tetap rencana pengembangan lanjutan.)
 
 ---
 
@@ -668,10 +675,12 @@ rencana pengembangan lanjutan.)
   kartu kategori populer yang menuju katalog dengan filter aktif; band CTA
   maroon "Daftar & Buka Toko". Katalog dapat diakses publik tanpa login.
 - **Katalog marketplace** (redesain Iterasi 1): hero gradient coklat→maroon dengan
-  aksen emas + kolom pencarian pill; **kartu kategori** berikon (makanan, minuman,
-  kerajinan, fashion, jasa, lainnya) yang dapat diklik untuk memfilter grid;
-  **badge keranjang** di hero (jumlah item, tautan ke halaman keranjang); baris
-  filter dalam kartu (kategori, **lokasi** — partial-match + saran kota dari
+  aksen emas + judul & badge keranjang; **kartu kategori** berikon (termasuk
+  kartu **"Semua Barang"** v1.10 berikon toko untuk menampilkan seluruh produk;
+  makanan, minuman, kerajinan, fashion, jasa, lainnya) yang dapat diklik untuk
+  memfilter grid;
+  **panel samping** (v1.10) berisi blok Pencarian (`SearchSuggest`) dan blok
+  Filter (kategori, **lokasi** — partial-match + saran kota dari
   `/api/cities`, urutan — termasuk **Termurah/Termahal** v1.6 serta **Rating
   Tertinggi & Terbanyak Diulas** v1.9); penghitung hasil; grid kartu produk
   responsif (min 240px) — gambar rasio 4:3 dengan efek zoom saat hover, badge
