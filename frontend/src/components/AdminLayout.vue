@@ -36,6 +36,12 @@ function logout() {
         <router-link to="/admin" class="sidebar-link">
           Dashboard
         </router-link>
+        <router-link to="/admin/trainings" class="sidebar-link">
+          Daftar Pelatihan
+        </router-link>
+        <router-link to="/admin/enrollments" class="sidebar-link">
+          Pelatihanku
+        </router-link>
         <router-link to="/admin/users" class="sidebar-link">
           Manajemen User
         </router-link>
