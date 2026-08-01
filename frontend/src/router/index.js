@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../store/auth'
 import MainLayout from '../layouts/MainLayout.vue'
+import AuthLayout from '../layouts/AuthLayout.vue'
 import LoginPage from '../pages/Auth/LoginPage.vue'
 import DashboardHome from '../pages/Dashboard/DashboardHome.vue'
 import DashboardStatistik from '../pages/Dashboard/DashboardStatistik.vue'
@@ -15,8 +16,11 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: LoginPage,
-    meta: { public: true }
+    component: AuthLayout,
+    meta: { public: true },
+    children: [
+      { path: '', name: 'login', component: LoginPage }
+    ]
   },
   {
     path: '/dashboard',
