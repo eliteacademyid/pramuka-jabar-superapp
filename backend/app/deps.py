@@ -43,3 +43,13 @@ def get_current_admin(
             status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role admin"
         )
     return current_user
+
+
+def get_current_member(
+    current_user: models.User = Depends(get_current_user),
+) -> models.User:
+    if current_user.role not in ("member", "admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role member atau admin"
+        )
+    return current_user
