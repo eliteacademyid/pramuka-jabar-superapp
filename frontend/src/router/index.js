@@ -7,6 +7,7 @@ import DashboardHome from '../pages/Dashboard/DashboardHome.vue'
 import DashboardStatistik from '../pages/Dashboard/DashboardStatistik.vue'
 import DashboardGrafik from '../pages/Dashboard/DashboardGrafik.vue'
 import DashboardPerbandingan from '../pages/Dashboard/DashboardPerbandingan.vue'
+import Users from '../views/admin/Users.vue'
 
 const routes = [
   {
@@ -32,6 +33,14 @@ const routes = [
       { path: 'grafik', name: 'dashboard-grafik', component: DashboardGrafik },
       { path: 'perbandingan', name: 'dashboard-perbandingan', component: DashboardPerbandingan }
     ]
+  },
+  {
+    path: '/admin',
+    component: MainLayout,
+    meta: { requiresAuth: true, roles: ['admin'] },
+    children: [
+      { path: 'users', name: 'admin-users', component: Users }
+    ]
   }
 ]
 
@@ -44,10 +53,15 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
   const token = authStore.token || localStorage.getItem('token')
   const requiresAuth = to.matched.some((record) => record.meta.requiresAuth)
+  const allowedRoles = to.matched.some((record) => record.meta.roles)
+    ? to.matched.find((record) => record.meta.roles)?.meta.roles
+    : null
 
   if (requiresAuth && !token) {
     next({ name: 'login' })
   } else if (to.name === 'login' && token) {
+    next({ name: 'dashboard' })
+  } else if (allowedRoles && authStore.user?.role && !allowedRoles.includes(authStore.user.role)) {
     next({ name: 'dashboard' })
   } else {
     next()
