@@ -61,3 +61,11 @@ def get_my_enrollments(
     current_user: models.User = Depends(get_current_user)
 ):
     return db.query(models.Enrollment).filter(models.Enrollment.user_id == current_user.id).order_by(models.Enrollment.enrolled_at.desc()).all()
+
+
+@router.get("/trainings/{training_id}/quiz", response_model=schemas.QuizOut)
+def get_quiz(training_id: int, db: Session = Depends(get_db)):
+    quiz = db.query(models.Quiz).filter(models.Quiz.training_id == training_id).first()
+    if not quiz:
+        raise HTTPException(status_code=404, detail="Kuis tidak ditemukan untuk pelatihan ini")
+    return quiz
