@@ -89,9 +89,11 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import api from '../../services/api'
 import ProductCard from '../../components/ProductCard.vue'
 
+const route = useRoute()
 const products = ref([])
 const categories = ref([])
 const totalPages = ref(1)
@@ -155,6 +157,9 @@ async function loadCartCount() {
 }
 
 onMounted(async () => {
+  if (route.query.category) {
+    filters.value.category = String(route.query.category)
+  }
   load(1)
   loadCartCount()
   const { data } = await api.get('/categories')
