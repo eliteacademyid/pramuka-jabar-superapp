@@ -1,12 +1,12 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.3
-**Tanggal** : 1 Agustus 2026
+**Versi Dokumen** : 1.4
+**Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
 > **Catatan Implementasi Iterasi 1 (tim 1)**: Modul e-commerce/marketplace telah
-> diimplementasikan dan diuji (73 test lulus): registrasi & login (JWT), toko,
+> diimplementasikan dan diuji (74 test lulus): registrasi & login (JWT), toko,
 > katalog produk, keranjang lintas toko, checkout + ongkir, pembayaran via wallet
 > dengan escrow & komisi platform, siklus pesanan (pay → confirm → ship →
 > confirm-receipt), pencairan dana penjual (withdraw + moderasi admin), ulasan,
@@ -18,6 +18,16 @@
 > statistik, kartu fitur, kategori populer, band CTA, topbar/footer baru); semua
 > gambar produk kini foto nyata yang disimpan lokal (bukan URL CDN mati) dengan
 > seed diperbarui; ejaan "SuperApps" (satu kata) digunakan di UI publik.
+> Pembaruan v1.4: **login & menu berbasis role** — role `staff` kini berlaku
+> sebagai operator back-office (boleh akses seluruh API & menu admin, sebelumnya
+> hanya `admin`); setelah login setiap user diarahkan sesuai peran (admin/staff →
+> Dashboard Admin, member bertoko → Dashboard Penjual, member biasa → Katalog);
+> menu "Toko Saya" hanya tampil bagi pemilik toko aktif, dan rute penjual
+> (`/account/seller/*`) dilindungi (tanpa toko aktif dialihkan ke Keranjang);
+> halaman login berubah dari "Masuk Admin" menjadi "Masuk" untuk semua user.
+> Back-office mendapat halaman baru **Keranjang Belanja** (`GET /api/admin/carts`)
+> untuk memantau isi keranjang setiap user (jumlah item, qty, subtotal, waktu
+> terakhir diubah).
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -79,6 +89,7 @@ JavaScout adalah **superapps** berbasis web (dan target mobile app) yang menjadi
 | Pembeli (Buyer) | Belanja: keranjang, checkout, pembayaran, lacak pesanan, ulasan |
 | Penjual Anggota/UMKM (Seller) | Membuka toko, kelola produk/stok/pesanan/pengiriman, pencairan dana |
 | Admin Platform | Moderasi toko & produk, kelola kategori/komisi/laporan |
+| Staff (Operator Back-office) | Sama seperti Admin untuk area marketplace & user (role `staff` diterima semua API admin) |
 | Super Admin | Pengaturan global: sistem, integrasi, payment, dukungan |
 | Kwartir (Institusi) | Menyaksikan laporan ekonomi, promosi program UMKM Pramuka (read-only dashboard) |
 
@@ -119,7 +130,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 73 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin |
+| Testing | pytest + httpx (TestClient, SQLite) | 74 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff & monitor keranjang user) |
 
 ---
 
@@ -539,8 +550,12 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 | GET | `/api/admin/products` | List produk |
 | POST | `/api/admin/products/{id}/deactivate` | Nonaktifkan produk |
 | GET | `/api/admin/orders` | Semua pesanan |
+| GET | `/api/admin/carts` | Status keranjang setiap user (item, qty, subtotal, updated_at) — admin/staff |
 | GET | `/api/admin/reports` | Laporan (user, toko, produk, order per status, volume) |
 | GET | `/api/admin/withdrawals` | List pencairan + approve/reject |
+
+RBAC (v1.4): seluruh endpoint admin (`get_current_admin` & `require_staff_or_admin`)
+menerima role `admin` atau `staff`; role `member` tetap ditolak (403).
 
 Media (v1.3): file gambar produk disajikan sebagai aset statis lokal dari
 `frontend/public/images/products/` (path relatif disimpan pada kolom `images`),
@@ -573,11 +588,24 @@ rencana pengembangan lanjutan.)
 ### 7.3 Implementasi UI Iterasi 1
 
 - **Navigasi superapp**: sidebar admin berisi Dashboard, Manajemen User, dan seksi
-  **Marketplace** (Moderasi Toko, Produk, Pesanan, Penarikan Dana, Laporan); sidebar
-  akun pengguna berisi Belanja (Katalog, Keranjang, Pesanan, Wallet, Profil) dan
-  Toko Saya (Toko, Dashboard Penjual, Produk, Pesanan Masuk, Pencairan Dana).
+  **Marketplace** (Moderasi Toko, Produk, Pesanan, Keranjang Belanja, Penarikan
+  Dana, Laporan); sidebar akun pengguna berisi Belanja (Katalog, Keranjang,
+  Pesanan, Wallet, Profil) dan — hanya bila punya toko aktif — Toko Saya (Toko,
+  Dashboard Penjual, Produk, Pesanan Masuk, Pencairan Dana).
   Modul superapp lain (Berita, Anggota, Kegiatan, Galeri, Dokumen, Pengaturan)
   ditandai "Segera Hadir".
+- **Login & redirect berbasis role** (v1.4): halaman login berjudul "Masuk"
+  (tidak lagi "Masuk Admin") dan setelah login mengarahkan sesuai peran —
+  admin/staff → `/admin`, member dengan toko aktif → `/account/seller/dashboard`,
+  member biasa → `/catalog`; pengguna yang sudah login membuka `/login` dialihkan
+  ke tujuan perannya; rute `/account/seller/*` dilindungi `requiresSeller`
+  (tanpa toko aktif → dialihkan ke Keranjang); role `staff` dianggap operator
+  back-office (menu & API admin, backend `get_current_admin` menerima admin/staff),
+  role `member` ditolak dari area admin (403).
+- **Halaman Keranjang Belanja** (admin, v1.4): tabel seluruh user dengan chip
+  produk di keranjang ("2× Kue Kering"), total item, subtotal, waktu terakhir
+  diubah, dan badge status Berisi/Kosong; sumber data `GET /api/admin/carts`
+  (bisa diakses admin & staff).
 - **Topbar & footer publik** (v1.3): topbar berisi logo ⚜️ + nama "JavaScout
   Pramuka Jabar", tautan Katalog Marketplace, tombol Masuk (outline) dan Daftar
   (solid); footer gelap berisi brand, tautan cepat, dan hak cipta.
