@@ -70,3 +70,30 @@ class TrainingOut(TrainingBase):
 
     model_config = {"from_attributes": True}
 
+
+class TrainingMaterialBase(BaseModel):
+    title: str
+    content: Optional[str] = None
+    media_url: Optional[str] = None
+    order: int = 1
+
+
+class TrainingMaterialCreate(TrainingMaterialBase):
+    training_id: int
+
+
+class TrainingMaterialUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    media_url: Optional[str] = None
+    order: Optional[int] = None
+
+
+class TrainingMaterialOut(TrainingMaterialBase):
+    id: int
+    training_id: int
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
