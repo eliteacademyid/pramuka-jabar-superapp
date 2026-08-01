@@ -1,139 +1,110 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import get_db
 from app.deps import get_current_admin
+from app.limiter import limiter, LIMIT_READ_LIST, LIMIT_READ_DETAIL, LIMIT_WRITE, LIMIT_DELETE
 
 router = APIRouter(prefix="/organisasi", tags=["Organisasi"])
 
 
 @router.get("", response_model=List[schemas.OrganisasiResponse])
+@limiter.limit(LIMIT_READ_LIST)
 def get_all_organisasi(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     search: Optional[str] = Query(None),
     is_active: Optional[bool] = Query(None),
     db: Session = Depends(get_db),
 ):
-    """Get all organisasi with optional search and active filter."""
+    """List organisasi. Limit: 60/menit per IP."""
     query = db.query(models.Organisasi)
-
     if search:
         query = query.filter(models.Organisasi.nama.ilike(f"%{search}%"))
-
     if is_active is not None:
         query = query.filter(models.Organisasi.is_active == is_active)
-
-    # created_at kini punya index — ORDER BY tetap cepat
     return query.order_by(models.Organisasi.created_at.desc()).offset(skip).limit(limit).all()
 
 
 @router.get("/{organisasi_id}", response_model=schemas.OrganisasiResponse)
-def get_organisasi_by_id(organisasi_id: int, db: Session = Depends(get_db)):
-    """Get organisasi by ID."""
-    organisasi = db.query(models.Organisasi).filter(
-        models.Organisasi.id == organisasi_id
-    ).first()
-
+@limiter.limit(LIMIT_READ_DETAIL)
+def get_organisasi_by_id(request: Request, organisasi_id: int, db: Session = Depends(get_db)):
+    """Detail organisasi. Limit: 120/menit per IP."""
+    organisasi = db.query(models.Organisasi).filter(models.Organisasi.id == organisasi_id).first()
     if not organisasi:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Organisasi tidak ditemukan",
-        )
-
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organisasi tidak ditemukan")
     return organisasi
 
 
 @router.post("", response_model=schemas.OrganisasiResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_WRITE)
 def create_organisasi(
+    request: Request,
     organisasi_data: schemas.OrganisasiCreate,
     current_user: models.User = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """Create new organisasi (admin only)."""
-    # EXISTS lebih ringan dari SELECT * — tidak fetch semua kolom
-    # nama sudah unique=True di DB sehingga INSERT akan gagal jika duplikat,
-    # tapi cek lebih awal memberi pesan error yang lebih jelas.
+    """Buat organisasi (admin). Limit: 30/menit per IP."""
     nama_exists = db.query(
         db.query(models.Organisasi).filter(models.Organisasi.nama == organisasi_data.nama).exists()
     ).scalar()
-
     if nama_exists:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Nama organisasi sudah digunakan",
-        )
+        raise HTTPException(status_code=400, detail="Nama organisasi sudah digunakan")
 
     new_organisasi = models.Organisasi(**organisasi_data.model_dump())
     db.add(new_organisasi)
     db.commit()
     db.refresh(new_organisasi)
-
     return new_organisasi
 
 
 @router.put("/{organisasi_id}", response_model=schemas.OrganisasiResponse)
+@limiter.limit(LIMIT_WRITE)
 def update_organisasi(
+    request: Request,
     organisasi_id: int,
     organisasi_data: schemas.OrganisasiUpdate,
     current_user: models.User = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """Update organisasi (admin only)."""
-    # Cek exist dulu dengan query ringan
-    organisasi = db.query(models.Organisasi).filter(
-        models.Organisasi.id == organisasi_id
-    ).first()
-
+    """Update organisasi (admin). Limit: 30/menit per IP."""
+    organisasi = db.query(models.Organisasi).filter(models.Organisasi.id == organisasi_id).first()
     if not organisasi:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Organisasi tidak ditemukan",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organisasi tidak ditemukan")
 
     updates = organisasi_data.model_dump(exclude_unset=True)
     if updates:
-        # Jika nama diubah, cek duplikat terlebih dahulu
         if "nama" in updates and updates["nama"] != organisasi.nama:
             nama_exists = db.query(
                 db.query(models.Organisasi).filter(models.Organisasi.nama == updates["nama"]).exists()
             ).scalar()
             if nama_exists:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Nama organisasi sudah digunakan",
-                )
-
-        # Bulk UPDATE — tidak ada setattr loop + refresh SELECT
-        db.query(models.Organisasi).filter(
-            models.Organisasi.id == organisasi_id
-        ).update(updates, synchronize_session="fetch")
+                raise HTTPException(status_code=400, detail="Nama organisasi sudah digunakan")
+        db.query(models.Organisasi).filter(models.Organisasi.id == organisasi_id).update(
+            updates, synchronize_session="fetch"
+        )
         db.commit()
         db.refresh(organisasi)
-
     return organisasi
 
 
 @router.delete("/{organisasi_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(LIMIT_DELETE)
 def delete_organisasi(
+    request: Request,
     organisasi_id: int,
     current_user: models.User = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """Delete organisasi (admin only)."""
-    # Langsung DELETE dan cek rowcount — satu query, tidak perlu SELECT dulu
+    """Hapus organisasi (admin). Limit: 20/menit per IP."""
     deleted = db.query(models.Organisasi).filter(
         models.Organisasi.id == organisasi_id
     ).delete(synchronize_session=False)
     db.commit()
-
     if not deleted:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Organisasi tidak ditemukan",
-        )
-
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Organisasi tidak ditemukan")
     return None

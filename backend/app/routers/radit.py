@@ -3,7 +3,7 @@ import re
 from pathlib import Path
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Request, UploadFile, status
 
 try:
     import cloudinary
@@ -18,6 +18,15 @@ from sqlalchemy.orm import Session, selectinload
 from app import models, schemas
 from app.database import engine, get_db
 from app.deps import get_current_user, get_current_admin
+from app.limiter import (
+    limiter,
+    LIMIT_READ_LIST,
+    LIMIT_READ_DETAIL,
+    LIMIT_WRITE,
+    LIMIT_UPLOAD,
+    LIMIT_APPROVAL,
+    LIMIT_DASHBOARD,
+)
 
 radit_router = APIRouter(tags=["Realisasi"])
 
@@ -57,14 +66,16 @@ def _month_expr(col):
 # ─── Realisasi ─────────────────────────────────────────────────────────────────
 
 @radit_router.get("/realisasi", response_model=List[schemas.RealisasiResponse])
+@limiter.limit(LIMIT_READ_LIST)
 def list_realisasi(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     search: Optional[str] = Query(None, max_length=100),
     status: Optional[str] = Query(None, max_length=20),
     db: Session = Depends(get_db),
 ):
-    """Get all realisasi entries."""
+    """Get all realisasi entries. Limit: 60/menit per IP."""
     query = db.query(models.Realisasi)
 
     if search:
@@ -77,12 +88,14 @@ def list_realisasi(
 
 
 @radit_router.post("/realisasi", response_model=schemas.RealisasiResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_WRITE)
 def create_realisasi(
+    request: Request,
     payload: schemas.RealisasiCreate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create a draft realisasi entry."""
+    """Create a draft realisasi entry. Limit: 30/menit per IP."""
     if payload.program_id is not None:
         exists = db.query(
             db.query(models.Program).filter(models.Program.id == payload.program_id).exists()
@@ -117,11 +130,13 @@ def create_realisasi(
 # ─── Upload ────────────────────────────────────────────────────────────────────
 
 @radit_router.post("/upload", tags=["Realisasi"])
+@limiter.limit(LIMIT_UPLOAD)
 def upload_file(
+    request: Request,
     file: UploadFile = File(...),
     current_user: models.User = Depends(get_current_user),
 ):
-    """Upload a file. Max 10MB. Tipe yang diizinkan: PDF, Word, Excel, gambar, ZIP, CSV."""
+    """Upload a file. Max 10MB. Tipe yang diizinkan: PDF, Word, Excel, gambar, ZIP, CSV. Limit: 10/menit per IP."""
     if not file.filename:
         raise HTTPException(status_code=400, detail="Nama file tidak valid")
 
@@ -176,13 +191,15 @@ def upload_file(
 # ─── Laporan ───────────────────────────────────────────────────────────────────
 
 @radit_router.get("/laporan", response_model=List[schemas.LaporanResponse])
+@limiter.limit(LIMIT_READ_LIST)
 def list_laporan(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     status: Optional[str] = Query(None, max_length=20),
     db: Session = Depends(get_db),
 ):
-    """Get all laporan entries."""
+    """Get all laporan entries. Limit: 60/menit per IP."""
     query = db.query(models.Laporan)
     if status:
         query = query.filter(models.Laporan.status == status)
@@ -190,12 +207,14 @@ def list_laporan(
 
 
 @radit_router.post("/laporan", response_model=schemas.LaporanResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_WRITE)
 def create_laporan(
+    request: Request,
     payload: schemas.LaporanCreate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create a laporan entry."""
+    """Create a laporan entry. Limit: 30/menit per IP."""
     if payload.realisasi_id is not None:
         exists = db.query(
             db.query(models.Realisasi).filter(models.Realisasi.id == payload.realisasi_id).exists()
@@ -220,13 +239,15 @@ def create_laporan(
 # ─── Approval — hanya admin yang boleh approve/reject ─────────────────────────
 
 @radit_router.post("/approval", response_model=schemas.ApprovalResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_APPROVAL)
 def process_approval(
+    request: Request,
     payload: schemas.ApprovalCreate,
     # get_current_admin memastikan hanya admin yang bisa approve/reject
     current_user: models.User = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """Approve or reject a laporan entry. Hanya admin."""
+    """Approve or reject a laporan entry. Hanya admin. Limit: 30/menit per IP."""
     laporan = db.query(models.Laporan).filter(models.Laporan.id == payload.laporan_id).first()
     if not laporan:
         raise HTTPException(status_code=404, detail="Laporan tidak ditemukan")
@@ -251,11 +272,13 @@ def process_approval(
 # ─── Dashboard — hanya user terautentikasi ─────────────────────────────────────
 
 @radit_router.get("/dashboard/statistik", response_model=schemas.DashboardStatsResponse)
+@limiter.limit(LIMIT_DASHBOARD)
 def dashboard_statistik(
+    request: Request,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_user),
 ):
-    """Statistik dashboard. Memerlukan autentikasi."""
+    """Statistik dashboard. Memerlukan autentikasi. Limit: 30/menit per IP."""
     row = db.query(
         func.count(models.Laporan.id).label("total_laporan"),
         func.sum(case((models.Laporan.status == "approved", 1), else_=0)).label("total_disetujui"),
@@ -275,11 +298,13 @@ def dashboard_statistik(
 
 
 @radit_router.get("/dashboard/grafik", response_model=List[schemas.DashboardChartPoint])
+@limiter.limit(LIMIT_DASHBOARD)
 def dashboard_grafik(
+    request: Request,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_user),
 ):
-    """Data grafik bulanan. Memerlukan autentikasi."""
+    """Data grafik bulanan. Memerlukan autentikasi. Limit: 30/menit per IP."""
     month_expr_laporan = _month_expr(models.Laporan.created_at)
     month_expr_realisasi = _month_expr(models.Realisasi.created_at)
 
@@ -308,11 +333,13 @@ def dashboard_grafik(
 
 
 @radit_router.get("/dashboard/perbandingan", response_model=schemas.DashboardComparisonResponse)
+@limiter.limit(LIMIT_DASHBOARD)
 def dashboard_perbandingan(
+    request: Request,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_user),
 ):
-    """Perbandingan target vs realisasi. Memerlukan autentikasi."""
+    """Perbandingan target vs realisasi. Memerlukan autentikasi. Limit: 30/menit per IP."""
     totals = db.query(
         func.coalesce(func.sum(models.Realisasi.target), 0).label("target_sum"),
         func.coalesce(func.sum(models.Realisasi.realisasi), 0).label("realisasi_sum"),

@@ -1,11 +1,12 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
 from app.database import get_db
 from app.deps import get_current_user
+from app.limiter import limiter, LIMIT_READ_LIST, LIMIT_READ_DETAIL, LIMIT_WRITE, LIMIT_DELETE
 
 router = APIRouter(prefix="/programs", tags=["Programs"])
 
@@ -22,7 +23,9 @@ def _is_admin(user: models.User) -> bool:
 
 
 @router.get("", response_model=List[schemas.ProgramResponse])
+@limiter.limit(LIMIT_READ_LIST)
 def get_all_programs(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     search: Optional[str] = Query(None, max_length=100),
@@ -32,7 +35,7 @@ def get_all_programs(
     order: Optional[str] = Query("desc"),
     db: Session = Depends(get_db),
 ):
-    """Get all programs."""
+    """Get all programs. Limit: 60/menit per IP."""
     query = db.query(models.Program)
 
     if search:
@@ -50,8 +53,9 @@ def get_all_programs(
 
 
 @router.get("/{program_id}", response_model=schemas.ProgramDetailResponse)
-def get_program_by_id(program_id: int, db: Session = Depends(get_db)):
-    """Get program by ID."""
+@limiter.limit(LIMIT_READ_DETAIL)
+def get_program_by_id(request: Request, program_id: int, db: Session = Depends(get_db)):
+    """Get program by ID. Limit: 120/menit per IP."""
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
     if not program:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program tidak ditemukan")
@@ -59,12 +63,14 @@ def get_program_by_id(program_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=schemas.ProgramResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_WRITE)
 def create_program(
+    request: Request,
     program_data: schemas.ProgramCreate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create new program."""
+    """Create new program. Limit: 30/menit per IP."""
     organisasi_exists = db.query(
         db.query(models.Organisasi)
         .filter(models.Organisasi.id == program_data.organisasi_id)
@@ -89,18 +95,19 @@ def create_program(
 
 
 @router.put("/{program_id}", response_model=schemas.ProgramResponse)
+@limiter.limit(LIMIT_WRITE)
 def update_program(
+    request: Request,
     program_id: int,
     program_data: schemas.ProgramUpdate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Update program."""
+    """Update program. Limit: 30/menit per IP."""
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
     if not program:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program tidak ditemukan")
 
-    # Pakai role name bukan hardcoded ID
     if program.creator_id != current_user.id and not _is_admin(current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Anda tidak memiliki izin untuk mengubah program ini")
 
@@ -117,12 +124,14 @@ def update_program(
 
 
 @router.delete("/{program_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(LIMIT_DELETE)
 def delete_program(
+    request: Request,
     program_id: int,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Delete program."""
+    """Delete program. Limit: 20/menit per IP."""
     program = db.query(models.Program).filter(models.Program.id == program_id).first()
     if not program:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Program tidak ditemukan")

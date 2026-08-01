@@ -1,13 +1,13 @@
-import time
-from collections import defaultdict
-from typing import Dict
-
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.config import settings
 from app.database import Base, engine
+from app.limiter import limiter
 from app.routers import admin as admin_router
 from app.routers import auth as auth_router
 from app.routers import kegiatan as kegiatan_router
@@ -17,23 +17,6 @@ from app.routers import radit as radit_router
 from app.seed import seed_default_admin, seed_realisasi_laporan_approval
 
 Base.metadata.create_all(bind=engine)
-
-# ─── Brute-force guard — in-memory rate limiter ────────────────────────────────
-# Untuk production multi-instance, ganti dengan Redis-backed rate limiter.
-_login_attempts: Dict[str, list] = defaultdict(list)
-_LOGIN_WINDOW_SECONDS = 60
-_LOGIN_MAX_ATTEMPTS = 10  # max 10 percobaan per IP per menit
-
-
-def _is_rate_limited(ip: str) -> bool:
-    now = time.time()
-    attempts = _login_attempts[ip]
-    # Buang attempt yang sudah di luar window
-    _login_attempts[ip] = [t for t in attempts if now - t < _LOGIN_WINDOW_SECONDS]
-    if len(_login_attempts[ip]) >= _LOGIN_MAX_ATTEMPTS:
-        return True
-    _login_attempts[ip].append(now)
-    return False
 
 
 # ─── App setup ─────────────────────────────────────────────────────────────────
@@ -83,20 +66,16 @@ app = FastAPI(
 )
 app.openapi = custom_openapi
 
+# ─── SlowAPI rate limiter ──────────────────────────────────────────────────────
+# Daftarkan state limiter dan exception handler agar @limiter.limit bekerja.
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+
 # ─── Security headers middleware ───────────────────────────────────────────────
 
 @app.middleware("http")
 async def security_headers(request: Request, call_next):
-    # Rate limit endpoint login
-    if request.url.path in ("/api/auth/login", "/api/auth/register"):
-        client_ip = request.headers.get("X-Forwarded-For", request.client.host if request.client else "unknown")
-        if _is_rate_limited(client_ip):
-            return Response(
-                content='{"detail":"Terlalu banyak percobaan. Coba lagi dalam 1 menit."}',
-                status_code=429,
-                media_type="application/json",
-            )
-
     response = await call_next(request)
 
     # Tambah security headers di setiap response

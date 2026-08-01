@@ -1,11 +1,12 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session, joinedload
 
 from app import models, schemas
 from app.database import get_db
 from app.deps import get_current_user
+from app.limiter import limiter, LIMIT_READ_LIST, LIMIT_READ_DETAIL, LIMIT_WRITE, LIMIT_DELETE
 
 router = APIRouter(prefix="/kegiatans", tags=["Kegiatans"])
 
@@ -22,7 +23,9 @@ def _is_admin(user: models.User) -> bool:
 
 
 @router.get("", response_model=List[schemas.KegiatanResponse])
+@limiter.limit(LIMIT_READ_LIST)
 def get_all_kegiatans(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(10, ge=1, le=100),
     program_id: Optional[int] = Query(None, gt=0),
@@ -32,7 +35,7 @@ def get_all_kegiatans(
     order: Optional[str] = Query("desc"),
     db: Session = Depends(get_db),
 ):
-    """Get all kegiatans."""
+    """Get all kegiatans. Limit: 60/menit per IP."""
     query = db.query(models.Kegiatan)
 
     if program_id:
@@ -52,8 +55,9 @@ def get_all_kegiatans(
 
 
 @router.get("/{kegiatan_id}", response_model=schemas.KegiatanDetailResponse)
-def get_kegiatan_by_id(kegiatan_id: int, db: Session = Depends(get_db)):
-    """Get kegiatan by ID."""
+@limiter.limit(LIMIT_READ_DETAIL)
+def get_kegiatan_by_id(request: Request, kegiatan_id: int, db: Session = Depends(get_db)):
+    """Get kegiatan by ID. Limit: 120/menit per IP."""
     kegiatan = db.query(models.Kegiatan).filter(models.Kegiatan.id == kegiatan_id).first()
     if not kegiatan:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Kegiatan tidak ditemukan")
@@ -61,12 +65,14 @@ def get_kegiatan_by_id(kegiatan_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=schemas.KegiatanResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_WRITE)
 def create_kegiatan(
+    request: Request,
     kegiatan_data: schemas.KegiatanCreate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Create new kegiatan."""
+    """Create new kegiatan. Limit: 30/menit per IP."""
     program_exists = db.query(
         db.query(models.Program).filter(models.Program.id == kegiatan_data.program_id).exists()
     ).scalar()
@@ -93,13 +99,15 @@ def create_kegiatan(
 
 
 @router.put("/{kegiatan_id}", response_model=schemas.KegiatanResponse)
+@limiter.limit(LIMIT_WRITE)
 def update_kegiatan(
+    request: Request,
     kegiatan_id: int,
     kegiatan_data: schemas.KegiatanUpdate,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Update kegiatan."""
+    """Update kegiatan. Limit: 30/menit per IP."""
     kegiatan = (
         db.query(models.Kegiatan)
         .options(joinedload(models.Kegiatan.program))
@@ -126,12 +134,14 @@ def update_kegiatan(
 
 
 @router.delete("/{kegiatan_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(LIMIT_DELETE)
 def delete_kegiatan(
+    request: Request,
     kegiatan_id: int,
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Delete kegiatan."""
+    """Delete kegiatan. Limit: 20/menit per IP."""
     kegiatan = (
         db.query(models.Kegiatan)
         .options(joinedload(models.Kegiatan.program))

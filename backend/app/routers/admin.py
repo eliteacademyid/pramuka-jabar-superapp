@@ -1,11 +1,12 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session, joinedload
 
 from app import auth, models, schemas
 from app.database import get_db
 from app.deps import get_current_admin
+from app.limiter import limiter, LIMIT_ADMIN_READ, LIMIT_ADMIN_WRITE, LIMIT_DELETE
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -27,7 +28,9 @@ def _serialize_users(users: list) -> List[dict]:
 
 
 @router.get("/users", response_model=List[schemas.UserOut])
+@limiter.limit(LIMIT_ADMIN_READ)
 def list_users(
+    request: Request,
     skip: int = Query(0, ge=0),
     limit: int = Query(50, ge=1, le=200),
     search: Optional[str] = Query(None),
@@ -35,7 +38,7 @@ def list_users(
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
 ):
-    """List all users (admin only)."""
+    """List all users (admin only). Limit: 60/menit per IP."""
     query = db.query(models.User).options(
         # joinedload role: satu JOIN query, bukan N lazy-load per user
         joinedload(models.User.role)
@@ -55,12 +58,14 @@ def list_users(
 
 
 @router.get("/users/{user_id}", response_model=schemas.UserOut)
+@limiter.limit(LIMIT_ADMIN_READ)
 def get_user(
+    request: Request,
     user_id: int,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
 ):
-    """Get a specific user (admin only)."""
+    """Get a specific user (admin only). Limit: 60/menit per IP."""
     user = (
         db.query(models.User)
         .options(joinedload(models.User.role))
@@ -73,12 +78,14 @@ def get_user(
 
 
 @router.post("/users", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_ADMIN_WRITE)
 def create_user(
+    request: Request,
     payload: schemas.UserCreate,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
 ):
-    """Create a new user (admin only)."""
+    """Create a new user (admin only). Limit: 20/menit per IP."""
     if len(payload.password) < 6:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password minimal 6 karakter")
     if payload.role not in models.ROLES:
@@ -121,13 +128,15 @@ def create_user(
 
 
 @router.put("/users/{user_id}", response_model=schemas.UserOut)
+@limiter.limit(LIMIT_ADMIN_WRITE)
 def update_user(
+    request: Request,
     user_id: int,
     payload: schemas.UserUpdate,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
 ):
-    """Update a user (admin only)."""
+    """Update a user (admin only). Limit: 20/menit per IP."""
     # Ambil user sekaligus dengan role (joinedload) — satu query
     user = (
         db.query(models.User)
@@ -185,12 +194,14 @@ def update_user(
 
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(LIMIT_DELETE)
 def delete_user(
+    request: Request,
     user_id: int,
     db: Session = Depends(get_db),
     current_admin: models.User = Depends(get_current_admin),
 ):
-    """Delete a user (admin only)."""
+    """Delete a user (admin only). Limit: 20/menit per IP."""
     if user_id == current_admin.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
