@@ -13,6 +13,15 @@
 
     <section class="cat-cards">
       <button
+        class="cat-card"
+        :class="{ active: !filters.category }"
+        @click="pickCategory('')"
+      >
+        <i class="fas fa-store"></i>
+        <h3>Semua Barang</h3>
+        <p>Lihat seluruh produk</p>
+      </button>
+      <button
         v-for="c in categories"
         :key="c.id"
         class="cat-card"
