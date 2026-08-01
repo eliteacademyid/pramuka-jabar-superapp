@@ -21,3 +21,4 @@ backend/.env
 .idea/
 .vscode/
 *.log
+venv/
