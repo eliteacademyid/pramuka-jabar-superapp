@@ -574,18 +574,18 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #faf6f0 0%, #f1e8dc 100%);
+  background: linear-gradient(165deg, #4a3f36 0%, #2b231d 100%);
   padding: 1.5rem;
 }
 
 .login-card {
   width: 100%;
   max-width: 400px;
-  background: var(--white);
+  background: #f5f1ea;
   border-radius: 18px;
   padding: 2.5rem 2.5rem;
-  box-shadow: 0 12px 40px rgba(92, 64, 51, 0.12);
-  border: 1px solid #efe4d4;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(179, 150, 106, 0.35);
   text-align: center;
 }
 
@@ -593,17 +593,17 @@ button {
   width: 72px;
   height: 72px;
   margin: 0 auto 1.25rem;
-  border-color: var(--gold);
-  box-shadow: 0 8px 18px rgba(92, 64, 51, 0.15);
+  border-color: #b3966a;
+  box-shadow: 0 8px 18px rgba(43, 35, 29, 0.2);
 }
 
 .login-card h2 {
-  color: var(--brown);
+  color: #3a2f28;
   margin-bottom: 0.25rem;
 }
 
 .login-card .subtitle {
-  color: #8a7a6d;
+  color: #87796c;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
@@ -612,7 +612,7 @@ button {
   margin-top: -1rem;
   margin-bottom: 1.5rem;
   font-size: 0.78rem;
-  color: var(--maroon);
+  color: #8a5347;
   font-weight: 600;
 }
 
@@ -625,7 +625,7 @@ button {
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--brown);
+  color: #4a3a30;
   margin-bottom: 0.35rem;
 }
 
@@ -633,16 +633,17 @@ button {
 .form-group select {
   width: 100%;
   padding: 0.75rem 0.9rem;
-  border: 1px solid #d6c7ba;
-  border-radius: 6px;
+  border: 1px solid #cfc4b4;
+  border-radius: 8px;
   font-size: 1rem;
-  background: var(--white);
+  background: #fbf8f2;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  outline: 2px solid var(--gold);
-  border-color: var(--gold);
+  outline: none;
+  border-color: #b3966a;
+  box-shadow: 0 0 0 3px rgba(179, 150, 106, 0.18);
 }
 
 .checkbox-group label {
@@ -689,6 +690,26 @@ button {
   margin-bottom: 1rem;
   font-size: 0.9rem;
   text-align: left;
+}
+
+.login-card .alert-error {
+  background: #f0e3dd;
+  color: #8a5347;
+  border: 1px solid #d9b8ad;
+}
+
+.login-card .btn-submit {
+  background: #4a372c;
+  color: #f2e9dc;
+  border-radius: 8px;
+}
+
+.login-card .btn-submit:hover {
+  background: #3a2b22;
+}
+
+.login-card .back-link {
+  color: #87796c;
 }
 
 .back-link {
