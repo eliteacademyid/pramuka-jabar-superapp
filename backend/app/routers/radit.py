@@ -11,14 +11,24 @@ except ImportError:  # pragma: no cover - optional dependency
     cloudinary = None
     uploader = None
 
-from sqlalchemy import func, case
+from sqlalchemy import func, case, text
 from sqlalchemy.orm import Session, selectinload
 
 from app import models, schemas
-from app.database import get_db
+from app.database import engine, get_db
 from app.deps import get_current_user
 
 radit_router = APIRouter(tags=["Realisasi"])
+
+# Deteksi dialect sekali saat startup — bukan tiap request
+_IS_SQLITE = engine.dialect.name == "sqlite"
+
+
+def _month_expr(col):
+    """Ekspresi grouping bulanan yang kompatibel SQLite dan PostgreSQL."""
+    if _IS_SQLITE:
+        return func.strftime("%Y-%m", col)
+    return func.to_char(col, "YYYY-MM")
 
 
 # ─── Realisasi ─────────────────────────────────────────────────────────────────
@@ -219,8 +229,8 @@ def process_approval(
 
 @radit_router.get("/dashboard/statistik", response_model=schemas.DashboardStatsResponse)
 def dashboard_statistik(db: Session = Depends(get_db)):
-    """Get card statistics for the dashboard — satu query agregasi."""
-    # Satu query dengan conditional aggregation, bukan 4 COUNT terpisah
+    """Get card statistics — satu query agregasi untuk laporan, satu untuk realisasi."""
+    # Satu query conditional aggregation untuk semua stat laporan
     row = db.query(
         func.count(models.Laporan.id).label("total_laporan"),
         func.sum(case((models.Laporan.status == "approved", 1), else_=0)).label("total_disetujui"),
@@ -229,6 +239,7 @@ def dashboard_statistik(db: Session = Depends(get_db)):
         ).label("total_pending"),
     ).first()
 
+    # COUNT(*) langsung dari index PK — paling cepat
     total_realisasi = db.query(func.count(models.Realisasi.id)).scalar()
 
     return {
@@ -241,30 +252,24 @@ def dashboard_statistik(db: Session = Depends(get_db)):
 
 @radit_router.get("/dashboard/grafik", response_model=List[schemas.DashboardChartPoint])
 def dashboard_grafik(db: Session = Depends(get_db)):
-    """Get chart data for monthly progress — agregasi di DB, bukan di Python."""
-    # Grouping dilakukan di database dengan strftime/date_trunc,
-    # bukan menarik semua baris ke memory Python lalu loop
+    """Get chart data for monthly progress — kompatibel SQLite & PostgreSQL."""
+    month_expr_laporan = _month_expr(models.Laporan.created_at)
+    month_expr_realisasi = _month_expr(models.Realisasi.created_at)
+
     laporan_rows = (
-        db.query(
-            func.strftime("%Y-%m", models.Laporan.created_at).label("bulan"),
-            func.count(models.Laporan.id).label("total"),
-        )
+        db.query(month_expr_laporan.label("bulan"), func.count(models.Laporan.id).label("total"))
         .filter(models.Laporan.created_at.isnot(None))
-        .group_by(func.strftime("%Y-%m", models.Laporan.created_at))
+        .group_by(month_expr_laporan)
         .all()
     )
 
     realisasi_rows = (
-        db.query(
-            func.strftime("%Y-%m", models.Realisasi.created_at).label("bulan"),
-            func.count(models.Realisasi.id).label("total"),
-        )
+        db.query(month_expr_realisasi.label("bulan"), func.count(models.Realisasi.id).label("total"))
         .filter(models.Realisasi.created_at.isnot(None))
-        .group_by(func.strftime("%Y-%m", models.Realisasi.created_at))
+        .group_by(month_expr_realisasi)
         .all()
     )
 
-    # Gabungkan hasil kedua query di Python (jumlah baris sudah kecil — per bulan)
     grouped: dict = {}
     for row in laporan_rows:
         grouped.setdefault(row.bulan, {"bulan": row.bulan, "total_laporan": 0, "total_realisasi": 0})

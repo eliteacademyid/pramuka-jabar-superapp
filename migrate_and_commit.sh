@@ -18,13 +18,18 @@ echo ""
 echo "=== [2/3] Staging semua perubahan ==="
 cd "$ROOT_DIR"
 git add \
+  backend/app/routers/auth.py \
+  backend/app/routers/admin.py \
+  backend/app/routers/organisasi.py \
+  backend/app/routers/program.py \
+  backend/app/routers/kegiatan.py \
   backend/app/routers/radit.py \
   backend/app/models.py \
-  backend/app/routers/kegiatan.py \
   backend/app/config.py \
   backend/app/main.py \
   backend/app/database.py \
   backend/app/deps.py \
+  backend/app/schemas.py \
   backend/app/utils/password.py \
   backend/app/utils/security.py \
   backend/app/auth.py \
@@ -33,6 +38,9 @@ git add \
   backend/migrate_manual.py \
   backend/migrations/versions/003_kegiatan_indexes.py \
   backend/migrations/versions/004_realisasi_laporan_approval_indexes.py \
+  backend/migrations/versions/005_organisasi_indexes.py \
+  backend/migrations/versions/006_users_indexes.py \
+  backend/migrations/versions/007_programs_indexes.py \
   frontend/src/store/ereporting.js \
   frontend/src/pages/EReporting/RealisasiPage.vue \
   frontend/src/pages/EReporting/LaporanPage.vue \

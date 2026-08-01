@@ -138,7 +138,9 @@ def update_program(
             updates, synchronize_session="fetch"
         )
         db.commit()
-        db.refresh(program)
+        # Terapkan update ke object yang sudah ada di memory — tidak perlu SELECT ulang
+        for k, v in updates.items():
+            setattr(program, k, v)
 
     return program
 

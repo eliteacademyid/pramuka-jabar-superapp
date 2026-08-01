@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import declarative_base, sessionmaker
 
@@ -19,15 +19,15 @@ def _build_engine():
     url = DATABASE_URL
     if url.startswith("postgresql"):
         try:
+            # pool_pre_ping=True sudah handle validasi koneksi secara otomatis.
+            # Tidak perlu SELECT 1 manual di sini — cukup buat engine dan biarkan
+            # pool_pre_ping melakukan health check saat koneksi pertama dipakai.
             engine = create_engine(url, **_POOL_KWARGS)
-            with engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
             return engine
-        except OperationalError as exc:
-            print(f"PostgreSQL unavailable at {url}; falling back to sqlite:///./app.db. Error: {exc}")
+        except Exception as exc:
+            print(f"PostgreSQL engine error, falling back to SQLite: {exc}")
             url = "sqlite:///./app.db"
 
-    # SQLite tidak mendukung pool_size/max_overflow, pakai NullPool workaround
     from sqlalchemy.pool import StaticPool
     return create_engine(
         url,

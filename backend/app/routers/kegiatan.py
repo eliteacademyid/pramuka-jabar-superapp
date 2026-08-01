@@ -9,6 +9,13 @@ from app.deps import get_current_user
 
 router = APIRouter(prefix="/kegiatans", tags=["Kegiatans"])
 
+# Dideklarasikan di module level — tidak dibangun ulang tiap request
+_SORT_MAP = {
+    "nama": models.Kegiatan.nama,
+    "tanggal_mulai": models.Kegiatan.tanggal_mulai,
+    "created_at": models.Kegiatan.created_at,
+}
+
 
 @router.get("", response_model=List[schemas.KegiatanResponse])
 def get_all_kegiatans(
@@ -34,11 +41,7 @@ def get_all_kegiatans(
         query = query.filter(models.Kegiatan.nama.ilike(f"%{search}%"))
 
     # Sorting
-    sort_map = {
-        "nama": models.Kegiatan.nama,
-        "tanggal_mulai": models.Kegiatan.tanggal_mulai,
-    }
-    order_column = sort_map.get(sort_by, models.Kegiatan.created_at)
+    order_column = _SORT_MAP.get(sort_by, models.Kegiatan.created_at)
 
     if order.lower() == "asc":
         query = query.order_by(order_column.asc())
