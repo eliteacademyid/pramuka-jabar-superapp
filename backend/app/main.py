@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.routers import admin as admin_router
 from app.routers import auth as auth_router
-from app.seed import seed_default_admin
+from app.seed import seed_default_admin, seed_lms_dummy_data
 
 Base.metadata.create_all(bind=engine)
 
@@ -25,6 +25,7 @@ app.include_router(admin_router.router, prefix="/api")
 @app.on_event("startup")
 def startup_seed():
     seed_default_admin()
+    seed_lms_dummy_data()
 
 
 @app.get("/")
