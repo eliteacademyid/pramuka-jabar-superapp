@@ -76,18 +76,18 @@ async function submit() {
       </div>
     </div>
 
-    <!-- Result View -->
-    <div v-else-if="result" class="animate-fade-in-down mt-12">
-      <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-2xl border-2 border-[var(--gold)]/20 text-center relative overflow-hidden">
+    <!-- Result Modal Overlay -->
+    <div v-if="result" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in">
+      <div class="bg-white rounded-3xl p-8 sm:p-12 shadow-2xl border-2 border-[var(--gold)]/20 text-center relative overflow-hidden w-full max-w-lg animate-fade-in-down">
         <!-- Confetti bg if passed -->
         <div v-if="result.passed" class="absolute inset-0 bg-gradient-to-br from-green-50 to-green-100 opacity-50"></div>
         <div v-else class="absolute inset-0 bg-gradient-to-br from-red-50 to-red-100 opacity-50"></div>
         
         <div class="relative z-10">
-          <div class="text-7xl mb-6 animate-bounce">
-            {{ result.passed ? '🎉' : '😔' }}
+          <div class="text-4xl sm:text-5xl font-black mb-6" :class="result.passed ? 'text-green-500' : 'text-red-500'">
+            {{ result.passed ? 'LULUS' : 'GAGAL' }}
           </div>
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2">
             {{ result.message }}
           </h2>
           <p class="text-gray-600 mb-8 text-lg">
@@ -96,7 +96,7 @@ async function submit() {
           
           <router-link to="/admin/enrollments" 
              class="inline-block bg-gradient-to-r from-[var(--brown)] to-[var(--brown-dark)] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all">
-            Lihat Riwayat Pelatihan Saya
+            Lihat Riwayat Pelatihan
           </router-link>
         </div>
       </div>

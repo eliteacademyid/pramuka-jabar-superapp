@@ -24,6 +24,12 @@ const showQuestionModal = ref(false)
 const newQuestion = ref({ question_text: '', options: '', correct_answer: '', score_weight: 10 })
 const tempOptions = ref(['', '', '', ''])
 
+const notification = ref({ show: false, type: 'success', title: '', message: '' })
+
+function showNotification(type, title, message) {
+  notification.value = { show: true, type, title, message }
+}
+
 async function loadData() {
   loading.value = true
   try {
@@ -32,7 +38,7 @@ async function loadData() {
     training.value = resT.data.find(t => t.id == trainingId)
 
     if (!training.value) {
-      alert("Pelatihan tidak ditemukan")
+      showNotification('error', 'Gagal', 'Pelatihan tidak ditemukan')
       router.push('/admin/manage-trainings')
       return
     }
@@ -67,9 +73,9 @@ async function saveTrainingInfo() {
       passing_grade: training.value.passing_grade,
       status: training.value.status
     })
-    alert('Info berhasil disimpan')
+    showNotification('success', 'Berhasil', 'Informasi pelatihan berhasil disimpan')
   } catch(err) {
-    alert('Gagal menyimpan')
+    showNotification('error', 'Gagal', 'Gagal menyimpan info pelatihan')
   }
 }
 
@@ -80,10 +86,11 @@ async function addMaterial() {
       training_id: Number(trainingId)
     })
     showMaterialModal.value = false
-    newMaterial.value = { title: '', content: '', media_url: '', order: materials.value.length + 2 }
+    newMaterial.value = { title: '', content: '', media_url: '', order: 1 }
     await loadData()
-  } catch (err) {
-    alert('Gagal tambah materi')
+    showNotification('success', 'Berhasil', 'Materi berhasil ditambahkan')
+  } catch(err) {
+    showNotification('error', 'Gagal', 'Gagal menambah materi')
   }
 }
 
@@ -105,8 +112,9 @@ async function createQuiz() {
       training_id: Number(trainingId)
     })
     await loadData()
+    showNotification('success', 'Berhasil', 'Kuis berhasil diinisialisasi')
   } catch (err) {
-    alert('Gagal membuat kuis')
+    showNotification('error', 'Gagal', 'Gagal membuat kuis')
   }
 }
 
@@ -129,8 +137,9 @@ async function addQuestion() {
     newQuestion.value = { question_text: '', options: '', correct_answer: '', score_weight: 10 }
     tempOptions.value = ['', '', '', '']
     await loadData()
+    showNotification('success', 'Berhasil', 'Soal berhasil ditambahkan')
   } catch(err) {
-    alert('Gagal tambah soal')
+    showNotification('error', 'Gagal', 'Gagal tambah soal')
   }
 }
 
@@ -139,8 +148,9 @@ async function deleteQuestion(id) {
   try {
     await api.delete(`/admin/lms/questions/${id}`)
     await loadData()
+    showNotification('success', 'Berhasil', 'Soal berhasil dihapus')
   } catch(err) {
-    alert('Gagal hapus soal')
+    showNotification('error', 'Gagal', 'Gagal hapus soal')
   }
 }
 
