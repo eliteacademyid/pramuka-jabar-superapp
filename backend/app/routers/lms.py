@@ -69,3 +69,12 @@ def get_quiz(training_id: int, db: Session = Depends(get_db)):
     if not quiz:
         raise HTTPException(status_code=404, detail="Kuis tidak ditemukan untuk pelatihan ini")
     return quiz
+
+
+@router.get("/quizzes/{quiz_id}/questions", response_model=List[schemas.QuizQuestionOut])
+def list_quiz_questions(quiz_id: int, db: Session = Depends(get_db)):
+    questions = db.query(models.QuizQuestion).filter(models.QuizQuestion.quiz_id == quiz_id).all()
+    if not questions:
+        raise HTTPException(status_code=404, detail="Soal kuis tidak ditemukan")
+    return questions
+
