@@ -574,18 +574,18 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(165deg, #4a3f36 0%, #2b231d 100%);
+  background: linear-gradient(165deg, #453c34 0%, #2e2721 100%);
   padding: 1.5rem;
 }
 
 .login-card {
   width: 100%;
   max-width: 400px;
-  background: #f5f1ea;
+  background: #e6dccc;
   border-radius: 18px;
   padding: 2.5rem 2.5rem;
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(179, 150, 106, 0.35);
+  border: 1px solid rgba(163, 138, 100, 0.3);
   text-align: center;
 }
 
@@ -593,17 +593,17 @@ button {
   width: 72px;
   height: 72px;
   margin: 0 auto 1.25rem;
-  border-color: #b3966a;
-  box-shadow: 0 8px 18px rgba(43, 35, 29, 0.2);
+  border-color: #a38a64;
+  box-shadow: 0 8px 18px rgba(43, 35, 29, 0.18);
 }
 
 .login-card h2 {
-  color: #3a2f28;
+  color: #4a3c31;
   margin-bottom: 0.25rem;
 }
 
 .login-card .subtitle {
-  color: #87796c;
+  color: #8d8071;
   margin-bottom: 1.5rem;
   font-size: 0.9rem;
 }
@@ -612,7 +612,7 @@ button {
   margin-top: -1rem;
   margin-bottom: 1.5rem;
   font-size: 0.78rem;
-  color: #8a5347;
+  color: #96604f;
   font-weight: 600;
 }
 
@@ -625,7 +625,7 @@ button {
   display: block;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #4a3a30;
+  color: #5b4a3e;
   margin-bottom: 0.35rem;
 }
 
@@ -633,17 +633,17 @@ button {
 .form-group select {
   width: 100%;
   padding: 0.75rem 0.9rem;
-  border: 1px solid #cfc4b4;
+  border: 1px solid #c9bfae;
   border-radius: 8px;
   font-size: 1rem;
-  background: #fbf8f2;
+  background: #f3ede1;
 }
 
 .form-group input:focus,
 .form-group select:focus {
   outline: none;
-  border-color: #b3966a;
-  box-shadow: 0 0 0 3px rgba(179, 150, 106, 0.18);
+  border-color: #a38a64;
+  box-shadow: 0 0 0 3px rgba(163, 138, 100, 0.15);
 }
 
 .checkbox-group label {
@@ -693,23 +693,23 @@ button {
 }
 
 .login-card .alert-error {
-  background: #f0e3dd;
-  color: #8a5347;
-  border: 1px solid #d9b8ad;
+  background: #efe0d8;
+  color: #96604f;
+  border: 1px solid #dcc2b6;
 }
 
 .login-card .btn-submit {
-  background: #4a372c;
-  color: #f2e9dc;
+  background: #544338;
+  color: #ece1d0;
   border-radius: 8px;
 }
 
 .login-card .btn-submit:hover {
-  background: #3a2b22;
+  background: #45362c;
 }
 
 .login-card .back-link {
-  color: #87796c;
+  color: #8d8071;
 }
 
 .back-link {
