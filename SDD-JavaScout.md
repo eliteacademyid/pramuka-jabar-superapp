@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.6
+**Versi Dokumen** : 1.7
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -38,6 +38,11 @@
 > dari `GET /api/cities` (datalist); sort harga termurah/termahal
 > (`?sort=cheapest|expensive`) di katalog; respons produk menyertakan kota toko
 > (`store.city`).
+> Pembaruan v1.7: **rating barang dengan bintang** — form ulasan di halaman
+> detail pesanan kini memakai komponen bintang interaktif `StarRating` (klik
+> bintang 1–5, sebelumnya dropdown); halaman detail produk menampilkan bintang
+> per ulasan dan ringkasan rata-rata bintang; kartu produk menampilkan rating
+> bintang emas.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -181,6 +186,10 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 #### FR-07 Ulasan & Rating
 - Pembeli memberi rating (1–5) + ulasan per produk & per toko setelah pesanan selesai.
 - Moderasi ulasan oleh admin.
+- **Implementasi v1.7**: input rating berupa bintang interaktif (klik 1–5,
+  komponen `StarRating.vue` — mode input di detail pesanan, mode readonly di
+  detail produk & kartu); detail produk menampilkan rata-rata bintang; rating
+  otomatis diperbarui pada katalog/detail.
 
 #### FR-08 Chat & Notifikasi
 - Percakapan pembeli–penjual per pesanan (chat thread).
@@ -553,7 +562,7 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 ### Ulasan & Chat
 | Metode | Route | Fungsi |
 |---|---|---|
-| POST | `/api/reviews` | Ulasan per item pesanan selesai (rating 1–5) |
+| POST | `/api/reviews` | Ulasan per item pesanan selesai (rating 1–5, UI bintang v1.7) |
 | GET | `/api/conversations` | Percakapan (otomatis terbentuk saat checkout) |
 | GET/POST | `/api/conversations/{id}/messages` | Baca / kirim pesan (pembeli–penjual–admin) |
 
@@ -647,6 +656,9 @@ rencana pengembangan lanjutan.)
   "+ Tambah ke Keranjang" full-width (berubah "Menambahkan…" → "✓ Ditambahkan"
   saat diproses, disertai **toast** konfirmasi dan cegah klik ganda); pagination
   (‹ Sebelumnya / Berikutnya ›); state kosong yang informatif.
+- **Rating bintang** (v1.7): komponen `StarRating.vue` dua mode — input
+  interaktif (klik bintang 1–5) pada form ulasan di detail pesanan, readonly
+  pada detail produk (per ulasan + ringkasan rata-rata) dan kartu produk.
 - **Skema warna**: coklat `#5c4033`, maroon `#7b241c`, emas `#d4ac0d`, krem `#faf6f0`
   (token CSS `--brown`, `--maroon`, `--gold`, `--cream`).
 
