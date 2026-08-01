@@ -563,3 +563,422 @@ button {
     padding: 1.5rem 1rem;
   }
 }
+
+/* ---------- Persuratan Digital — Status Badges ---------- */
+.badge-status {
+  display: inline-block;
+  padding: 0.2rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.badge-status.draft {
+  background: #e8eaf6;
+  color: #3949ab;
+}
+
+.badge-status.verified {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.badge-status.disposisi {
+  background: #fff8e1;
+  color: #f57f17;
+}
+
+.badge-status.proses {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+
+.badge-status.selesai {
+  background: #e0f2f1;
+  color: #00695c;
+}
+
+.badge-status.arsip {
+  background: #efebe9;
+  color: #4e342e;
+}
+
+/* ---------- Filter Bar ---------- */
+.filter-bar {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d6c7ba;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.search-input:focus {
+  outline: 2px solid var(--gold);
+  border-color: var(--gold);
+}
+
+.filter-select {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d6c7ba;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: var(--white);
+}
+
+/* ---------- Table helpers ---------- */
+.td-perihal {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.td-actions {
+  white-space: nowrap;
+}
+
+.btn-info {
+  border-color: #1565c0;
+  color: #1565c0;
+}
+
+.btn-info:hover {
+  background: #1565c0;
+  color: var(--white);
+}
+
+.btn-approve {
+  border-color: #2e7d32;
+  color: #2e7d32;
+}
+
+.btn-approve:hover {
+  background: #2e7d32;
+  color: var(--white);
+}
+
+.text-muted {
+  color: #9e9e9e;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* ---------- Sidebar Group (Persuratan) ---------- */
+.sidebar-group {
+  margin: 0.1rem 0;
+}
+
+.sidebar-group-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  background: transparent;
+  border: none;
+  color: #e8ddd3;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  text-align: left;
+}
+
+.sidebar-group-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.chevron {
+  font-size: 0.75rem;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+  padding-left: 0.5rem;
+}
+
+.sidebar-sublink {
+  font-size: 0.9rem;
+  font-weight: 500;
+  padding: 0.55rem 1rem;
+}
+
+/* ---------- Modal Wide & Detail ---------- */
+.modal-wide {
+  max-width: 600px !important;
+}
+
+.modal-detail {
+  max-width: 680px !important;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.detail-header h3 {
+  color: var(--brown);
+  margin: 0;
+}
+
+.btn-close {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  color: #8a7a6d;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.btn-close:hover {
+  background: #f0e8e0;
+  color: var(--maroon);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.detail-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8a7a6d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ---------- Section title inside detail ---------- */
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.25rem 0 0.6rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--brown);
+  border-bottom: 1px solid #e8ddd3;
+  padding-bottom: 0.4rem;
+}
+
+/* ---------- Lampiran ---------- */
+.lampiran-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lampiran-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #faf6f0;
+  border: 1px solid #e8ddd3;
+  border-radius: 6px;
+}
+
+.lampiran-name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lampiran-size {
+  font-size: 0.8rem;
+  color: #8a7a6d;
+  flex-shrink: 0;
+}
+
+.lampiran-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+/* ---------- Timeline Tracking ---------- */
+.timeline {
+  position: relative;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 0.45rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e8ddd3;
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -1.13rem;
+  top: 0.25rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold);
+  border: 2px solid var(--white);
+  box-shadow: 0 0 0 2px var(--gold);
+}
+
+.timeline-content {
+  background: #faf6f0;
+  border: 1px solid #e8ddd3;
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+}
+
+.timeline-activity {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--brown);
+}
+
+.timeline-meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: #8a7a6d;
+  margin-top: 0.2rem;
+}
+
+.timeline-note {
+  font-size: 0.85rem;
+  color: var(--text);
+  margin-top: 0.3rem;
+  padding-top: 0.3rem;
+  border-top: 1px dashed #d6c7ba;
+}
+
+/* ---------- Form helpers ---------- */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #d6c7ba;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.form-group textarea:focus {
+  outline: 2px solid var(--gold);
+  border-color: var(--gold);
+}
+
+.required {
+  color: var(--maroon);
+}
+
+.info-box {
+  background: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.88rem;
+  color: #2e7d32;
+  margin: 0.75rem 0;
+}
+
+.loading-text {
+  text-align: center;
+  color: #8a7a6d;
+  padding: 2rem;
+}
+
+.empty-text {
+  text-align: center;
+  color: #8a7a6d;
+  font-size: 0.9rem;
+  padding: 0.75rem 0;
+}
+
+/* ---------- Disposisi status select ---------- */
+.status-select {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid #d6c7ba;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  background: var(--white);
+}
+
+/* ---------- Dashboard stat card variants ---------- */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.stat-card.stat-blue {
+  border-color: #1565c0;
+}
+
+.stat-card.stat-green {
+  border-color: #2e7d32;
+}
+
+.stat-card.stat-orange {
+  border-color: #e65100;
+}
+
+.stat-card.stat-purple {
+  border-color: #6a1b9a;
+}
