@@ -25,6 +25,16 @@ def custom_openapi():
         routes=app.routes,
     )
     openapi_schema["info"]["x-logo"] = {"url": "https://example.com/logo.png"}
+    openapi_schema["info"]["contact"] = {
+        "name": "Tim Backend Pramuka Jabar",
+        "email": "backend@pramuka-jabar.id",
+    }
+    openapi_schema["info"]["version"] = "1.1.0"
+    openapi_schema["servers"] = [
+        {"url": "http://localhost:8000", "description": "Local development"},
+        {"url": "https://api.pramuka-jabar.id", "description": "Production"},
+    ]
+    openapi_schema["tags"] = tags_metadata
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 
