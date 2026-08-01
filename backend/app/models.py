@@ -1,14 +1,20 @@
 from datetime import datetime
+<<<<<<< HEAD
 from enum import Enum
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
+=======
+
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
 from app.database import Base
 
 ROLES = ("admin", "staff")
 
 
+<<<<<<< HEAD
 class RealisasiStatus(str, Enum):
     draft = "draft"
     submitted = "submitted"
@@ -29,10 +35,13 @@ class ApprovalStatus(str, Enum):
     rejected = "rejected"
 
 
+=======
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
+<<<<<<< HEAD
     username = Column(String(50), unique=True, index=True, nullable=False)
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -192,3 +201,11 @@ class Approval(Base):
     laporan = relationship("Laporan", back_populates="approvals")
     reviewer = relationship("User", back_populates="approvals")
 
+=======
+    username = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    nama_lengkap = Column(String, nullable=False)
+    role = Column(String, nullable=False, default="staff")
+    is_active = Column(Boolean, nullable=False, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)

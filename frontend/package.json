@@ -9,12 +9,31 @@
     "preview": "vite preview"
   },
   "dependencies": {
+<<<<<<< HEAD
     "axios": "^1.7.9",
     "vue": "^3.5.13",
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
+=======
+    "@heroicons/vue": "^2.1.1",
+    "axios": "^1.7.9",
+    "chart.js": "^3.9.1",
+    "jwt-decode": "^4.0.0",
+    "pinia": "^2.3.1",
+    "sweetalert2": "^11.16.0",
+    "vue": "^3.5.13",
+    "vue-chartjs": "^4.0.0",
+    "vue-router": "^4.5.0",
+    "vue-toastification": "^2.0.0-rc.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
     "vite": "^6.0.5"
   }
 }

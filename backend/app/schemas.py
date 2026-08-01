@@ -1,7 +1,13 @@
 from datetime import datetime
+<<<<<<< HEAD
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
+=======
+from typing import Optional
+
+from pydantic import BaseModel
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
 from app.models import ROLES
 
@@ -40,6 +46,7 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+<<<<<<< HEAD
 
 
 class RealisasiBase(BaseModel):
@@ -167,3 +174,5 @@ class DashboardAnalyticsResponse(BaseModel):
     statistik: DashboardStatsResponse
     grafik: List[DashboardChartPoint]
     perbandingan: DashboardComparisonResponse
+=======
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)

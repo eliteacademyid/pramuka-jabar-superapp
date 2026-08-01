@@ -1,14 +1,21 @@
+<<<<<<< HEAD
 from datetime import datetime
 
+=======
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 from app import auth, models
 from app.database import SessionLocal
 
 DEFAULT_ADMIN_USERNAME = "admin"
+<<<<<<< HEAD
 DEFAULT_ADMIN_EMAIL = "admin@pramuka.com"
+=======
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 DEFAULT_ADMIN_PASSWORD = "admin123"
 DEFAULT_ADMIN_FULLNAME = "Administrator"
 
 
+<<<<<<< HEAD
 def seed_roles():
     """Create default roles"""
     db = SessionLocal()
@@ -153,5 +160,21 @@ def seed_realisasi_laporan_approval():
     except Exception as e:
         db.rollback()
         print(f"✗ Error seeding realisasi data: {e}")
+=======
+def seed_default_admin():
+    db = SessionLocal()
+    try:
+        if db.query(models.User).count() == 0:
+            db.add(
+                models.User(
+                    username=DEFAULT_ADMIN_USERNAME,
+                    hashed_password=auth.hash_password(DEFAULT_ADMIN_PASSWORD),
+                    nama_lengkap=DEFAULT_ADMIN_FULLNAME,
+                    role="admin",
+                    is_active=True,
+                )
+            )
+            db.commit()
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
     finally:
         db.close()

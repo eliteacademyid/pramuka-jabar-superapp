@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 :root {
   --brown: #5c4033;
   --brown-dark: #432e24;
@@ -7,10 +8,20 @@
   --cream: #faf6f0;
   --white: #ffffff;
   --text: #3d3a37;
+=======
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-family: Inter, 'Segoe UI', sans-serif;
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 }
 
 * {
   box-sizing: border-box;
+<<<<<<< HEAD
   margin: 0;
   padding: 0;
 }
@@ -563,3 +574,21 @@ button {
     padding: 1.5rem 1rem;
   }
 }
+=======
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+button {
+  cursor: pointer;
+}
+
+#app {
+  min-height: 100vh;
+}
+>>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
