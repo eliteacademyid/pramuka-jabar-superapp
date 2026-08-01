@@ -460,12 +460,23 @@ class MessageOut(BaseModel):
     created_at: datetime
 
 
+class ConversationCreate(BaseModel):
+    product_id: int
+
+
 class ConversationOut(BaseModel):
     id: int
-    order_code: str
-    order_status: str
-    created_at: datetime
+    order_code: Optional[str] = None
+    order_status: Optional[str] = None
+    product_name: Optional[str] = None
+    product_slug: Optional[str] = None
+    store_name: Optional[str] = None
+    store_slug: Optional[str] = None
     participants: List[str] = []
+    last_message: Optional[str] = None
+    last_message_at: Optional[datetime] = None
+    unread_count: int = 0
+    created_at: datetime
 
 
 # ---------- Admin ----------

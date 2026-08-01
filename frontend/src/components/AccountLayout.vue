@@ -11,6 +11,7 @@
         <router-link class="sidebar-link" to="/catalog">Katalog</router-link>
         <router-link class="sidebar-link" to="/account/cart">Keranjang</router-link>
         <router-link class="sidebar-link" to="/account/orders">Pesanan Saya</router-link>
+        <router-link class="sidebar-link" to="/account/chat">Chat</router-link>
         <router-link class="sidebar-link" to="/account/wallet">Wallet</router-link>
         <router-link class="sidebar-link" to="/account/profile">Profil & Alamat</router-link>
 

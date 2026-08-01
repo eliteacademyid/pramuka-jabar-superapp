@@ -64,6 +64,14 @@
 > produk hanya http(s) atau path lokal `/images/` (skema lain seperti
 > `javascript:`/`ftp:` ditolak 422); gambar ilustrasi produk jasa diperbarui
 > agar sesuai kaidah kesopanan.
+> Pembaruan v1.12: **halaman chat mandiri** — percakapan kini tidak lagi
+> hanya terikat pesanan: pembeli dapat memulai chat ke penjual langsung dari
+> halaman produk (tombol "Chat Penjual", `POST /api/conversations` membuat
+> percakapan pra-pesanan per produk; dibatalkan bila berchat dengan toko
+> sendiri); halaman `/account/chat` (dua panel: daftar percakapan + thread)
+> menampilkan nama toko, produk, pratinjau pesan terakhir, jumlah pesan belum
+> dibaca, dan pembaruan otomatis (polling); akses dibatasi pembeli–penjual–
+> admin; 82 test otomatis.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -166,7 +174,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 78 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan) |
+| Testing | pytest + httpx (TestClient, SQLite) | 82 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread) |
 
 ---
 
@@ -213,7 +221,14 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
   otomatis diperbarui pada katalog/detail.
 
 #### FR-08 Chat & Notifikasi
-- Percakapan pembeli–penjual per pesanan (chat thread).
+- Percakapan pembeli–penjual (chat thread), terkait pesanan maupun pra-pesanan.
+- **Implementasi v1.12**: chat mandiri — tombol "Chat Penjual" di detail produk
+  membuat percakapan per produk (`POST /api/conversations`, idempotent per
+  pembeli–produk); halaman `/account/chat` dua panel (daftar percakapan: nama
+  toko, produk/pesanan, pesan terakhir, waktu, badge belum dibaca; thread pesan
+  dengan balon kiri/kanan); polling otomatis 4–5 detik untuk pesan & daftar;
+  read receipt (`read_at`) ditandai saat percakapan dibuka; akses pembeli,
+  pemilik toko, dan admin.
 - Notifikasi: status pesanan, pembayaran, pengiriman, promosi (in-app/push/email/WhatsApp).
 
 #### FR-09 Dashboard Penjual
@@ -491,7 +506,9 @@ categories (1)──(n) products · coupons (n)──(n) orders?
 | Kolom | Tipe | Keterangan |
 |---|---|---|
 | id | bigint PK | |
-| order_id / user_id / store_id | FK | |
+| order_id | FK orders (nullable) | terisi bila percakapan dari pesanan |
+| product_id | FK products (nullable) | terisi bila percakapan pra-pesanan dari detail produk |
+| buyer_id | FK users (nullable) | pembeli pemilik percakapan pra-pesanan |
 | message | text | |
 | read_at | datetime | |
 
@@ -597,8 +614,9 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 | Metode | Route | Fungsi |
 |---|---|---|
 | POST | `/api/reviews` | Ulasan per item pesanan selesai (rating 1–5, UI bintang v1.7) |
-| GET | `/api/conversations` | Percakapan (otomatis terbentuk saat checkout) |
-| GET/POST | `/api/conversations/{id}/messages` | Baca / kirim pesan (pembeli–penjual–admin) |
+| POST | `/api/conversations` | Mulai chat ke penjual dari produk (pra-pesanan, idempotent) |
+| GET | `/api/conversations` | Daftar percakapan milik saya (pesan terakhir, unread, urut aktivitas) |
+| GET/POST | `/api/conversations/{id}/messages` | Baca (tandai dibaca) / kirim pesan (pembeli–penjual–admin) |
 
 ### Admin
 | Metode | Route | Fungsi |

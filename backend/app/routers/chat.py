@@ -11,6 +11,20 @@ from app.deps import get_current_user
 router = APIRouter(prefix="/conversations", tags=["chat"])
 
 
+def _is_participant(user: models.User, conv: models.Conversation) -> bool:
+    if user.role == "admin":
+        return True
+    if conv.order:
+        order = conv.order
+        if order.buyer_id == user.id or order.store.owner_id == user.id:
+            return True
+    if conv.product and conv.product.store.owner_id == user.id:
+        return True
+    if conv.buyer_id == user.id:
+        return True
+    return False
+
+
 def _get_conv_or_403(
     db: Session, user: models.User, conversation_id: int
 ) -> models.Conversation:
@@ -19,28 +33,53 @@ def _get_conv_or_403(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Percakapan tidak ditemukan"
         )
-    order = conv.order
-    is_buyer = order.buyer_id == user.id
-    is_seller = order.store.owner_id == user.id
-    is_admin = user.role == "admin"
-    if not (is_buyer or is_seller or is_admin):
+    if not _is_participant(user, conv):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Anda tidak memiliki akses"
         )
     return conv
 
 
-def _conv_out(db: Session, conv: models.Conversation) -> schemas.ConversationOut:
+def _conv_out(db: Session, conv: models.Conversation, user: models.User) -> schemas.ConversationOut:
+    order = conv.order
+    product = conv.product
+    last = (
+        db.query(models.Message)
+        .filter(models.Message.conversation_id == conv.id)
+        .order_by(models.Message.created_at.desc())
+        .first()
+    )
+    unread = (
+        db.query(models.Message)
+        .filter(
+            models.Message.conversation_id == conv.id,
+            models.Message.sender_id != user.id,
+            models.Message.read_at.is_(None),
+        )
+        .count()
+    )
+    participants = []
+    if order:
+        participants = [
+            order.store.owner.username,
+            order.buyer.username,
+            *[u.username for u in db.query(models.User).filter(models.User.role == "admin").all()],
+        ]
+    elif product:
+        participants = [product.store.owner.username, conv.buyer.username]
     return schemas.ConversationOut(
         id=conv.id,
-        order_code=conv.order.order_code,
-        order_status=conv.order.status,
+        order_code=order.order_code if order else None,
+        order_status=order.status if order else None,
+        product_name=product.name if product else None,
+        product_slug=product.slug if product else None,
+        store_name=(order.store.name if order else (product.store.name if product else None)),
+        store_slug=(order.store.slug if order else (product.store.slug if product else None)),
+        participants=participants,
+        last_message=last.body if last else None,
+        last_message_at=last.created_at if last else None,
+        unread_count=unread,
         created_at=conv.created_at,
-        participants=[
-            conv.order.store.owner.username,
-            conv.order.buyer.username,
-            *[u.username for u in db.query(models.User).filter(models.User.role == "admin").all()],
-        ],
     )
 
 
@@ -50,15 +89,47 @@ def list_conversations(
     db: Session = Depends(get_db),
 ):
     convs = db.query(models.Conversation).all()
-    result = []
-    for conv in convs:
-        order = conv.order
-        is_buyer = order.buyer_id == current_user.id
-        is_seller = order.store.owner_id == current_user.id
-        is_admin = current_user.role == "admin"
-        if is_buyer or is_seller or is_admin:
-            result.append(_conv_out(db, conv))
+    result = [_conv_out(db, conv, current_user) for conv in convs if _is_participant(current_user, conv)]
+    result.sort(key=lambda c: c.last_message_at or c.created_at, reverse=True)
     return result
+
+
+@router.post(
+    "",
+    response_model=schemas.ConversationOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_conversation(
+    payload: schemas.ConversationCreate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    product = db.get(models.Product, payload.product_id)
+    if not product or product.status != "active" or product.store.status != "active":
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Produk tidak ditemukan"
+        )
+    if product.store.owner_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Anda tidak dapat chat dengan toko sendiri",
+        )
+    existing = (
+        db.query(models.Conversation)
+        .filter(
+            models.Conversation.product_id == product.id,
+            models.Conversation.order_id.is_(None),
+            models.Conversation.buyer_id == current_user.id,
+        )
+        .first()
+    )
+    if existing:
+        return _conv_out(db, existing, current_user)
+    conv = models.Conversation(product_id=product.id, buyer_id=current_user.id)
+    db.add(conv)
+    db.commit()
+    db.refresh(conv)
+    return _conv_out(db, conv, current_user)
 
 
 @router.get("/{conversation_id}/messages", response_model=List[schemas.MessageOut])

@@ -92,3 +92,59 @@ def test_admin_sees_all_conversations(client):
     convs = client.get("/api/conversations", headers=headers(admin)).json()
     assert len(convs) == 1
     assert client.get(f"/api/conversations/{convs[0]['id']}/messages", headers=headers(admin)).status_code == 200
+
+
+def test_create_product_conversation(client):
+    buyer = _buyer(client)
+    product = demo_product(client)
+    r = client.post("/api/conversations", json={"product_id": product["id"]}, headers=headers(buyer))
+    assert r.status_code == 201
+    conv = r.json()
+    assert conv["product_name"] == product["name"]
+    assert conv["store_name"] == product["store"]["name"]
+    assert conv["order_code"] is None
+    assert "chat_buyer" in conv["participants"]
+    assert "member_budi" in conv["participants"]
+
+    st = seller_token(client)
+    convs = client.get("/api/conversations", headers=headers(st)).json()
+    assert len(convs) == 1
+    assert convs[0]["id"] == conv["id"]
+
+
+def test_create_conversation_reuses_existing(client):
+    buyer = _buyer(client)
+    product = demo_product(client)
+    first = client.post("/api/conversations", json={"product_id": product["id"]}, headers=headers(buyer)).json()
+    second = client.post("/api/conversations", json={"product_id": product["id"]}, headers=headers(buyer)).json()
+    assert second["id"] == first["id"]
+    convs = client.get("/api/conversations", headers=headers(buyer)).json()
+    assert len(convs) == 1
+
+
+def test_create_conversation_own_product_rejected(client):
+    st = seller_token(client)
+    product = demo_product(client)
+    r = client.post("/api/conversations", json={"product_id": product["id"]}, headers=headers(st))
+    assert r.status_code == 400
+
+
+def test_unread_count_and_read_marking(client):
+    buyer = _buyer(client)
+    product = demo_product(client)
+    conv_id = client.post("/api/conversations", json={"product_id": product["id"]}, headers=headers(buyer)).json()["id"]
+
+    st = seller_token(client)
+    client.post(
+        f"/api/conversations/{conv_id}/messages",
+        json={"body": "Halo, pesanan tersedia"},
+        headers=headers(st),
+    )
+
+    convs = client.get("/api/conversations", headers=headers(buyer)).json()
+    assert convs[0]["unread_count"] == 1
+    assert convs[0]["last_message"] == "Halo, pesanan tersedia"
+
+    client.get(f"/api/conversations/{conv_id}/messages", headers=headers(buyer))
+    convs = client.get("/api/conversations", headers=headers(buyer)).json()
+    assert convs[0]["unread_count"] == 0

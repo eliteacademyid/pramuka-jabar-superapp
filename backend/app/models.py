@@ -304,10 +304,14 @@ class Conversation(Base):
     __table_args__ = (UniqueConstraint("order_id", name="uq_conv_order"),)
 
     id = Column(Integer, primary_key=True, index=True)
-    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=True)
+    product_id = Column(Integer, ForeignKey("products.id"), nullable=True)
+    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     order = relationship("Order")
+    product = relationship("Product")
+    buyer = relationship("User")
     messages = relationship(
         "Message", back_populates="conversation", cascade="all, delete-orphan"
     )

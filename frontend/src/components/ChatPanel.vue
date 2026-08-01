@@ -1,6 +1,6 @@
 <template>
   <div class="chat-panel">
-    <div class="chat-messages">
+    <div ref="scrollBox" class="chat-messages">
       <div v-if="!messages.length" class="empty-row">Belum ada pesan</div>
       <div
         v-for="m in messages"
@@ -23,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, nextTick, onMounted, onBeforeUnmount } from 'vue'
 import api from '../services/api'
 import { getErrorMessage } from '../services/api'
 import { meFromCache } from '../services/session'
@@ -35,14 +35,25 @@ const props = defineProps({
 const me = ref(meFromCache())
 const messages = ref([])
 const body = ref('')
+const scrollBox = ref(null)
+let timer = null
+let lastCount = 0
 
 async function load() {
   const { data } = await api.get(`/conversations/${props.conversationId}/messages`)
+  const incoming = data.length > lastCount
   messages.value = data
+  lastCount = data.length
+  if (incoming) await scrollBottom()
 }
 
 function formatTime(v) {
   return new Date(v).toLocaleString('id-ID')
+}
+
+async function scrollBottom() {
+  await nextTick()
+  if (scrollBox.value) scrollBox.value.scrollTop = scrollBox.value.scrollHeight
 }
 
 async function send() {
@@ -55,6 +66,10 @@ async function send() {
   }
 }
 
-onMounted(load)
-watch(() => props.conversationId, load)
+onMounted(() => {
+  load()
+  timer = setInterval(load, 4000)
+})
+
+onBeforeUnmount(() => clearInterval(timer))
 </script>

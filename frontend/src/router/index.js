@@ -14,6 +14,7 @@ import OrderListPage from '../views/account/OrderListPage.vue'
 import OrderDetailPage from '../views/account/OrderDetailPage.vue'
 import WalletPage from '../views/account/WalletPage.vue'
 import ProfilePage from '../views/account/ProfilePage.vue'
+import ChatPage from '../views/account/ChatPage.vue'
 import SellerStorePage from '../views/account/SellerStorePage.vue'
 import SellerProductsPage from '../views/account/SellerProductsPage.vue'
 import SellerProductFormPage from '../views/account/SellerProductFormPage.vue'
@@ -53,6 +54,8 @@ const routes = [
       { path: 'orders/:code', name: 'order-detail', component: OrderDetailPage },
       { path: 'wallet', name: 'wallet', component: WalletPage },
       { path: 'profile', name: 'profile', component: ProfilePage },
+      { path: 'chat', name: 'chat', component: ChatPage },
+      { path: 'chat/:id(\\d+)', name: 'chat-detail', component: ChatPage },
       { path: 'seller/store', name: 'seller-store', component: SellerStorePage, meta: { requiresSeller: true } },
       { path: 'seller/products', name: 'seller-products', component: SellerProductsPage, meta: { requiresSeller: true } },
       { path: 'seller/products/new', name: 'seller-product-new', component: SellerProductFormPage, meta: { requiresSeller: true } },

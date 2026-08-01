@@ -19,6 +19,9 @@
         <button class="btn-submit" :disabled="product.out_of_stock" style="max-width: 240px" @click="addToCart">
           + Tambah ke Keranjang
         </button>
+        <button class="btn-small" style="max-width: 240px" @click="chatSeller">
+          <i class="fas fa-comments"></i> Chat Penjual
+        </button>
       </div>
     </div>
 
@@ -69,6 +72,19 @@ async function addToCart() {
   try {
     await api.post('/cart/items', { product_id: product.value.id, qty: 1 })
     alert('Ditambahkan ke keranjang')
+  } catch (err) {
+    alert(getErrorMessage(err))
+  }
+}
+
+async function chatSeller() {
+  if (!localStorage.getItem('token')) {
+    window.location.href = '/login'
+    return
+  }
+  try {
+    const { data } = await api.post('/conversations', { product_id: product.value.id })
+    window.location.href = `/account/chat/${data.id}`
   } catch (err) {
     alert(getErrorMessage(err))
   }

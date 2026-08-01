@@ -78,7 +78,7 @@
           <h3>Buka Toko Sendiri</h3>
           <p>Anggota &amp; UMKM bisa membuka toko dan berjualan dengan mudah.</p>
         </router-link>
-        <router-link :to="{ name: 'orders' }" class="landing-feature">
+        <router-link :to="{ name: 'chat' }" class="landing-feature">
           <i class="fas fa-comments"></i>
           <h3>Chat Penjual</h3>
           <p>Komunikasi langsung pembeli–penjual untuk transaksi yang lancar.</p>
