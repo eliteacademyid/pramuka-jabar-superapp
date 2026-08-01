@@ -12,7 +12,7 @@ const colors = {
 </script>
 
 <template>
-  <div :class="[`rounded-xl border px-4 py-3 text-sm ${colors[type] || colors.info}`]">
+  <div :class="[`rounded-xl border px-4 py-3 text-sm leading-6 ${colors[type] || colors.info}`]">
     <slot />
   </div>
 </template>

@@ -11,6 +11,8 @@ const props = defineProps({
       <h3 class="text-lg font-semibold text-slate-800">{{ title }}</h3>
       <p v-if="subtitle" class="text-sm text-slate-500">{{ subtitle }}</p>
     </div>
-    <slot />
+    <div class="space-y-4">
+      <slot />
+    </div>
   </section>
 </template>
