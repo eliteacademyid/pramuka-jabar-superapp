@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DATABASE_URL = os.getenv(
-    "DATABASE_URL", "postgresql://postgres@localhost:5432/db_epelatihan"
+    "DATABASE_URL", "postgresql://postgres:syamstedc@localhost:5432/db_epelatihan"
 )
 SECRET_KEY = os.getenv("SECRET_KEY", "super-apps-pramuka-jabar-secret")
 ALGORITHM = "HS256"
