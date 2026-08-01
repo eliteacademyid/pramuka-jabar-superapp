@@ -7,7 +7,7 @@ const router = useRouter()
 
 const currentUser = ref(null)
 
-const comingSoon = ['Berita', 'Anggota', 'Kegiatan', 'Galeri', 'Dokumen', 'Pengaturan']
+const comingSoon = ['Berita', 'Kegiatan', 'Galeri', 'Dokumen', 'Pengaturan']
 
 onMounted(async () => {
   try {
@@ -38,6 +38,19 @@ function logout() {
         </router-link>
         <router-link to="/admin/users" class="sidebar-link">
           Manajemen User
+        </router-link>
+      </nav>
+
+      <div class="sidebar-section-label">Data Potensi Keanggotaan</div>
+      <nav class="sidebar-nav">
+        <router-link to="/admin/wilayah" class="sidebar-link">
+          Data Wilayah
+        </router-link>
+        <router-link to="/admin/anggota" class="sidebar-link">
+          Data Anggota
+        </router-link>
+        <router-link to="/admin/rekap" class="sidebar-link">
+          Rekap Statistik
         </router-link>
       </nav>
 

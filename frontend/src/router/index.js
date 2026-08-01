@@ -5,6 +5,9 @@ import LandingPage from '../views/public/LandingPage.vue'
 import LoginPage from '../views/public/LoginPage.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import Users from '../views/admin/Users.vue'
+import DataWilayah from '../views/admin/DataWilayah.vue'
+import DataAnggota from '../views/admin/DataAnggota.vue'
+import RekapStatistik from '../views/admin/RekapStatistik.vue'
 
 const routes = [
   {
@@ -21,7 +24,10 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'admin-dashboard', component: Dashboard },
-      { path: 'users', name: 'admin-users', component: Users }
+      { path: 'users', name: 'admin-users', component: Users },
+      { path: 'wilayah', name: 'admin-wilayah', component: DataWilayah },
+      { path: 'anggota', name: 'admin-anggota', component: DataAnggota },
+      { path: 'rekap', name: 'admin-rekap', component: RekapStatistik }
     ]
   }
 ]

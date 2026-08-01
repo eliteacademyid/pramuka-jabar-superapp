@@ -3,7 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.database import Base, engine
 from app.routers import admin as admin_router
+from app.routers import anggota as anggota_router
 from app.routers import auth as auth_router
+from app.routers import wilayah as wilayah_router
 from app.seed import seed_default_admin
 
 Base.metadata.create_all(bind=engine)
@@ -20,6 +22,8 @@ app.add_middleware(
 
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
+app.include_router(wilayah_router.router, prefix="/api")
+app.include_router(anggota_router.router, prefix="/api")
 
 
 @app.on_event("startup")
