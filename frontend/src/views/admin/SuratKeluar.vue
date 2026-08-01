@@ -265,7 +265,10 @@ function fileSize(bytes) {
         </thead>
         <tbody>
           <tr v-for="s in surats" :key="s.id">
-            <td>{{ s.nomor_surat || <span class="text-muted">Belum di-generate</span> }}</td>
+            <td>
+              <span v-if="s.nomor_surat">{{ s.nomor_surat }}</span>
+              <span v-else class="text-muted">Belum di-generate</span>
+            </td>
             <td>{{ s.tujuan || '-' }}</td>
             <td class="td-perihal">{{ s.perihal }}</td>
             <td>{{ formatDate(s.tanggal_surat) }}</td>
