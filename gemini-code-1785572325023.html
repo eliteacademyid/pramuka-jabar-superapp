@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Identitas Digital & Database Anggota Pramuka</title>
+    <!-- Tailwind CSS untuk Styling Modern -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- QRCodeJS untuk Generate QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- FontAwesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .card-bg {
+            background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #388e3c 100%);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Container Utama Website -->
+    <div class="w-full max-w-lg bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+        
+        <!-- Header & Navigasi Pemilihan Anggota Database -->
+        <div class="bg-emerald-900 text-white p-4 space-y-3">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="font-bold text-base tracking-wide">PORTAL IDENTITAS KWARCAB</h1>
+                    <p class="text-xs text-emerald-200">Sistem Database & Verifikasi Keanggotaan Pramuka</p>
+                </div>
+                <button onclick="switchView()" id="toggleBtn" class="bg-emerald-800 hover:bg-emerald-700 text-xs px-3 py-1.5 rounded-full transition font-medium flex items-center gap-1 shadow border border-emerald-700">
+                    <i class="fa-solid fa-rotate"></i> <span id="toggleText">Halaman Verifikasi</span>
+                </button>
+            </div>
+
+            <!-- Selector Database Anggota -->
+            <div class="bg-emerald-950/50 p-2.5 rounded-xl border border-emerald-800 flex items-center gap-2">
+                <span class="text-xs text-emerald-300 font-medium whitespace-nowrap"><i class="fa-solid fa-database"></i> Pilih Anggota:</span>
+                <select id="memberSelect" onchange="changeMember()" class="w-full bg-emerald-900 text-white text-xs rounded-lg px-2.5 py-1.5 border border-emerald-700 focus:outline-none focus:ring-1 focus:ring-amber-400">
+                    <!-- Opsi dimuat otomatis melalui JavaScript -->
+                </select>
+            </div>
+        </div>
+
+        <!-- VIEW 1: KARTU DIGITAL & QR CODE -->
+        <div id="cardView" class="p-6 space-y-5">
+            
+            <!-- Tampilan Kartu Pramuka -->
+            <div class="card-bg text-white rounded-2xl p-5 shadow-lg relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 w-36 h-36 bg-white/10 rounded-full pointer-events-none"></div>
+                
+                <div class="flex items-center justify-between border-b border-white/20 pb-3 mb-4">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-shield-halved text-amber-400 text-xl"></i>
+                        <span class="text-xs font-semibold tracking-wider uppercase">Tunas Kelapa Digital</span>
+                    </div>
+                    <span id="cardStatusBadge" class="bg-amber-400 text-emerald-950 text-[10px] font-bold px-2.5 py-0.5 rounded-full">AKTIF</span>
+                </div>
+
+                <div class="flex gap-4 items-center">
+                    <!-- Foto Anggota -->
+                    <div class="w-20 h-24 bg-slate-200 rounded-xl overflow-hidden border-2 border-white/40 shadow-inner flex-shrink-0">
+                        <img id="cardFoto" src="" alt="Foto Anggota" class="w-full h-full object-cover">
+                    </div>
+                    <!-- Data Singkat Kartu -->
+                    <div class="space-y-1 text-sm">
+                        <h2 id="cardNama" class="font-bold text-base leading-tight">-</h2>
+                        <p id="cardNta" class="text-xs text-emerald-100 font-mono">NTA: -</p>
+                        <p id="cardGolongan" class="text-xs text-emerald-200">Golongan: -</p>
+                        <p id="cardGudep" class="text-[11px] bg-white/20 inline-block px-2 py-0.5 rounded mt-1 font-medium">-</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian QR Code Keanggotaan -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-center space-y-3">
+                <p class="text-xs text-slate-500 font-medium">Pindai QR Code untuk verifikasi status keanggotaan resmi:</p>
+                <div class="flex justify-center">
+                    <!-- Tempat QR Code dirender -->
+                    <div id="qrcode" class="p-3 bg-white rounded-xl shadow-sm border border-slate-200 inline-block"></div>
+                </div>
+                <p id="qrInfoText" class="text-[11px] text-slate-400 font-mono">Token: -</p>
+            </div>
+
+            <!-- Tombol Simulasi Scan -->
+            <button onclick="simulateScan()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-semibold py-3 rounded-xl transition text-sm shadow-md flex items-center justify-center gap-2">
+                <i class="fa-solid fa-qrcode"></i> Simulasi Scan QR ke Halaman Verifikasi
+            </button>
+        </div>
+
+        <!-- VIEW 2: HALAMAN VERIFIKASI (Privasi Data Terjaga) -->
+        <div id="verificationView" class="p-6 space-y-5 hidden">
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-2xl shadow-inner">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h2 class="text-lg font-bold text-slate-800">Status Keanggotaan Valid</h2>
+                <p class="text-xs text-slate-500">Hasil Verifikasi Resmi Database Kwartir Cabang</p>
+            </div>
+
+            <!-- Informasi Publik (Tanpa Membuka Data Sensitif Penuh) -->
+            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 text-sm">
+                <div class="flex justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-500 text-xs">Nomor Tanda Anggota (NTA)</span>
+                    <span id="verNta" class="font-mono font-semibold text-slate-800 text-xs">-</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-500 text-xs">Nama Anggota</span>
+                    <span id="verNama" class="font-semibold text-slate-800 text-xs">-</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-500 text-xs">Status KTA Kwarnas</span>
+                    <span id="verKtaKwarnas" class="font-bold text-xs text-emerald-600">-</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-500 text-xs">Gugus Depan / Pangkalan</span>
+                    <span id="verGudep" class="font-semibold text-slate-800 text-xs">-</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-500 text-xs">Kwartir Ranting (Kwaran)</span>
+                    <span id="verKwaran" class="font-semibold text-slate-800 text-xs">-</span>
+                </div>
+                <div class="flex justify-between border-b border-slate-200 pb-2">
+                    <span class="text-slate-500 text-xs">Golongan / Satuan</span>
+                    <span id="verGolongan" class="font-semibold text-slate-800 text-xs">-</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-500 text-xs">Saka / Satgas</span>
+                    <span id="verSaka" class="font-semibold text-slate-800 text-xs">-</span>
+                </div>
+            </div>
+
+            <!-- Catatan Keamanan & Privasi -->
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800 flex gap-2 items-start">
+                <i class="fa-solid fa-triangle-exclamation mt-0.5 flex-shrink-0"></i>
+                <p>Data pribadi sensitif seperti Tanggal Lahir dan Nomor Kontak (No. HP) disembunyikan sesuai kebijakan perlindungan privasi anggota.</p>
+            </div>
+
+            <button onclick="switchView()" class="w-full bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-3 rounded-xl transition text-sm">
+                Kembali ke Kartu Digital
+            </button>
+        </div>
+
+        <!-- Footer Website -->
+        <div class="bg-slate-50 border-t border-slate-100 p-3 text-center text-[10px] text-slate-400">
+            Modul Identitas Digital & Database Kwarcab &copy; 2026 Gerakan Pramuka
+        </div>
+    </div>
+
+    <!-- JavaScript Logika Website -->
+    <script>
+        // Simulasi Database Anggota Kwarcab
+        const databaseAnggota = [
+            {
+                id: 1,
+                nama: "Siti Aminah",
+                kepemilikanKtaKwarnas: "Ya",
+                noKta: "09.04.12.001",
+                jenisKelamin: "P",
+                tanggalLahir: "12 Maret 2005",
+                golongan: "Penegak",
+                gugusDepan: "SMA Negeri 1 Sukabumi",
+                kwaran: "Cikole",
+                saka: "Saka Bhayangkara",
+                kursus: "-",
+                noHp: "081234567890",
+                foto: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80"
+            },
+            {
+                id: 2,
+                nama: "Ahmad Fauzi",
+                kepemilikanKtaKwarnas: "Ya",
+                noKta: "09.04.12.045",
+                jenisKelamin: "L",
+                tanggalLahir: "20 Juni 2004",
+                golongan: "Penegak",
+                gugusDepan: "SMA Negeri 2 Sukabumi",
+                kwaran: "Warudoyong",
+                saka: "Saka Wira Kartika",
+                kursus: "-",
+                noHp: "081987654321",
+                foto: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80"
+            },
+            {
+                id: 3,
+                nama: "Budi Pratama",
+                kepemilikanKtaKwarnas: "Tidak",
+                noKta: "-",
+                jenisKelamin: "L",
+                tanggalLahir: "05 Januari 2008",
+                golongan: "Penggalang",
+                gugusDepan: "SMP Negeri 1 Sukabumi",
+                kwaran: "Cikole",
+                saka: "-",
+                kursus: "-",
+                noHp: "085611223344",
+                foto: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80"
+            }
+        ];
+
+        let qrCodeInstance = null;
+
+        // Inisialisasi Dropdown Pemilihan Anggota
+        function initDropdown() {
+            const select = document.getElementById('memberSelect');
+            databaseAnggota.forEach(member => {
+                let opt = document.createElement('option');
+                opt.value = member.id;
+                opt.text = `${member.nama} (${member.noKta})`;
+                select.appendChild(opt);
+            });
+        }
+
+        // Masking Data untuk Keamanan & Privasi
+        function maskName(name) {
+            if (!name || name === '-') return '-';
+            return name.charAt(0) + name.charAt(1) + '•••••';
+        }
+
+        function maskNta(nta) {
+            if (!nta || nta === '-') return 'Tidak Ada KTA';
+            let parts = nta.split('.');
+            if (parts.length === 4) {
+                return `${parts[0]}.${parts[1]}.${parts[2]}.••••`;
+            }
+            return nta.substring(0, 6) + '••••';
+        }
+
+        // Render Data Berdasarkan Anggota yang Dipilih
+        function updateDisplay(memberId) {
+            const member = databaseAnggota.find(m => m.id == memberId);
+            if (!member) return;
+
+            // Update Kartu Digital
+            document.getElementById('cardNama').innerText = member.nama;
+            document.getElementById('cardNta').innerText = `NTA: ${member.noKta}`;
+            document.getElementById('cardGolongan').innerText = `Golongan: ${member.golongan}`;
+            document.getElementById('cardGudep').innerText = member.gugusDepan;
+            document.getElementById('cardFoto').src = member.foto;
+
+            // Status Badge Kartu
+            const badge = document.getElementById('cardStatusBadge');
+            if (member.kepemilikanKtaKwarnas === "Ya") {
+                badge.innerText = "AKTIF";
+                badge.className = "bg-amber-400 text-emerald-950 text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+            } else {
+                badge.innerText = "BELUM TERCATAT";
+                badge.className = "bg-rose-400 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full";
+            }
+
+            // Update Halaman Verifikasi Publik (Privacy-First)
+            document.getElementById('verNta').innerText = maskNta(member.noKta);
+            document.getElementById('verNama').innerText = maskName(member.nama);
+            document.getElementById('verKtaKwarnas').innerText = member.kepemilikanKtaKwarnas === "Ya" ? "Terverifikasi Aktif" : "Belum Teregistrasi";
+            document.getElementById('verGudep').innerText = member.gugusDepan;
+            document.getElementById('verKwaran').innerText = member.kwaran;
+            document.getElementById('verGolongan').innerText = member.golongan;
+            document.getElementById('verSaka').innerText = member.saka;
+
+            // Generate Ulang QR Code Dinamis
+            document.getElementById('qrcode').innerHTML = "";
+            let verifyUrl = `https://kwarcab-pramuka.or.id/verify?id=${member.id}&token=secure-${member.noKta}`;
+            document.getElementById('qrInfoText').innerText = `Token: verif-${member.id}-${member.noKta}`;
+
+            qrCodeInstance = new QRCode(document.getElementById("qrcode"), {
+                text: verifyUrl,
+                width: 130,
+                height: 130,
+                colorDark: "#1b5e20",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        function changeMember() {
+            const selectedId = document.getElementById('memberSelect').value;
+            updateDisplay(selectedId);
+        }
+
+        // Transisi Antar Halaman
+        function switchView() {
+            const cardView = document.getElementById('cardView');
+            const verificationView = document.getElementById('verificationView');
+            const toggleText = document.getElementById('toggleText');
+
+            if (cardView.classList.contains('hidden')) {
+                cardView.classList.remove('hidden');
+                verificationView.classList.add('hidden');
+                toggleText.innerText = 'Halaman Verifikasi';
+            } else {
+                cardView.classList.add('hidden');
+                verificationView.classList.remove('hidden');
+                toggleText.innerText = 'Kartu Digital';
+            }
+        }
+
+        function simulateScan() {
+            switchView();
+        }
+
+        // Eksekusi Saat Halaman Dimuat
+        window.onload = function() {
+            initDropdown();
+            updateDisplay(1);
+        };
+    </script>
+</body>
+</html>
