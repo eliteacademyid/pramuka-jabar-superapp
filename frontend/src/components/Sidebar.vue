@@ -10,7 +10,8 @@ import {
 
 const props = defineProps({
   collapsed: { type: Boolean, default: false },
-  userName: { type: String, default: 'Administrator' }
+  userName: { type: String, default: 'Administrator' },
+  isAdmin: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['toggle', 'logout'])
@@ -20,6 +21,10 @@ const navigation = [
   { name: 'Statistik', path: '/dashboard/statistik', icon: ChartBarIcon },
   { name: 'Grafik', path: '/dashboard/grafik', icon: PresentationChartLineIcon },
   { name: 'Perbandingan', path: '/dashboard/perbandingan', icon: ArrowsRightLeftIcon }
+]
+
+const adminNavigation = [
+  { name: 'Kelola User', path: '/admin/users', icon: HomeIcon }
 ]
 
 const sidebarClass = computed(() => props.collapsed ? 'w-20' : 'w-72')
@@ -40,6 +45,18 @@ const sidebarClass = computed(() => props.collapsed ? 'w-20' : 'w-72')
     <nav class="flex-1 space-y-1 px-3 py-4">
       <router-link
         v-for="item in navigation"
+        :key="item.path"
+        :to="item.path"
+        class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-600 transition hover:bg-pramuka-50 hover:text-pramuka-700"
+        active-class="bg-pramuka-50 text-pramuka-700"
+      >
+        <component :is="item.icon" class="h-5 w-5" />
+        <span v-if="!collapsed">{{ item.name }}</span>
+      </router-link>
+
+      <router-link
+        v-if="isAdmin"
+        v-for="item in adminNavigation"
         :key="item.path"
         :to="item.path"
         class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-slate-600 transition hover:bg-pramuka-50 hover:text-pramuka-700"

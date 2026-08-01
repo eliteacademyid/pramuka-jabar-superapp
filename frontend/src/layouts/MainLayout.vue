@@ -12,6 +12,7 @@ const authStore = useAuthStore()
 const sidebarCollapsed = ref(false)
 
 const userName = computed(() => authStore.user?.nama_lengkap || 'Administrator')
+const isAdmin = computed(() => authStore.user?.role === 'admin')
 
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value
@@ -27,11 +28,11 @@ function logout() {
   <div class="min-h-screen bg-slate-50">
     <div class="flex min-h-screen">
       <div class="hidden lg:block">
-        <Sidebar :collapsed="sidebarCollapsed" :user-name="userName" @logout="logout" />
+        <Sidebar :collapsed="sidebarCollapsed" :user-name="userName" :is-admin="isAdmin" @logout="logout" />
       </div>
 
       <div v-if="sidebarCollapsed" class="fixed inset-y-0 left-0 z-30 lg:hidden">
-        <Sidebar :collapsed="true" :user-name="userName" @logout="logout" />
+        <Sidebar :collapsed="true" :user-name="userName" :is-admin="isAdmin" @logout="logout" />
       </div>
 
       <div class="flex-1">
