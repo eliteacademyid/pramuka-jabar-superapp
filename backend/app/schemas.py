@@ -1,5 +1,6 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
+from uuid import UUID
 
 from pydantic import BaseModel
 
@@ -40,3 +41,36 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
+
+
+# Membership Schemas
+class MemberCardOut(BaseModel):
+    """Response schema for member digital card - includes all card information"""
+    id: int
+    nama_lengkap: str
+    nomor_anggota: Optional[str] = None
+    golongan: Optional[str] = None
+    kwartir: Optional[str] = None
+    membership_status: str
+    valid_until: Optional[date] = None
+    foto_url: Optional[str] = None
+    verification_token: UUID
+
+    model_config = {"from_attributes": True}
+
+
+class VerificationOut(BaseModel):
+    """Response schema for public verification - limited information only"""
+    nama_lengkap: str
+    nomor_anggota: Optional[str] = None
+    golongan: Optional[str] = None
+    kwartir: Optional[str] = None
+    membership_status: str
+    
+    model_config = {"from_attributes": True}
+
+
+class QRCodeOut(BaseModel):
+    """Response schema for QR code data"""
+    qr_code_url: str
+    verification_url: str

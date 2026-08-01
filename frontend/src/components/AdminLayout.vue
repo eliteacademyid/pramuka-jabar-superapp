@@ -39,6 +39,9 @@ function logout() {
         <router-link to="/admin/users" class="sidebar-link">
           Manajemen User
         </router-link>
+        <router-link to="/member/card" class="sidebar-link">
+          Kartu Anggota Digital
+        </router-link>
       </nav>
 
       <div class="sidebar-section-label">Menu Lainnya (Segera Hadir)</div>
