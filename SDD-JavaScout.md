@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.1
+**Versi Dokumen** : 1.2
 **Tanggal** : 1 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -11,6 +11,9 @@
 > dengan escrow & komisi platform, siklus pesanan (pay → confirm → ship →
 > confirm-receipt), pencairan dana penjual (withdraw + moderasi admin), ulasan,
 > chat pembeli–penjual, serta back-office admin (moderasi toko/produk, laporan).
+> Pembaruan v1.2: penghapusan user tidak lagi gagal (500) — user yang masih punya
+> data transaksi otomatis dinonaktifkan (soft delete); katalog ditambah kartu
+> kategori (klik untuk memfilter), badge keranjang, dan toast konfirmasi tambah.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -525,7 +528,8 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 ### Admin
 | Metode | Route | Fungsi |
 |---|---|---|
-| GET/POST/PUT/DELETE | `/api/admin/users` | Kelola user (role, aktif/nonaktif) |
+| GET/POST/PUT | `/api/admin/users` | Kelola user (role, aktif/nonaktif) |
+| DELETE | `/api/admin/users/{id}` | Hapus permanen; otomatis nonaktif (soft delete) bila user masih punya data transaksi (order/keranjang/toko) — login user nonaktif ditolak |
 | GET | `/api/admin/stores` | List toko |
 | POST | `/api/admin/stores/{id}/approve\|reject\|suspend\|activate` | Moderasi toko |
 | GET | `/api/admin/products` | List produk |
@@ -569,11 +573,15 @@ Media: file produk/logo disajikan via subdomain/CDN `cdn.javascout.id` (rencana;
 - **Landing page**: tombol masuk ke *Katalog Marketplace* dan Login; katalog dapat
   diakses publik tanpa login.
 - **Katalog marketplace** (redesain Iterasi 1): hero gradient coklat→maroon dengan
-  aksen emas + kolom pencarian pill; baris filter dalam kartu (kategori, kota,
-  urutan); penghitung hasil; grid kartu produk responsif (min 240px) — gambar
-  rasio 4:3 dengan efek zoom saat hover, badge "Stok Habis", nama maks 2 baris,
-  rating bintang emas, harga maroon tebal, tombol "+ Tambah ke Keranjang"
-  full-width; pagination (‹ Sebelumnya / Berikutnya ›); state kosong yang informatif.
+  aksen emas + kolom pencarian pill; **kartu kategori** berikon (makanan, minuman,
+  kerajinan, fashion, jasa, lainnya) yang dapat diklik untuk memfilter grid;
+  **badge keranjang** di hero (jumlah item, tautan ke halaman keranjang); baris
+  filter dalam kartu (kategori, kota, urutan); penghitung hasil; grid kartu produk
+  responsif (min 240px) — gambar rasio 4:3 dengan efek zoom saat hover, badge
+  "Stok Habis", nama maks 2 baris, rating bintang emas, harga maroon tebal, tombol
+  "+ Tambah ke Keranjang" full-width (berubah "Menambahkan…" → "✓ Ditambahkan"
+  saat diproses, disertai **toast** konfirmasi dan cegah klik ganda); pagination
+  (‹ Sebelumnya / Berikutnya ›); state kosong yang informatif.
 - **Skema warna**: coklat `#5c4033`, maroon `#7b241c`, emas `#d4ac0d`, krem `#faf6f0`
   (token CSS `--brown`, `--maroon`, `--gold`, `--cream`).
 
