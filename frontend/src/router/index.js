@@ -5,7 +5,10 @@ import LandingPage from '../views/public/LandingPage.vue'
 import LoginPage from '../views/public/LoginPage.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import Users from '../views/admin/Users.vue'
-
+import TrainingsList from '../views/lms/TrainingsList.vue'
+import TrainingDetail from '../views/lms/TrainingDetail.vue'
+import TrainingQuiz from '../views/lms/TrainingQuiz.vue'
+import MyEnrollments from '../views/lms/MyEnrollments.vue'
 const routes = [
   {
     path: '/',
@@ -21,8 +24,11 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'admin-dashboard', component: Dashboard },
-      { path: 'users', name: 'admin-users', component: Users }
-    ]
+      { path: 'users', name: 'admin-users', component: Users },
+      { path: 'trainings', name: 'lms-trainings', component: TrainingsList },
+      { path: 'trainings/:id', name: 'lms-training-detail', component: TrainingDetail },
+      { path: 'trainings/:id/quiz', name: 'lms-training-quiz', component: TrainingQuiz },
+      { path: 'enrollments', name: 'lms-enrollments', component: MyEnrollments }    ]
   }
 ]
 
