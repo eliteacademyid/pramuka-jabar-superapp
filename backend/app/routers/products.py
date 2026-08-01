@@ -120,7 +120,7 @@ def list_products(
     city: Optional[str] = None,
     min_price: Optional[Decimal] = None,
     max_price: Optional[Decimal] = None,
-    sort: str = Query(default="newest", pattern="^(newest|cheapest|expensive|bestseller)$"),
+    sort: str = Query(default="newest", pattern="^(newest|cheapest|expensive|bestseller|rating|reviewed)$"),
     page: int = Query(default=1, ge=1),
     size: int = Query(default=12, ge=1, le=100),
     db: Session = Depends(get_db),
@@ -156,6 +156,32 @@ def list_products(
         query = query.order_by(models.Product.price.desc())
     elif sort == "bestseller":
         query = query.order_by(models.Product.sold.desc())
+    elif sort == "rating":
+        query = (
+            query.outerjoin(
+                models.Review,
+                (models.Review.product_id == models.Product.id)
+                & (models.Review.status == "visible"),
+            )
+            .group_by(models.Product.id)
+            .order_by(
+                func.avg(models.Review.rating).desc().nulls_last(),
+                models.Product.sold.desc(),
+            )
+        )
+    elif sort == "reviewed":
+        query = (
+            query.outerjoin(
+                models.Review,
+                (models.Review.product_id == models.Product.id)
+                & (models.Review.status == "visible"),
+            )
+            .group_by(models.Product.id)
+            .order_by(
+                func.count(models.Review.id).desc().nulls_last(),
+                models.Product.sold.desc(),
+            )
+        )
     else:
         query = query.order_by(models.Product.created_at.desc())
 

@@ -1,6 +1,78 @@
 from conftest import headers, login, register, seller_token
 
 
+def _buyer(client, name="review_sort_buyer"):
+    register(client, name)
+    return login(client, name)
+
+
+def _review_product(client, token, product_id, rating):
+    code = _complete_purchase(client, token, product_id)
+    order = client.get(f"/api/orders/{code}", headers=headers(token)).json()
+    item_id = order["items"][0]["id"]
+    r = client.post(
+        "/api/reviews",
+        json={"order_item_id": item_id, "rating": rating},
+        headers=headers(token),
+    )
+    assert r.status_code == 201, r.text
+
+
+def _complete_purchase(client, buyer_token, product_id):
+    from conftest import (
+        add_address,
+        add_cart,
+        checkout,
+        confirm_order,
+        confirm_receipt,
+        pay_order,
+        ship_order,
+        topup,
+    )
+
+    topup(client, buyer_token)
+    addr = add_address(client, buyer_token)
+    add_cart(client, buyer_token, product_id, 1)
+    code = checkout(client, buyer_token, addr["id"])[0]
+    r = pay_order(client, buyer_token, code)
+    assert r.status_code == 200, r.text
+    order = r.json()
+    st = seller_token(client)
+    assert confirm_order(client, st, order["id"]).status_code == 200
+    assert ship_order(client, st, order["id"]).status_code == 200
+    assert confirm_receipt(client, buyer_token, code).status_code == 200
+    return code
+
+
+def test_product_sort_by_rating(client):
+    products = client.get("/api/products", params={"size": 100}).json()["items"]
+    low, high = products[0], products[1]
+    token = _buyer(client)
+    _review_product(client, token, low["id"], 3)
+    _review_product(client, token, high["id"], 5)
+
+    items = client.get("/api/products", params={"sort": "rating", "size": 100}).json()["items"]
+    assert items[0]["id"] == high["id"], "produk rating 5★ harus pertama"
+    assert items[1]["id"] == low["id"], "produk rating 3★ harus kedua"
+    assert float(items[0]["rating"]) == 5.0
+
+
+def test_product_sort_by_review_count(client):
+    products = client.get("/api/products", params={"size": 100}).json()["items"]
+    one_review, two_reviews = products[0], products[1]
+    token = _buyer(client)
+    _review_product(client, token, one_review["id"], 4)
+    _review_product(client, token, two_reviews["id"], 4)
+    _review_product(client, _buyer(client, "review_sort_buyer2"), two_reviews["id"], 5)
+
+    items = client.get("/api/products", params={"sort": "reviewed", "size": 100}).json()["items"]
+    assert items[0]["id"] == two_reviews["id"], "produk dengan 2 ulasan harus pertama"
+    assert items[1]["id"] == one_review["id"], "produk dengan 1 ulasan harus kedua"
+
+    r = client.get("/api/products", params={"sort": "invalid"})
+    assert r.status_code == 422
+
+
 def test_list_categories(client):
     r = client.get("/api/categories")
     assert r.status_code == 200

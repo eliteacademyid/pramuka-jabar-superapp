@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.8
+**Versi Dokumen** : 1.9
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -48,6 +48,10 @@
 > (komponen `SearchSuggest.vue` dengan debounce 250 ms) dari endpoint baru
 > `GET /api/products/suggest?q=…&limit=6` (cocok nama, urut produk terlaris);
 > pilih saran langsung menuju halaman detail produk.
+> Pembaruan v1.9: **urutkan katalog berdasarkan ulasan pembeli** — opsi
+> "Rating Tertinggi" (`?sort=rating`, rata-rata bintang ulasan terbaik,
+> produk tanpa ulasan di belakang) dan "Terbanyak Diulas" (`?sort=reviewed`,
+> jumlah ulasan terbanyak) di dropdown urutkan katalog.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -150,7 +154,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 76 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian) |
+| Testing | pytest + httpx (TestClient, SQLite) | 78 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan) |
 
 ---
 
@@ -226,6 +230,11 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
   menampilkan dropdown produk serupa (nama, gambar, harga, toko, jumlah
   terjual); navigasi keyboard (↑/↓/Enter/Esc) didukung; memilih saran
   langsung membuka halaman detail produk.
+- **Implementasi v1.9**: urutkan berdasarkan ulasan pembeli — "Rating
+  Tertinggi" (`?sort=rating`, rata-rata bintang ulasan visible menurun,
+  produk tanpa ulasan berada di akhir) dan "Terbanyak Diulas"
+  (`?sort=reviewed`, jumlah ulasan visible menurun) di dropdown urutkan
+  katalog; keduanya dapat dikombinasikan dengan filter & pencarian lain.
 
 ### 3.2 Kebutuhan Non-Fungsional
 
@@ -524,7 +533,7 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 |---|---|---|
 | GET | `/api/categories` | Daftar kategori produk |
 | GET | `/api/cities` | Daftar kota toko aktif (saran lokasi pencarian) |
-| GET | `/api/products` | Katalog + filter (q, city **parsial-match**, category, min/max price, sort: newest/cheapest/expensive/bestseller, page, size) |
+| GET | `/api/products` | Katalog + filter (q, city **parsial-match**, category, min/max price, sort: newest/cheapest/expensive/bestseller/**rating**/**reviewed** v1.9, page, size) |
 | GET | `/api/products/suggest` | Saran produk saat mengetik (q, limit ≤10; nama cocok, urut terlaris) — v1.8 |
 | GET | `/api/products/{slug}` | Detail produk + rating + ulasan |
 | GET | `/api/stores/{slug}` | Halaman toko publik + produk toko |
@@ -663,7 +672,8 @@ rencana pengembangan lanjutan.)
   kerajinan, fashion, jasa, lainnya) yang dapat diklik untuk memfilter grid;
   **badge keranjang** di hero (jumlah item, tautan ke halaman keranjang); baris
   filter dalam kartu (kategori, **lokasi** — partial-match + saran kota dari
-  `/api/cities`, urutan — termasuk **Termurah/Termahal** v1.6); penghitung hasil; grid kartu produk
+  `/api/cities`, urutan — termasuk **Termurah/Termahal** v1.6 serta **Rating
+  Tertinggi & Terbanyak Diulas** v1.9); penghitung hasil; grid kartu produk
   responsif (min 240px) — gambar rasio 4:3 dengan efek zoom saat hover, badge
   "Stok Habis", nama maks 2 baris, rating bintang emas, harga maroon tebal, tombol
   "+ Tambah ke Keranjang" full-width (berubah "Menambahkan…" → "✓ Ditambahkan"
@@ -675,6 +685,9 @@ rencana pengembangan lanjutan.)
 - **Saran pencarian** (v1.8): komponen `SearchSuggest.vue` di kolom pencarian
   landing page & katalog — dropdown saran produk serupa saat mengetik (nama,
   gambar, harga, toko, jumlah terjual; navigasi keyboard; pilih → detail produk).
+- **Urutkan berdasarkan ulasan** (v1.9): opsi dropdown "Rating Tertinggi"
+  (rata-rata bintang terbaik) & "Terbanyak Diulas" (jumlah ulasan terbanyak)
+  pada baris filter katalog.
 - **Skema warna**: coklat `#5c4033`, maroon `#7b241c`, emas `#d4ac0d`, krem `#faf6f0`
   (token CSS `--brown`, `--maroon`, `--gold`, `--cream`).
 
@@ -732,9 +745,11 @@ rencana pengembangan lanjutan.)
 
 ## 10. Pengujian
 
-**Terimplementasi (pytest + TestClient, 76 test lulus):**
+**Terimplementasi (pytest + TestClient, 78 test lulus):**
 1. **Unit/Integration (API level)**: auth (registrasi, login, akses), toko & produk
-   (katalog, filter q/kategori/lokasi parsial, sort termurah–termahal, **saran
+   (katalog, filter q/kategori/lokasi parsial, sort termurah–termahal, **sort
+   rating tertinggi & terbanyak diulas v1.9** — urut rata-rata bintang/jumlah
+   ulasan visible dengan produk tanpa ulasan di akhir, **saran
    pencarian `/api/products/suggest`** — hasil cocok kata kunci, batas limit,
    kosong tanpa hasil, 422 tanpa q, seller CRUD,
    moderasi admin), keranjang (lintas toko, stok,

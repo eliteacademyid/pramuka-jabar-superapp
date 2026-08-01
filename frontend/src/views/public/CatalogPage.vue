@@ -61,6 +61,8 @@
             <option value="bestseller">Terlaris</option>
             <option value="cheapest">Termurah</option>
             <option value="expensive">Termahal</option>
+            <option value="rating">Rating Tertinggi</option>
+            <option value="reviewed">Terbanyak Diulas</option>
           </select>
         </div>
         <button class="btn-filter-apply" @click="load(1)">Terapkan</button>
