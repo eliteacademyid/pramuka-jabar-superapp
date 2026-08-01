@@ -1,11 +1,4 @@
 import { createApp } from 'vue'
-<<<<<<< HEAD
-import App from './App.vue'
-import router from './router'
-import './style.css'
-
-createApp(App).use(router).mount('#app')
-=======
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
@@ -24,4 +17,3 @@ app.use(Toast, {
 })
 
 app.mount('#app')
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
