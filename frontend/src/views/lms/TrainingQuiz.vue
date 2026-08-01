@@ -69,7 +69,7 @@ async function submit() {
 
     <!-- State: Error -->
     <div v-else-if="error" class="bg-red-50 text-red-600 p-6 rounded-xl border border-red-200 text-center shadow-sm animate-fade-in mt-12">
-      <span class="text-2xl block mb-2">⚠️</span>
+      <span class="text-2xl block mb-2">Pemberitahuan</span>
       {{ error }}
       <div class="mt-4">
         <router-link to="/admin/enrollments" class="text-red-700 underline font-medium">Kembali ke Pelatihanku</router-link>
@@ -108,7 +108,7 @@ async function submit() {
         <router-link :to="{ name: 'lms-training-detail', params: { id: trainingId } }" class="text-[var(--brown)] hover:text-[var(--maroon)] font-bold bg-white p-2 rounded-lg shadow-sm">&larr; Batal</router-link>
         <div>
           <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900">{{ quiz.title }}</h2>
-          <p class="text-sm text-gray-500 font-medium mt-1">⏳ Waktu Pengerjaan: {{ quiz.time_limit_minutes }} menit</p>
+          <p class="text-sm text-gray-500 font-medium mt-1">Waktu Pengerjaan: {{ quiz.time_limit_minutes }} menit</p>
         </div>
       </div>
 
@@ -146,7 +146,7 @@ async function submit() {
           <button @click="submit" :disabled="submitting" 
             class="bg-gradient-to-r from-[var(--maroon)] to-[var(--brown)] text-white font-bold py-4 px-10 rounded-2xl shadow-[0_10px_20px_rgba(123,36,28,0.2)] hover:shadow-[0_15px_30px_rgba(123,36,28,0.3)] hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-70 disabled:hover:translate-y-0 disabled:active:scale-100 flex items-center gap-2">
             <span v-if="submitting" class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-            {{ submitting ? 'Memproses Jawaban...' : 'Kumpulkan Jawaban ✨' }}
+            {{ submitting ? 'Memproses Jawaban...' : 'Kumpulkan Jawaban' }}
           </button>
         </div>
       </div>
