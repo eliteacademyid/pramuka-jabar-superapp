@@ -69,7 +69,7 @@ async def run_async_migrations() -> None:
     if database_url.startswith("postgresql://"):
         database_url = database_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-    connectable = await create_async_engine(
+    connectable = create_async_engine(
         database_url,
         poolclass=pool.NullPool,
     )
