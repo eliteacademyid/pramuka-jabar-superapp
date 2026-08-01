@@ -30,3 +30,15 @@ class Training(Base):
     status = Column(String, default="Draft")
     created_at = Column(DateTime, default=datetime.utcnow)
 
+class TrainingMaterial(Base):
+    __tablename__ = "training_materials"
+
+    id = Column(Integer, primary_key=True, index=True)
+    training_id = Column(Integer, index=True)
+    title = Column(String, nullable=False)
+    content = Column(String, nullable=True)
+    media_url = Column(String, nullable=True)
+    order = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
