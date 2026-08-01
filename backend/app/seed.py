@@ -34,6 +34,12 @@ DEMO_IMAGES = {
     "fashion": ["/images/products/tote-bag-pramuka.jpg"],
 }
 
+PRODUCT_IMAGES = {
+    "Jasa Fotografi Kegiatan Pramuka": ["/images/products/jasa-fotografi.jpg"],
+    "Jasa Desain Logo & Umbul-umbul": ["/images/products/jasa-desain.jpg"],
+    "Jasa Sewa Tenda & Perlengkapan": ["/images/products/jasa-tenda.jpg"],
+}
+
 
 def _seed_settings(db):
     for key, value in SETTINGS_DEFAULT.items():
@@ -183,7 +189,7 @@ def _seed_demo_data(db):
                 price=Decimal(price),
                 stock=stock,
                 unit=unit,
-                images=DEMO_IMAGES.get(cat_slug),
+                images=PRODUCT_IMAGES.get(name) or DEMO_IMAGES.get(cat_slug),
                 status=status,
                 sold=sold,
             )
