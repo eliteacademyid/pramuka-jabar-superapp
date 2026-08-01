@@ -3,7 +3,7 @@
     <header class="topbar">
       <router-link to="/" class="topbar-brand">
         <span class="topbar-logo">⚜️</span>
-        <span class="topbar-brand-text">JavaScout <small>Pramuka Jabar</small></span>
+        <span class="topbar-brand-text">SuperApps-JavaScout <small>Pramuka Jabar</small></span>
       </router-link>
       <nav class="topbar-nav">
         <router-link to="/catalog" class="topbar-link">Katalog Marketplace</router-link>
@@ -18,7 +18,7 @@
 
     <footer class="public-footer">
       <div class="public-footer-inner">
-        <span class="public-footer-brand">⚜️ JavaScout — SuperApps Pramuka Jawa Barat</span>
+        <span class="public-footer-brand">⚜️ SuperApps-JavaScout — Pramuka Jawa Barat</span>
         <span class="public-footer-links">
           <router-link to="/catalog">Katalog</router-link>
           <router-link to="/login">Masuk</router-link>
