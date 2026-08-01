@@ -589,6 +589,53 @@ button {
   background: var(--maroon-dark);
 }
 
+.catalog-cart-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1rem;
+  background: var(--maroon);
+  color: var(--white);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.55rem 1.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.catalog-cart-badge:hover {
+  background: var(--maroon-dark);
+  transform: translateY(-2px);
+}
+
+.catalog-toast {
+  position: fixed;
+  right: 1.5rem;
+  bottom: 1.5rem;
+  z-index: 120;
+  background: #1f6f43;
+  color: var(--white);
+  padding: 0.8rem 1.4rem;
+  border-radius: 10px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  animation: toast-in 0.25s ease;
+  max-width: 320px;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .filters {
   display: flex;
   flex-wrap: wrap;

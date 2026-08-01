@@ -6,7 +6,8 @@ const apiBase =
   `http://${host === 'localhost' || host === '127.0.0.1' ? 'localhost' : host}:8000/api`
 
 const api = axios.create({
-  baseURL: apiBase
+  baseURL: apiBase,
+  timeout: 15000
 })
 
 api.interceptors.request.use((config) => {

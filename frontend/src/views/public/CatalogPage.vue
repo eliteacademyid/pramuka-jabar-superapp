@@ -5,16 +5,19 @@
         <span class="catalog-eyebrow">Marketplace Pramuka Jabar</span>
         <h1>Katalog Produk</h1>
         <p>Produk unggulan dari UMKM &amp; toko milik anggota Pramuka Jawa Barat</p>
-        <div class="catalog-search">
-          <input
-            v-model="filters.q"
-            placeholder="Cari produk, mis. kopi, kerajinan…"
-            @keyup.enter="load(1)"
-          />
-          <button class="catalog-search-btn" @click="load(1)">Cari</button>
-        </div>
+      <div class="catalog-search">
+        <input
+          v-model="filters.q"
+          placeholder="Cari produk, mis. kopi, kerajinan…"
+          @keyup.enter="load(1)"
+        />
+        <button class="catalog-search-btn" @click="load(1)">Cari</button>
       </div>
-    </section>
+      <router-link v-if="cartCount > 0" :to="{ name: 'cart' }" class="catalog-cart-badge">
+        🛒 Keranjang ({{ cartCount }})
+      </router-link>
+    </div>
+  </section>
 
     <div class="page-container">
       <div class="filters">
@@ -50,7 +53,13 @@
       </div>
 
       <div v-if="products.length" class="product-grid">
-        <ProductCard v-for="p in products" :key="p.id" :product="p" />
+        <ProductCard
+          v-for="p in products"
+          :key="p.id"
+          :product="p"
+          @added="onAdded"
+          @error="onError"
+        />
       </div>
 
       <div v-if="products.length" class="pagination">
@@ -58,6 +67,8 @@
         <span class="page-info">Halaman {{ page }} dari {{ totalPages }}</span>
         <button class="btn-small" :disabled="page >= totalPages" @click="load(page + 1)">Berikutnya ›</button>
       </div>
+
+      <div v-if="toast" class="catalog-toast">{{ toast }}</div>
     </div>
   </div>
 </template>
@@ -65,7 +76,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '../../services/api'
-import ProductCard from '../../components/ProductCard.vue'
 
 const products = ref([])
 const categories = ref([])
@@ -73,6 +83,9 @@ const totalPages = ref(1)
 const total = ref(0)
 const page = ref(1)
 const filters = ref({ q: '', category: '', city: '', sort: 'newest' })
+const cartCount = ref(0)
+const toast = ref('')
+let toastTimer = null
 
 async function load(p) {
   page.value = p
@@ -83,8 +96,34 @@ async function load(p) {
   totalPages.value = Math.max(1, Math.ceil(data.total / data.size))
 }
 
+function showToast(msg) {
+  toast.value = msg
+  clearTimeout(toastTimer)
+  toastTimer = setTimeout(() => { toast.value = '' }, 2500)
+}
+
+function onAdded(name) {
+  cartCount.value += 1
+  showToast(`"${name}" ditambahkan ke keranjang`)
+}
+
+function onError(msg) {
+  showToast(`Gagal menambahkan: ${msg}`)
+}
+
+async function loadCartCount() {
+  if (!localStorage.getItem('token')) return
+  try {
+    const { data } = await api.get('/cart')
+    cartCount.value = data.groups.reduce((n, g) => n + g.items.length, 0)
+  } catch (e) {
+    /* keranjang butuh login; abaikan */
+  }
+}
+
 onMounted(async () => {
   load(1)
+  loadCartCount()
   const { data } = await api.get('/categories')
   categories.value = data
 })
