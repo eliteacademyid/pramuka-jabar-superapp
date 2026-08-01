@@ -90,6 +90,7 @@ class StoreSummary(BaseModel):
     name: str
     slug: str
     status: str
+    city: Optional[str] = None
 
 
 class MeOut(BaseModel):

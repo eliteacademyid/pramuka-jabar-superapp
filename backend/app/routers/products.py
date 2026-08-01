@@ -54,6 +54,7 @@ def _to_public(product: models.Product, rating: Optional[Decimal]) -> dict:
             "name": product.store.name,
             "slug": product.store.slug,
             "status": product.store.status,
+            "city": product.store.city,
         },
     }
     return data
@@ -62,6 +63,19 @@ def _to_public(product: models.Product, rating: Optional[Decimal]) -> dict:
 @router.get("/categories", response_model=List[schemas.CategoryOut])
 def list_categories(db: Session = Depends(get_db)):
     return db.query(models.Category).order_by(models.Category.name).all()
+
+
+@router.get("/cities", response_model=List[str])
+def list_cities(db: Session = Depends(get_db)):
+    rows = (
+        db.query(models.Store.city)
+        .filter(models.Store.status == "active")
+        .filter(func.coalesce(models.Store.city, "") != "")
+        .distinct()
+        .order_by(models.Store.city)
+        .all()
+    )
+    return [city for (city,) in rows]
 
 
 @router.get("/products", response_model=schemas.ProductPage)
@@ -92,7 +106,9 @@ def list_products(
             models.Category.slug == category
         )
     if city:
-        query = query.filter(func.lower(models.Store.city) == city.lower())
+        query = query.filter(
+            func.lower(models.Store.city).like(f"%{city.lower()}%")
+        )
     if min_price is not None:
         query = query.filter(models.Product.price >= min_price)
     if max_price is not None:

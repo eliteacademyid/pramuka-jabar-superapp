@@ -43,8 +43,16 @@
           </select>
         </div>
         <div class="filter-group">
-          <label>Kota</label>
-          <input v-model="filters.city" placeholder="Semua kota" @keyup.enter="load(1)" />
+          <label>Lokasi</label>
+          <input
+            v-model="filters.city"
+            list="city-list"
+            placeholder="Cari lokasi, mis. Bandung"
+            @keyup.enter="load(1)"
+          />
+          <datalist id="city-list">
+            <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
+          </datalist>
         </div>
         <div class="filter-group">
           <label>Urutkan</label>
@@ -96,6 +104,7 @@ import ProductCard from '../../components/ProductCard.vue'
 const route = useRoute()
 const products = ref([])
 const categories = ref([])
+const cities = ref([])
 const totalPages = ref(1)
 const total = ref(0)
 const page = ref(1)
@@ -163,9 +172,16 @@ onMounted(async () => {
   if (route.query.q) {
     filters.value.q = String(route.query.q)
   }
+  if (route.query.city) {
+    filters.value.city = String(route.query.city)
+  }
   load(1)
   loadCartCount()
-  const { data } = await api.get('/categories')
-  categories.value = data
+  const [catsRes, cityRes] = await Promise.all([
+    api.get('/categories'),
+    api.get('/cities')
+  ])
+  categories.value = catsRes.data
+  cities.value = cityRes.data
 })
 </script>

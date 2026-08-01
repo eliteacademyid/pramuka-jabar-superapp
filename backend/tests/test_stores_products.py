@@ -26,6 +26,24 @@ def test_product_search_and_filter(client):
     r = client.get("/api/products", params={"sort": "cheapest"})
     prices = [float(i["price"]) for i in r.json()["items"]]
     assert prices == sorted(prices)
+    r = client.get("/api/products", params={"sort": "expensive"})
+    prices = [float(i["price"]) for i in r.json()["items"]]
+    assert prices == sorted(prices, reverse=True)
+
+
+def test_product_location_filter_and_cities(client):
+    r = client.get("/api/products", params={"city": "band"})
+    assert r.status_code == 200
+    assert r.json()["total"] >= 1
+    for item in r.json()["items"]:
+        assert "band" in item["store"]["city"].lower()
+
+    r = client.get("/api/cities")
+    assert r.status_code == 200
+    cities = r.json()
+    assert isinstance(cities, list)
+    assert any("band" in c.lower() for c in cities)
+    assert all(c.strip() for c in cities)
 
 
 def test_product_detail(client):

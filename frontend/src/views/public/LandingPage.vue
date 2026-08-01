@@ -17,6 +17,14 @@
             placeholder="Cari produk, mis. kopi, kerajinan…"
             aria-label="Cari produk"
           />
+          <span class="landing-search-sep"></span>
+          <i class="fas fa-location-dot"></i>
+          <input
+            v-model="city"
+            type="text"
+            placeholder="Kota, mis. Bandung"
+            aria-label="Cari lokasi"
+          />
           <button type="submit" class="btn-landing-search">
             <i class="fas fa-magnifying-glass"></i> Cari
           </button>
@@ -111,10 +119,15 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const keyword = ref('')
+const city = ref('')
 
 function doSearch() {
   const q = keyword.value.trim()
-  router.push({ name: 'catalog', query: q ? { q } : {} })
+  const c = city.value.trim()
+  const query = {}
+  if (q) query.q = q
+  if (c) query.city = c
+  router.push({ name: 'catalog', query })
 }
 
 const cats = [
