@@ -521,12 +521,12 @@ button {
   display: flex;
   flex-direction: column;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f5f5f5;
+  background: var(--cream);
   min-height: 100vh;
 }
 
 .catalog-hero {
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+  background: linear-gradient(135deg, var(--brown) 0%, var(--brown-dark) 100%);
   color: var(--white);
   padding: 4rem 1.5rem;
   border-bottom: none;
@@ -544,7 +544,7 @@ button {
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: #fef9c3;
+  color: var(--gold);
   margin-bottom: 0.75rem;
 }
 
@@ -554,7 +554,7 @@ button {
 }
 
 .catalog-hero p {
-  color: #dcfce7;
+  color: var(--cream);
   margin-bottom: 1.75rem;
   max-width: 600px;
   margin-left: auto;
@@ -583,7 +583,7 @@ button {
 
 .catalog-search-btn {
   border: none;
-  background: #16a34a;
+  background: var(--maroon);
   color: var(--white);
   font-weight: 700;
   padding: 0.65rem 1.8rem;
@@ -592,7 +592,7 @@ button {
 }
 
 .catalog-search-btn:hover {
-  background: #15803d;
+  background: var(--maroon-dark);
 }
 
 .cat-cards {
@@ -623,7 +623,7 @@ button {
 
 .cat-card i {
   font-size: 2.2rem;
-  color: #16a34a;
+  color: var(--brown);
   margin-bottom: 0.9rem;
 }
 
@@ -639,12 +639,12 @@ button {
 }
 
 .cat-card.active {
-  background: #16a34a;
-  box-shadow: 0 6px 16px rgba(22, 163, 74, 0.35);
+  background: var(--brown);
+  box-shadow: 0 6px 16px rgba(92, 64, 51, 0.35);
 }
 
 .cat-card.active i {
-  color: var(--white);
+  color: var(--gold);
 }
 
 .cat-card.active h3 {
@@ -652,7 +652,7 @@ button {
 }
 
 .cat-card.active p {
-  color: #dcfce7;
+  color: var(--cream);
 }
 
 .catalog-cart-badge {
@@ -661,7 +661,7 @@ button {
   gap: 0.4rem;
   margin-top: 1rem;
   background: var(--white);
-  color: #16a34a;
+  color: var(--maroon);
   font-weight: 700;
   font-size: 0.95rem;
   padding: 0.55rem 1.4rem;
@@ -680,7 +680,7 @@ button {
   right: 1.5rem;
   bottom: 1.5rem;
   z-index: 120;
-  background: #1f6f43;
+  background: var(--maroon);
   color: var(--white);
   padding: 0.8rem 1.4rem;
   border-radius: 10px;
@@ -742,14 +742,14 @@ button {
 
 .filter-group input:focus,
 .filter-group select:focus {
-  outline: 2px solid #16a34a;
-  border-color: #16a34a;
+  outline: 2px solid var(--gold);
+  border-color: var(--gold);
 }
 
 .btn-filter-apply {
   padding: 0.6rem 1.6rem;
   border: none;
-  background: #16a34a;
+  background: var(--brown);
   color: var(--white);
   font-weight: 700;
   border-radius: 8px;
@@ -757,7 +757,7 @@ button {
 }
 
 .btn-filter-apply:hover {
-  background: #15803d;
+  background: var(--brown-dark);
 }
 
 .catalog-meta {
@@ -796,7 +796,7 @@ button {
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
-  border-color: #16a34a;
+  border-color: var(--gold);
 }
 
 .pc-link {
@@ -907,14 +907,14 @@ button {
   padding: 0.6rem;
   border: none;
   border-radius: 8px;
-  background: #16a34a;
+  background: var(--brown);
   color: var(--white);
   font-weight: 700;
   transition: background 0.2s ease;
 }
 
 .pc-btn:hover {
-  background: #15803d;
+  background: var(--maroon);
 }
 
 .pc-btn:disabled {
