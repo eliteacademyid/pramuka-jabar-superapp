@@ -39,27 +39,27 @@ function toggleSuratMenu() {
 
       <nav class="sidebar-nav">
         <router-link to="/admin" class="sidebar-link">
-          🏠 Dashboard
+          Dashboard
         </router-link>
         <router-link to="/admin/users" class="sidebar-link">
-          👥 Manajemen User
+          Manajemen User
         </router-link>
 
         <!-- Persuratan Digital group -->
         <div class="sidebar-group">
           <button class="sidebar-group-toggle" @click="toggleSuratMenu">
-            <span>✉️ Persuratan Digital</span>
+            <span>Persuratan Digital</span>
             <span class="chevron" :class="{ open: suratMenuOpen }">▾</span>
           </button>
           <div v-show="suratMenuOpen" class="sidebar-submenu">
             <router-link to="/admin/surat-masuk" class="sidebar-link sidebar-sublink">
-              📥 Surat Masuk
+              Surat Masuk
             </router-link>
             <router-link to="/admin/surat-keluar" class="sidebar-link sidebar-sublink">
-              📤 Surat Keluar
+              Surat Keluar
             </router-link>
             <router-link to="/admin/disposisi" class="sidebar-link sidebar-sublink">
-              📋 Disposisi
+              Disposisi
             </router-link>
           </div>
         </div>

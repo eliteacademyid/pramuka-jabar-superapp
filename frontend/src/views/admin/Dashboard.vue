@@ -5,10 +5,10 @@ import { getSuratMasuk, getSuratKeluar, getDisposisi } from '../../services/sura
 
 const user = ref(null)
 const stats = ref([
-  { label: 'Total User', value: '...', icon: '👥', color: 'stat-blue' },
-  { label: 'Surat Masuk', value: '...', icon: '📥', color: 'stat-green' },
-  { label: 'Surat Keluar', value: '...', icon: '📤', color: 'stat-orange' },
-  { label: 'Disposisi Aktif', value: '...', icon: '📋', color: 'stat-purple' },
+  { label: 'Total User', value: '...', color: 'stat-blue' },
+  { label: 'Surat Masuk', value: '...', color: 'stat-green' },
+  { label: 'Surat Keluar', value: '...', color: 'stat-orange' },
+  { label: 'Disposisi Aktif', value: '...', color: 'stat-purple' },
 ])
 
 onMounted(async () => {
@@ -48,7 +48,6 @@ onMounted(async () => {
 
     <div class="card-grid">
       <div v-for="stat in stats" :key="stat.label" class="stat-card" :class="stat.color">
-        <span class="stat-icon">{{ stat.icon }}</span>
         <span class="stat-value">{{ stat.value }}</span>
         <span class="stat-label">{{ stat.label }}</span>
       </div>
