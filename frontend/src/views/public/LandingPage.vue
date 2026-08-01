@@ -9,6 +9,18 @@
           Satu aplikasi anggota pramuka untuk pemberdayaan ekonomi — katalog
           marketplace UMKM &amp; toko anggota Pramuka dalam satu tempat.
         </p>
+        <form class="landing-search" @submit.prevent="doSearch">
+          <i class="fas fa-search"></i>
+          <input
+            v-model="keyword"
+            type="text"
+            placeholder="Cari produk, mis. kopi, kerajinan…"
+            aria-label="Cari produk"
+          />
+          <button type="submit" class="btn-landing-search">
+            <i class="fas fa-magnifying-glass"></i> Cari
+          </button>
+        </form>
         <div class="landing-actions">
           <router-link to="/catalog" class="btn-landing-solid">
             <i class="fas fa-store"></i> Jelajahi Katalog
@@ -94,6 +106,17 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const keyword = ref('')
+
+function doSearch() {
+  const q = keyword.value.trim()
+  router.push({ name: 'catalog', query: q ? { q } : {} })
+}
+
 const cats = [
   { slug: 'makanan', name: 'Makanan', icon: 'fas fa-utensils' },
   { slug: 'minuman', name: 'Minuman', icon: 'fas fa-mug-hot' },

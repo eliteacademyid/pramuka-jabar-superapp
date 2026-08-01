@@ -160,6 +160,9 @@ onMounted(async () => {
   if (route.query.category) {
     filters.value.category = String(route.query.category)
   }
+  if (route.query.q) {
+    filters.value.q = String(route.query.q)
+  }
   load(1)
   loadCartCount()
   const { data } = await api.get('/categories')
