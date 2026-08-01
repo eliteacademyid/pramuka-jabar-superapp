@@ -124,3 +124,33 @@ def submit_quiz(
         "message": "Selamat, Anda Lulus!" if passed else "Maaf, Anda belum memenuhi nilai kelulusan."
     }
 
+
+@router.get("/enrollments/{enrollment_id}/certificate")
+def get_certificate(
+    enrollment_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    enrollment = db.query(models.Enrollment).filter(
+        models.Enrollment.id == enrollment_id,
+        models.Enrollment.user_id == current_user.id
+    ).first()
+    
+    if not enrollment:
+        raise HTTPException(status_code=404, detail="Data pendaftaran tidak ditemukan")
+        
+    if enrollment.status != "Lulus":
+        raise HTTPException(status_code=400, detail="Anda belum lulus pelatihan ini")
+        
+    training = db.query(models.Training).filter(models.Training.id == enrollment.training_id).first()
+    
+    # In a real app, this might generate a PDF or an image.
+    # For now, we return certificate metadata.
+    return {
+        "certificate_id": f"KWARCAB-KBB-{enrollment.id}-{current_user.id}",
+        "issued_to": current_user.nama_lengkap,
+        "training_title": training.title,
+        "issue_date": enrollment.enrolled_at.strftime("%Y-%m-%d"),
+        "status": "Valid",
+        "message": "Sertifikat ini sah dan diterbitkan oleh Kwarcab KBB."
+    }
