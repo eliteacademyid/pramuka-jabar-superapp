@@ -128,7 +128,7 @@ def checkout(client, token, address_id):
 
 
 def demo_product(client):
-    data = client.get("/api/products", params={"size": 1}).json()
+    data = client.get("/api/products", params={"sort": "cheapest", "size": 1}).json()
     return data["items"][0]
 
 

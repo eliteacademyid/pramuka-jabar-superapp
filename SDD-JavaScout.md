@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.10
+**Versi Dokumen** : 1.11
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 
@@ -57,6 +57,13 @@
 > sewa tenda & perlengkapan) lengkap dengan gambar ilustrasi lokal
 > (`frontend/public/images/products/jasa-*.jpg`); kartu kategori "Semua
 > Barang" di katalog; pencarian & filter dipindah ke panel samping katalog.
+> Pembaruan v1.11: **larangan konten negatif** — form produk penjual
+> menampilkan peringatan larangan mengunggah gambar/konten negatif (tidak
+> senonoh, pornografi, ketelanjangan, SARA, melanggar hukum) dengan sanksi
+> penghapusan gambar & penonaktifan akun; backend memvalidasi URL gambar
+> produk hanya http(s) atau path lokal `/images/` (skema lain seperti
+> `javascript:`/`ftp:` ditolak 422); gambar ilustrasi produk jasa diperbarui
+> agar sesuai kaidah kesopanan.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.

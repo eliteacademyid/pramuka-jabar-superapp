@@ -20,6 +20,12 @@
       <label>URL Gambar (opsional, sintetis)</label>
       <input v-model="imageUrl" @change="pushImage" />
       <div class="hint">Gambar saat ini: {{ form.images?.join(', ') || '—' }}</div>
+      <div class="alert-rule">
+        <strong>Larangan Konten:</strong> dilarang mengunggah gambar atau konten
+        negatif, tidak senonoh (pornografi, ketelanjangan), kasar, SARA, atau
+        melanggar hukum pada produk ini. Gambar yang tidak pantas akan dihapus
+        dan akun dapat dinonaktifkan.
+      </div>
       <label>Status</label>
       <select v-model="form.status">
         <option value="draft">Draft</option>

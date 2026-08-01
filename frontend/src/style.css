@@ -712,6 +712,22 @@ button {
   color: #8d8071;
 }
 
+.alert-rule {
+  background: #fdf3e0;
+  color: #7a4a1f;
+  border: 1px solid #ecd3a3;
+  border-left: 4px solid var(--maroon);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin: 0.6rem 0 1rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.alert-rule strong {
+  color: var(--maroon);
+}
+
 .back-link {
   display: inline-block;
   margin-top: 1rem;

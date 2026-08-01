@@ -202,6 +202,19 @@ class StorePublicOut(BaseModel):
 
 # ---------- Product ----------
 
+def _validate_image_urls(images):
+    if not images:
+        return images
+    for url in images:
+        if not isinstance(url, str) or not url.strip():
+            raise ValueError("URL gambar tidak boleh kosong")
+        if not url.startswith(("http://", "https://", "/images/")):
+            raise ValueError(
+                "URL gambar harus http(s) atau path /images/ (larangan unggah konten negatif; gambar tidak pantas dihapus)"
+            )
+    return images
+
+
 class ProductCreate(BaseModel):
     name: str = Field(min_length=1, max_length=150)
     description: Optional[str] = None
@@ -211,6 +224,10 @@ class ProductCreate(BaseModel):
     unit: Optional[str] = None
     images: Optional[List[str]] = None
     status: str = "draft"
+
+    @field_validator("images")
+    def _check_images(cls, v):
+        return _validate_image_urls(v)
 
 
 class ProductUpdate(BaseModel):
@@ -222,6 +239,10 @@ class ProductUpdate(BaseModel):
     unit: Optional[str] = None
     images: Optional[List[str]] = None
     status: Optional[str] = None
+
+    @field_validator("images")
+    def _check_images(cls, v):
+        return _validate_image_urls(v)
 
 
 class ProductOut(BaseModel):
