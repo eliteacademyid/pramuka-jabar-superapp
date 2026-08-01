@@ -19,6 +19,16 @@ def seed_default_admin():
                     is_active=True,
                 )
             )
+            # Add a dummy staff user for testing LMS
+            db.add(
+                models.User(
+                    username="peserta1",
+                    hashed_password=auth.hash_password("peserta123"),
+                    nama_lengkap="Peserta Dummy (Staff)",
+                    role="staff",
+                    is_active=True,
+                )
+            )
             db.commit()
     finally:
         db.close()
