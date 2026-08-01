@@ -48,8 +48,8 @@ class Organisasi(Base):
     alamat = Column(String(255), nullable=True)
     telepon = Column(String(20), nullable=True)
     email = Column(String(100), nullable=True)
-    is_active = Column(Boolean, nullable=False, default=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    is_active = Column(Boolean, nullable=False, default=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     users = relationship("User", back_populates="organisasi")

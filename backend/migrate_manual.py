@@ -44,8 +44,12 @@ INDEXES = [
     ("ix_laporans_status_created",    "laporans",  ["status", "created_at"],  False),
 
     # approvals
-    ("ix_approvals_laporan_id",       "approvals", ["laporan_id"],            False),
-    ("ix_approvals_user_id",          "approvals", ["user_id"],               False),
+    ("ix_approvals_laporan_id",       "approvals",   ["laporan_id"],  False),
+    ("ix_approvals_user_id",          "approvals",   ["user_id"],     False),
+
+    # organisasi (dari migrasi 005)
+    ("ix_organisasi_created_at",      "organisasi",  ["created_at"],  False),
+    ("ix_organisasi_is_active",       "organisasi",  ["is_active"],   False),
 ]
 
 
