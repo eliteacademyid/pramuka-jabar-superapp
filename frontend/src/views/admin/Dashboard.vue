@@ -5,9 +5,9 @@ import api from '../../services/api'
 const user = ref(null)
 const stats = ref([
   { label: 'Total User', value: '...' },
-  { label: 'Total Berita', value: 0 },
-  { label: 'Total Anggota', value: 0 },
-  { label: 'Total Kegiatan', value: 0 }
+  { label: 'Kegiatan Berlangsung', value: '...' },
+  { label: 'Kegiatan Selesai', value: '...' },
+  { label: 'Total Kegiatan', value: '...' }
 ])
 
 onMounted(async () => {
@@ -19,8 +19,14 @@ onMounted(async () => {
   }
 
   try {
-    const usersRes = await api.get('/admin/users')
+    const [usersRes, statsRes] = await Promise.all([
+      api.get('/admin/users'),
+      api.get('/kegiatan/stats')
+    ])
     stats.value[0].value = usersRes.data.length
+    stats.value[1].value = statsRes.data.kegiatan_berlangsung
+    stats.value[2].value = statsRes.data.kegiatan_selesai
+    stats.value[3].value = statsRes.data.total_kegiatan
   } catch {
     /* abaikan jika gagal */
   }

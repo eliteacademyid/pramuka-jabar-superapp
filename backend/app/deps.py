@@ -43,3 +43,23 @@ def get_current_admin(
             status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role admin"
         )
     return current_user
+
+
+def get_current_user_or_pj(
+    kegiatan_id: int,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> models.User:
+    if current_user.role == "admin":
+        return current_user
+    kegiatan = db.query(models.Kegiatan).filter(models.Kegiatan.id == kegiatan_id).first()
+    if not kegiatan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Kegiatan tidak ditemukan"
+        )
+    if kegiatan.penanggung_jawab_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Hanya admin dan penanggung jawab yang dapat mengakses",
+        )
+    return current_user

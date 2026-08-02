@@ -21,7 +21,8 @@ const routes = [
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'admin-dashboard', component: Dashboard },
-      { path: 'users', name: 'admin-users', component: Users }
+      { path: 'users', name: 'admin-users', component: Users },
+      { path: 'kegiatan', name: 'admin-kegiatan', component: () => import('../views/admin/Kegiatan.vue') }
     ]
   }
 ]

@@ -563,3 +563,92 @@ button {
     padding: 1.5rem 1rem;
   }
 }
+
+/* ---------- Status Badges ---------- */
+.badge-amber {
+  background-color: #d4ac0d;
+  color: #fff;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-blue {
+  background-color: #2980b9;
+  color: #fff;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-green {
+  background-color: #27ae60;
+  color: #fff;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.badge-red {
+  background-color: #c0392b;
+  color: #fff;
+  padding: 0.25rem 0.65rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* ---------- Status Dropdown ---------- */
+.status-dropdown {
+  padding: 0.25rem 0.4rem;
+  font-size: 0.85rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+/* ---------- File List ---------- */
+.file-list {
+  border: 1px solid #e0d8ce;
+  border-radius: 6px;
+  padding: 0.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #fafafa;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.35rem 0.5rem;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.file-item:last-child {
+  border-bottom: none;
+}
+
+.file-info {
+  flex: 1;
+  word-break: break-all;
+  margin-right: 0.5rem;
+}
+
+/* ---------- Upload Area ---------- */
+.upload-area {
+  padding: 0.75rem;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  background: #fdfdfd;
+}

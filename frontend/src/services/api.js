@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api'
+  baseURL: 'https://app2.team2.opencode.eliteacademy.id/api'
 })
 
 api.interceptors.request.use((config) => {
