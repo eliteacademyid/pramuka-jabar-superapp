@@ -1,144 +1,96 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
 from app.database import get_db
 from app.deps import get_current_user
+from app.limiter import limiter, LIMIT_AUTH_STRICT, LIMIT_AUTH_NORMAL
 
-<<<<<<< HEAD
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-@router.post("/register", response_model=schemas.UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
-    """Register a new user"""
-    # Check if username already exists
-    existing_user = db.query(models.User).filter(
-        (models.User.username == user_data.username) | (models.User.email == user_data.email)
-    ).first()
-    
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Username atau email sudah terdaftar",
-        )
-    
-    # Create new user
-    hashed_password = auth.hash_password(user_data.password)
+def _user_to_out(user: models.User, role_name: str) -> dict:
+    return {
+        "id": user.id,
+        "username": user.username,
+        "nama_lengkap": user.nama_lengkap,
+        "role": role_name,
+        "is_active": user.is_active,
+        "created_at": user.created_at,
+    }
+
+
+@router.post("/register", response_model=schemas.UserOut, status_code=status.HTTP_201_CREATED)
+@limiter.limit(LIMIT_AUTH_STRICT)
+def register(request: Request, user_data: schemas.UserCreate, db: Session = Depends(get_db)):
+    """Register user baru. Limit: 10/menit per IP."""
+    exists = db.query(
+        db.query(models.User).filter(
+            (models.User.username == user_data.username) |
+            (models.User.email == user_data.username)
+        ).exists()
+    ).scalar()
+    if exists:
+        raise HTTPException(status_code=400, detail="Username atau email sudah terdaftar")
+
+    role = db.query(models.Role).filter(models.Role.name == "staff").first()
+    if not role:
+        role = models.Role(name="staff", description="Staff")
+        db.add(role)
+        db.flush()
+
     new_user = models.User(
         username=user_data.username,
-        email=user_data.email,
+        email=user_data.username,
         nama_lengkap=user_data.nama_lengkap,
-        hashed_password=hashed_password,
-        role_id=2,  # Default to staff role
+        hashed_password=auth.hash_password(user_data.password),
+        role_id=role.id,
     )
-    
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    
-    return new_user
-
-
-@router.post("/login", response_model=schemas.TokenResponse)
-def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
-    """Login user and return access token"""
-    # Find user by username or email
-    user = db.query(models.User).filter(
-        (models.User.username == credentials.username_or_email) |
-        (models.User.email == credentials.username_or_email)
-    ).first()
-    
-    if not user or not auth.verify_password(credentials.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Username/email atau password salah",
-        )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Akun Anda tidak aktif",
-        )
-    
-    # Create tokens
-    access_token = auth.create_access_token({"sub": str(user.id), "username": user.username})
-    refresh_token = auth.create_refresh_token({"sub": str(user.id), "username": user.username})
-    
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
-
-
-@router.post("/refresh", response_model=schemas.TokenResponse)
-def refresh_token(request: schemas.TokenRefreshRequest, db: Session = Depends(get_db)):
-    """Refresh access token using refresh token"""
-    payload = auth.verify_token(request.refresh_token)
-    if not payload:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token tidak valid atau sudah kadaluarsa",
-        )
-    
-    user_id = payload.get("sub")
-    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
-    
-    if not user or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User tidak ditemukan atau tidak aktif",
-        )
-    
-    # Create new tokens
-    access_token = auth.create_access_token({"sub": str(user.id), "username": user.username})
-    refresh_token = auth.create_refresh_token({"sub": str(user.id), "username": user.username})
-    
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "token_type": "bearer"
-    }
-
-
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
-def logout(current_user: models.User = Depends(get_current_user)):
-    """Logout user (client-side token deletion)"""
-    # In this simple implementation, logout is handled on client side
-    # by deleting the token. In production, you might want to implement
-    # token blacklisting
-    return None
-
-
-@router.get("/me", response_model=schemas.UserDetailResponse)
-def get_current_user_info(current_user: models.User = Depends(get_current_user)):
-    """Get current logged-in user information"""
-=======
-router = APIRouter(prefix="/auth", tags=["auth"])
+    return _user_to_out(new_user, role.name)
 
 
 @router.post("/login", response_model=schemas.Token)
-def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
-    user = (
-        db.query(models.User)
-        .filter(models.User.username == payload.username)
-        .first()
-    )
+@limiter.limit(LIMIT_AUTH_STRICT)
+def login(request: Request, payload: schemas.LoginRequest, db: Session = Depends(get_db)):
+    """Login. Limit: 10/menit per IP — proteksi brute-force."""
+    user = db.query(models.User).filter(models.User.username == payload.username).first()
     if not user or not auth.verify_password(payload.password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Username atau password salah",
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Username atau password salah")
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Akun nonaktif"
-        )
-    token = auth.create_access_token({"sub": user.username})
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Akun nonaktif")
+
+    token = auth.create_access_token({"sub": str(user.id), "username": user.username})
     return {"access_token": token, "token_type": "bearer"}
 
 
+@router.post("/refresh", response_model=schemas.Token)
+@limiter.limit(LIMIT_AUTH_NORMAL)
+def refresh_token(request: Request, payload: schemas.TokenRefreshRequest, db: Session = Depends(get_db)):
+    """Refresh token. Limit: 30/menit per IP."""
+    decoded = auth.verify_token(payload.refresh_token)
+    if not decoded:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token tidak valid atau sudah kadaluarsa")
+
+    user = db.query(models.User).filter(models.User.id == int(decoded.get("sub"))).first()
+    if not user or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User tidak ditemukan atau tidak aktif")
+
+    token = auth.create_access_token({"sub": str(user.id), "username": user.username})
+    return {"access_token": token, "token_type": "bearer"}
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(LIMIT_AUTH_NORMAL)
+def logout(request: Request, current_user: models.User = Depends(get_current_user)):
+    """Logout. Limit: 30/menit per IP."""
+    return None
+
+
 @router.get("/me", response_model=schemas.UserOut)
-def me(current_user: models.User = Depends(get_current_user)):
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
-    return current_user
+@limiter.limit(LIMIT_AUTH_NORMAL)
+def me(request: Request, current_user: models.User = Depends(get_current_user)):
+    """Get current user. Limit: 30/menit per IP."""
+    return _user_to_out(current_user, current_user.role.name if current_user.role else "staff")

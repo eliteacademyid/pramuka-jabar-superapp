@@ -1,42 +1,35 @@
-<<<<<<< HEAD
 from datetime import datetime
 
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 from app import auth, models
 from app.database import SessionLocal
 
 DEFAULT_ADMIN_USERNAME = "admin"
-<<<<<<< HEAD
 DEFAULT_ADMIN_EMAIL = "admin@pramuka.com"
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 DEFAULT_ADMIN_PASSWORD = "admin123"
 DEFAULT_ADMIN_FULLNAME = "Administrator"
 
 
-<<<<<<< HEAD
 def seed_roles():
-    """Create default roles"""
+    """Create default roles if they do not exist."""
     db = SessionLocal()
     try:
         if db.query(models.Role).count() == 0:
-            roles = [
-                models.Role(name="admin", description="Administrator role dengan akses penuh"),
-                models.Role(name="staff", description="Staff role dengan akses terbatas"),
-            ]
-            db.add_all(roles)
+            db.add_all(
+                [
+                    models.Role(name="admin", description="Administrator role dengan akses penuh"),
+                    models.Role(name="staff", description="Staff role dengan akses terbatas"),
+                ]
+            )
             db.commit()
     finally:
         db.close()
 
 
 def seed_default_admin():
-    """Create default admin user"""
+    """Create the default admin user."""
     db = SessionLocal()
     try:
         seed_roles()
-
         if db.query(models.User).filter(models.User.username == DEFAULT_ADMIN_USERNAME).first():
             return
 
@@ -45,7 +38,7 @@ def seed_default_admin():
             seed_roles()
             admin_role = db.query(models.Role).filter(models.Role.name == "admin").first()
 
-        admin_user = models.User(
+        user = models.User(
             username=DEFAULT_ADMIN_USERNAME,
             email=DEFAULT_ADMIN_EMAIL,
             hashed_password=auth.hash_password(DEFAULT_ADMIN_PASSWORD),
@@ -53,19 +46,18 @@ def seed_default_admin():
             role_id=admin_role.id,
             is_active=True,
         )
-
-        db.add(admin_user)
+        db.add(user)
         db.commit()
         print("✓ Default admin user created successfully")
-    except Exception as e:
+    except Exception as exc:  # pragma: no cover - seed helper
         db.rollback()
-        print(f"✗ Error seeding default admin: {e}")
+        print(f"✗ Error seeding default admin: {exc}")
     finally:
         db.close()
 
 
 def seed_realisasi_laporan_approval():
-    """Create sample realisasi, laporan, and approval data"""
+    """Create sample realisasi, laporan, and approval data."""
     db = SessionLocal()
     try:
         if db.query(models.Realisasi).count() > 0:
@@ -157,24 +149,8 @@ def seed_realisasi_laporan_approval():
         db.add(approval)
         db.commit()
         print("✓ Sample realisasi, laporan, and approval data created successfully")
-    except Exception as e:
+    except Exception as exc:  # pragma: no cover - seed helper
         db.rollback()
-        print(f"✗ Error seeding realisasi data: {e}")
-=======
-def seed_default_admin():
-    db = SessionLocal()
-    try:
-        if db.query(models.User).count() == 0:
-            db.add(
-                models.User(
-                    username=DEFAULT_ADMIN_USERNAME,
-                    hashed_password=auth.hash_password(DEFAULT_ADMIN_PASSWORD),
-                    nama_lengkap=DEFAULT_ADMIN_FULLNAME,
-                    role="admin",
-                    is_active=True,
-                )
-            )
-            db.commit()
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+        print(f"✗ Error seeding realisasi data: {exc}")
     finally:
         db.close()

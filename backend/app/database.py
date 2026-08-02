@@ -1,51 +1,51 @@
-<<<<<<< HEAD
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-from app.config import DATABASE_URL, settings
+from app.config import DATABASE_URL, DEBUG
 
-# Create engine with proper configuration
-engine = create_engine(
-    DATABASE_URL,
-    echo=settings.DEBUG,  # Log all SQL statements in debug mode
-    pool_size=10,  # Number of connections to maintain in the pool
-    max_overflow=20,  # Maximum connections to create beyond pool_size
-    pool_pre_ping=True,  # Test connection before using (detects dead connections)
-    pool_recycle=3600,  # Recycle connections after 1 hour
+# Pool tuning: 10 koneksi tetap + 20 overflow untuk concurrency tinggi.
+# pool_pre_ping=True sudah cukup untuk validasi koneksi, tidak perlu event listener tambahan.
+_POOL_KWARGS = dict(
+    echo=DEBUG,
+    pool_pre_ping=True,
+    pool_recycle=1800,
+    pool_size=5,
+    max_overflow=10,
 )
 
-=======
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
 
-from app.config import DATABASE_URL
+def _build_engine():
+    url = DATABASE_URL
+    if url.startswith("postgresql"):
+        try:
+            engine = create_engine(url, **_POOL_KWARGS)
+            with engine.connect() as connection:
+                connection.execute(text("SELECT 1"))
+            return engine
+        except Exception as exc:
+            print(f"PostgreSQL unavailable, falling back to SQLite: {exc}")
+            url = "sqlite:///./app.db"
 
-engine = create_engine(DATABASE_URL)
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+    from sqlalchemy.pool import StaticPool
+    return create_engine(
+        url,
+        echo=DEBUG,
+        pool_pre_ping=True,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+
+
+engine = _build_engine()
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
 def get_db():
-<<<<<<< HEAD
-    """Dependency for FastAPI to get database session"""
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+    """Dependency for FastAPI to get a database session."""
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-<<<<<<< HEAD
-
-
-# Event listener to test database connection on startup
-@event.listens_for(engine, "connect")
-def receive_connect(dbapi_conn, connection_record):
-    """Test connection when engine connects"""
-    cursor = dbapi_conn.cursor()
-    cursor.execute("SELECT 1")
-    cursor.close()
-
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)

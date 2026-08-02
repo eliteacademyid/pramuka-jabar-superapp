@@ -1,10 +1,6 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-<<<<<<< HEAD
-=======
-from jose import JWTError
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app import auth, models
 from app.database import get_db
@@ -16,79 +12,39 @@ def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db),
 ) -> models.User:
-<<<<<<< HEAD
-    """Dependency to get current authenticated user from JWT token"""
+    """Dependency to get the currently authenticated user."""
     payload = auth.verify_token(credentials.credentials)
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token tidak valid atau sudah kadaluarsa",
         )
-    
+
     user_id = payload.get("sub")
     if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token tidak valid",
-        )
-    
-    user = db.query(models.User).filter(models.User.id == int(user_id)).first()
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User tidak ditemukan",
-        )
-    
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Akun Anda tidak aktif",
-        )
-    
-=======
-    try:
-        payload = auth.decode_access_token(credentials.credentials)
-        username = payload.get("sub")
-    except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token tidak valid"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token tidak valid")
 
+    # joinedload role agar get_current_admin tidak perlu query tambahan
     user = (
-        db.query(models.User).filter(models.User.username == username).first()
+        db.query(models.User)
+        .options(joinedload(models.User.role))
+        .filter(models.User.id == int(user_id))
+        .first()
     )
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="User tidak ditemukan"
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User tidak ditemukan")
     if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Akun nonaktif"
-        )
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Akun Anda tidak aktif")
+
     return user
 
 
 def get_current_admin(
     current_user: models.User = Depends(get_current_user),
-<<<<<<< HEAD
-    db: Session = Depends(get_db),
 ) -> models.User:
-    """Dependency to verify current user is an admin"""
-    # Check if user has admin role (role_id == 1)
-    admin_role = db.query(models.Role).filter(models.Role.name == "admin").first()
-    
-    if current_user.role_id != admin_role.id if admin_role else False:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Anda tidak memiliki akses admin",
-        )
-    
-=======
-) -> models.User:
-    if current_user.role != "admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role admin"
-        )
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+    """Dependency to verify that the current user is an admin."""
+    # role sudah di-load oleh get_current_user, tidak perlu query DB lagi
+    if not current_user.role or current_user.role.name != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Anda tidak memiliki akses admin")
+
     return current_user

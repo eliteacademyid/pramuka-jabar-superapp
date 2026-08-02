@@ -4,14 +4,11 @@ SQLAlchemy==2.0.43
 psycopg2-binary==2.9.10
 python-dotenv==1.1.1
 bcrypt==4.2.1
-python-jose[cryptography]==3.4.0
-<<<<<<< HEAD
+PyJWT==2.10.1
 alembic==1.14.0
 python-multipart==0.0.9
 email-validator==2.2.0
 pydantic-settings==2.4.0
 asyncpg==0.30.0
 cloudinary==1.41.0
-
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+slowapi==0.1.9

@@ -1,35 +1,70 @@
 from datetime import datetime
-<<<<<<< HEAD
 from typing import List, Optional
+from enum import Enum
 
-from pydantic import BaseModel, Field
-=======
-from typing import Optional
+from pydantic import BaseModel, Field, field_validator
 
-from pydantic import BaseModel
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
 
-from app.models import ROLES
+# ─── Enum untuk status — mencegah nilai arbitrary masuk ke DB ──────────────────
 
+class RealisasiStatusEnum(str, Enum):
+    draft = "draft"
+    submitted = "submitted"
+    approved = "approved"
+    rejected = "rejected"
+
+
+class LaporanStatusEnum(str, Enum):
+    draft = "draft"
+    submitted = "submitted"
+    approved = "approved"
+    rejected = "rejected"
+
+
+class ApprovalStatusEnum(str, Enum):
+    approved = "approved"
+    rejected = "rejected"
+
+
+class RoleEnum(str, Enum):
+    admin = "admin"
+    staff = "staff"
+
+
+# ─── Auth ──────────────────────────────────────────────────────────────────────
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=3, max_length=50, strip_whitespace=True)
+    password: str = Field(..., min_length=1, max_length=128)
 
 
 class UserCreate(BaseModel):
-    username: str
-    password: str
-    nama_lengkap: str
-    role: str = "staff"
+    username: str = Field(..., min_length=3, max_length=50, strip_whitespace=True)
+    password: str = Field(..., min_length=6, max_length=128)
+    nama_lengkap: str = Field(..., min_length=1, max_length=100, strip_whitespace=True)
+    role: RoleEnum = RoleEnum.staff
+
+    @field_validator("username")
+    @classmethod
+    def username_alphanumeric(cls, v: str) -> str:
+        if not v.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Username hanya boleh berisi huruf, angka, _ dan -")
+        return v.lower()
 
 
 class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    password: Optional[str] = None
-    nama_lengkap: Optional[str] = None
-    role: Optional[str] = None
+    username: Optional[str] = Field(None, min_length=3, max_length=50, strip_whitespace=True)
+    password: Optional[str] = Field(None, min_length=6, max_length=128)
+    nama_lengkap: Optional[str] = Field(None, min_length=1, max_length=100, strip_whitespace=True)
+    role: Optional[RoleEnum] = None
     is_active: Optional[bool] = None
+
+    @field_validator("username")
+    @classmethod
+    def username_alphanumeric(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None and not v.replace("_", "").replace("-", "").isalnum():
+            raise ValueError("Username hanya boleh berisi huruf, angka, _ dan -")
+        return v.lower() if v else v
 
 
 class UserOut(BaseModel):
@@ -46,18 +81,23 @@ class UserOut(BaseModel):
 class Token(BaseModel):
     access_token: str
     token_type: str
-<<<<<<< HEAD
 
+
+class TokenRefreshRequest(BaseModel):
+    refresh_token: str = Field(..., min_length=10)
+
+
+# ─── Realisasi ─────────────────────────────────────────────────────────────────
 
 class RealisasiBase(BaseModel):
-    judul: str = Field(..., min_length=1)
-    deskripsi: Optional[str] = None
-    target: Optional[int] = None
-    realisasi: Optional[int] = None
-    periode: Optional[str] = None
-    status: Optional[str] = "draft"
-    program_id: Optional[int] = None
-    kegiatan_id: Optional[int] = None
+    judul: str = Field(..., min_length=1, max_length=200, strip_whitespace=True)
+    deskripsi: Optional[str] = Field(None, max_length=2000)
+    target: Optional[int] = Field(None, ge=0, le=10_000_000)
+    realisasi: Optional[int] = Field(None, ge=0, le=10_000_000)
+    periode: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
+    status: Optional[RealisasiStatusEnum] = RealisasiStatusEnum.draft
+    program_id: Optional[int] = Field(None, gt=0)
+    kegiatan_id: Optional[int] = Field(None, gt=0)
 
 
 class RealisasiCreate(RealisasiBase):
@@ -65,14 +105,14 @@ class RealisasiCreate(RealisasiBase):
 
 
 class RealisasiUpdate(BaseModel):
-    judul: Optional[str] = None
-    deskripsi: Optional[str] = None
-    target: Optional[int] = None
-    realisasi: Optional[int] = None
-    periode: Optional[str] = None
-    status: Optional[str] = None
-    program_id: Optional[int] = None
-    kegiatan_id: Optional[int] = None
+    judul: Optional[str] = Field(None, min_length=1, max_length=200, strip_whitespace=True)
+    deskripsi: Optional[str] = Field(None, max_length=2000)
+    target: Optional[int] = Field(None, ge=0, le=10_000_000)
+    realisasi: Optional[int] = Field(None, ge=0, le=10_000_000)
+    periode: Optional[str] = Field(None, max_length=50)
+    status: Optional[RealisasiStatusEnum] = None
+    program_id: Optional[int] = Field(None, gt=0)
+    kegiatan_id: Optional[int] = Field(None, gt=0)
 
 
 class DokumenResponse(BaseModel):
@@ -106,12 +146,15 @@ class RealisasiResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ─── Laporan ───────────────────────────────────────────────────────────────────
+
 class LaporanBase(BaseModel):
-    judul: str = Field(..., min_length=1)
-    periode: Optional[str] = None
-    deskripsi: Optional[str] = None
-    status: Optional[str] = "draft"
-    realisasi_id: Optional[int] = None
+    judul: str = Field(..., min_length=1, max_length=200, strip_whitespace=True)
+    periode: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
+    deskripsi: Optional[str] = Field(None, max_length=2000)
+    status: Optional[LaporanStatusEnum] = LaporanStatusEnum.draft
+    deadline: Optional[datetime] = None
+    realisasi_id: Optional[int] = Field(None, gt=0)
 
 
 class LaporanCreate(LaporanBase):
@@ -124,6 +167,7 @@ class LaporanResponse(BaseModel):
     periode: Optional[str] = None
     deskripsi: Optional[str] = None
     status: str
+    deadline: Optional[datetime] = None
     realisasi_id: Optional[int] = None
     created_by_id: int
     approved_by_id: Optional[int] = None
@@ -133,10 +177,13 @@ class LaporanResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
+# ─── Approval ──────────────────────────────────────────────────────────────────
+
 class ApprovalCreate(BaseModel):
-    laporan_id: int
-    status: str = Field(..., min_length=1)
-    catatan: Optional[str] = None
+    laporan_id: int = Field(..., gt=0)
+    # Enum — hanya 'approved' atau 'rejected' yang valid, tidak ada nilai lain
+    status: ApprovalStatusEnum
+    catatan: Optional[str] = Field(None, max_length=1000, strip_whitespace=True)
 
 
 class ApprovalResponse(BaseModel):
@@ -149,6 +196,29 @@ class ApprovalResponse(BaseModel):
 
     model_config = {"from_attributes": True}
 
+
+# ─── Deadline Reminder ─────────────────────────────────────────────────────────
+
+class DeadlineReminderResponse(BaseModel):
+    id: int
+    laporan_id: int
+    user_id: int
+    reminder_type: str  # "3_hari_lagi", "1_hari_lagi", "terlambat"
+    is_sent: bool
+    sent_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class UserDeadlineRemindersResponse(BaseModel):
+    laporan: LaporanResponse
+    reminders: List[DeadlineReminderResponse]
+    reminder_status: str  # "3_hari_lagi", "1_hari_lagi", "terlambat", "none"
+    days_until_deadline: Optional[int] = None
+
+
+# ─── Dashboard ─────────────────────────────────────────────────────────────────
 
 class DashboardStatsResponse(BaseModel):
     total_realisasi: int
@@ -174,5 +244,28 @@ class DashboardAnalyticsResponse(BaseModel):
     statistik: DashboardStatsResponse
     grafik: List[DashboardChartPoint]
     perbandingan: DashboardComparisonResponse
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+
+
+# ─── KPI Organisasi ────────────────────────────────────────────────────────────
+
+class KPIMetric(BaseModel):
+    label: str
+    value: float  # Persentase 0-100
+    count: int    # Jumlah kegiatan
+
+
+class OrganisasiKPIResponse(BaseModel):
+    organisasi_id: int
+    organisasi_nama: str
+    total_kegiatan: int
+    completed: KPIMetric       # Program selesai
+    delayed: KPIMetric         # Program terlambat
+    failed: KPIMetric          # Program gagal
+    active: KPIMetric          # Program aktif
+    last_updated: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class AllOrganisasiKPIResponse(BaseModel):
+    kpi_list: List[OrganisasiKPIResponse]

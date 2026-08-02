@@ -1,5 +1,31 @@
-<<<<<<< HEAD
-from app.utils import hash_password, verify_password, create_access_token, create_refresh_token, verify_token
+from app.utils.password import hash_password as hash_password_impl
+from app.utils.password import verify_password as verify_password_impl
+from app.utils.security import (
+    create_access_token as create_access_token_impl,
+    create_refresh_token as create_refresh_token_impl,
+    verify_token as verify_token_impl,
+)
+
+
+def hash_password(password: str) -> str:
+    return hash_password_impl(password)
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return verify_password_impl(plain_password, hashed_password)
+
+
+def create_access_token(data: dict) -> str:
+    return create_access_token_impl(data)
+
+
+def create_refresh_token(data: dict) -> str:
+    return create_refresh_token_impl(data)
+
+
+def verify_token(token: str) -> dict | None:
+    return verify_token_impl(token)
+
 
 __all__ = [
     "hash_password",
@@ -8,33 +34,3 @@ __all__ = [
     "create_refresh_token",
     "verify_token",
 ]
-
-=======
-from datetime import datetime, timedelta
-
-import bcrypt
-from jose import JWTError, jwt
-
-from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY
-
-
-def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-
-
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(
-        plain_password.encode("utf-8"), hashed_password.encode("utf-8")
-    )
-
-
-def create_access_token(data: dict) -> str:
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def decode_access_token(token: str) -> dict:
-    return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)

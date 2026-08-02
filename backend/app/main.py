@@ -1,41 +1,47 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-<<<<<<< HEAD
 from fastapi.openapi.utils import get_openapi
-=======
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
+from app.config import settings
 from app.database import Base, engine
+from app.limiter import limiter
 from app.routers import admin as admin_router
 from app.routers import auth as auth_router
-<<<<<<< HEAD
 from app.routers import kegiatan as kegiatan_router
 from app.routers import organisasi as organisasi_router
 from app.routers import program as program_router
 from app.routers import radit as radit_router
+from app.routers import reminder as reminder_router
+from app.routers import kpi as kpi_router
 from app.seed import seed_default_admin, seed_realisasi_laporan_approval
 
 Base.metadata.create_all(bind=engine)
 
 
+# ─── App setup ─────────────────────────────────────────────────────────────────
+
+# Sembunyikan docs di production — tidak perlu publik melihat schema API
+_docs_url = None if settings.is_production else "/docs"
+_redoc_url = None if settings.is_production else "/redoc"
+_openapi_url = None if settings.is_production else "/openapi.json"
+
+
 def custom_openapi():
     if app.openapi_schema:
         return app.openapi_schema
-
     openapi_schema = get_openapi(
         title="Super Apps Pramuka Jawa Barat",
         version="1.0.0",
-        description="API komprehensif untuk manajemen program, kegiatan, realisasi, laporan, dan approval Pramuka Jawa Barat",
+        description="API Pramuka Jawa Barat",
         routes=app.routes,
     )
-    openapi_schema["info"]["x-logo"] = {"url": "https://example.com/logo.png"}
-    openapi_schema["info"]["contact"] = {
-        "name": "Tim Backend Pramuka Jabar",
-        "email": "backend@pramuka-jabar.id",
-    }
+    openapi_schema["info"]["contact"] = {"name": "Tim Backend", "email": "backend@pramuka-jabar.id"}
     openapi_schema["info"]["version"] = "1.1.0"
     openapi_schema["servers"] = [
-        {"url": "http://localhost:8000", "description": "Local development"},
+        {"url": "http://localhost:8000", "description": "Local"},
         {"url": "https://api.pramuka-jabar.id", "description": "Production"},
     ]
     openapi_schema["tags"] = tags_metadata
@@ -43,99 +49,87 @@ def custom_openapi():
     return app.openapi_schema
 
 
-# Configure FastAPI with OpenAPI/Swagger
 tags_metadata = [
-    {
-        "name": "Authentication",
-        "description": "Autentikasi pengguna - Login, Register, Refresh Token, Logout",
-    },
-    {
-        "name": "Organisasi",
-        "description": "Manajemen Organisasi Pramuka",
-    },
-    {
-        "name": "Programs",
-        "description": "Manajemen Program Pramuka dengan CRUD, search, filter, dan pagination",
-    },
-    {
-        "name": "Kegiatans",
-        "description": "Manajemen Kegiatan Pramuka dengan CRUD, search, filter, dan pagination",
-    },
-    {
-        "name": "Realisasi",
-        "description": "Input realisasi, upload dokumen, dan dashboard analytics",
-    },
-    {
-        "name": "Laporan",
-        "description": "Pelaporan kegiatan dan workflow approval",
-    },
+    {"name": "Authentication", "description": "Login, Register, Refresh, Logout"},
+    {"name": "Organisasi", "description": "Manajemen Organisasi"},
+    {"name": "Programs", "description": "Manajemen Program"},
+    {"name": "Kegiatans", "description": "Manajemen Kegiatan"},
+    {"name": "Realisasi", "description": "Realisasi, Laporan, Approval, Dashboard"},
+    {"name": "Deadline Reminders", "description": "Notifikasi dan monitoring deadline laporan"},
+    {"name": "Dashboard KPI", "description": "KPI organisasi - Program selesai, terlambat, gagal, aktif"},
+    {"name": "Admin", "description": "Manajemen User (Admin only)"},
 ]
 
 app = FastAPI(
     title="Super Apps Pramuka Jawa Barat",
-    description="API komprehensif untuk manajemen program dan kegiatan Pramuka Jawa Barat dengan sistem autentikasi JWT",
     version="1.0.0",
     openapi_tags=tags_metadata,
-    docs_url="/docs",
-    redoc_url="/redoc",
-    openapi_url="/openapi.json",
+    docs_url=_docs_url,
+    redoc_url=_redoc_url,
+    openapi_url=_openapi_url,
 )
 app.openapi = custom_openapi
-=======
-from app.seed import seed_default_admin
 
-Base.metadata.create_all(bind=engine)
+# ─── SlowAPI rate limiter ──────────────────────────────────────────────────────
+# Daftarkan state limiter dan exception handler agar @limiter.limit bekerja.
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
-app = FastAPI(title="Super Apps Pramuka Jawa Barat")
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+# ─── Security headers middleware ───────────────────────────────────────────────
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    response = await call_next(request)
+
+    # Tambah security headers di setiap response
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    if settings.is_production:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+    return response
+
+
+# ─── CORS ──────────────────────────────────────────────────────────────────────
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.CORS_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Length", "X-Total-Count"],
+    max_age=600,
 )
 
-<<<<<<< HEAD
-# Include routers
+# ─── Routers ───────────────────────────────────────────────────────────────────
+
 app.include_router(auth_router.router, prefix="/api")
 app.include_router(organisasi_router.router, prefix="/api")
 app.include_router(program_router.router, prefix="/api")
 app.include_router(kegiatan_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 app.include_router(radit_router.radit_router, prefix="/api")
-=======
-app.include_router(auth_router.router, prefix="/api")
-app.include_router(admin_router.router, prefix="/api")
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
+app.include_router(reminder_router.router, prefix="/api")
+app.include_router(kpi_router.router, prefix="/api")
 
 
 @app.on_event("startup")
 def startup_seed():
-    seed_default_admin()
-<<<<<<< HEAD
-    seed_realisasi_laporan_approval()
+    try:
+        seed_default_admin()
+        seed_realisasi_laporan_approval()
+    except Exception as exc:
+        print(f"Startup seed warning: {exc}")
 
 
 @app.get("/", tags=["Root"])
 def root():
-    return {
-        "message": "Super Apps Pramuka Jawa Barat API is running",
-        "version": "1.0.0",
-        "docs": "/docs",
-        "redoc": "/redoc",
-    }
+    return {"message": "Super Apps Pramuka Jawa Barat API", "version": "1.0.0"}
 
 
 @app.get("/health", tags=["Health"])
 def health_check():
-    """Check API health status"""
     return {"status": "ok"}
-=======
-
-
-@app.get("/")
-def root():
-    return {"message": "Super Apps Pramuka Jawa Barat API is running"}
->>>>>>> b0b9cda (feat: initialize Vue 3 project with Vite)
