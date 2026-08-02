@@ -77,6 +77,10 @@ Buka `http://localhost:5173`.
 | PUT | `/api/admin/users/{id}` | ✅ admin | Update user |
 | DELETE | `/api/admin/users/{id}` | ✅ admin | Hapus user |
 
+## Contributor
+
+- Andrian
+
 ## Lisensi
 
 Internal project — belum ditentukan.
