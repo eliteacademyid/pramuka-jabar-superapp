@@ -121,12 +121,21 @@ class RiwayatJenjangOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class KompetensiMasterCreate(BaseModel):
+    jenis: str
+    jenjang: Jenjang
+    nama_kompetensi: str
+    tingkat: str
+    tahun: Optional[int] = None
+
+
 class KompetensiMasterOut(BaseModel):
     id: int
     jenis: str
     jenjang: Jenjang
     nama_kompetensi: str
     tingkat: str
+    tahun: Optional[int] = None
 
     model_config = {"from_attributes": True}
 

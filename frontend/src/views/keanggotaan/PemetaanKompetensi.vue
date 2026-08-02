@@ -12,7 +12,7 @@ const capaianList = ref([])
 const showMasterModal = ref(false)
 const isEditMaster = ref(false)
 const editingMasterId = ref(null)
-const masterForm = ref({ jenis: 'SKU', jenjang: 'siaga', nama_kompetensi: '', tingkat: '' })
+const masterForm = ref({ jenis: 'SKU', jenjang: 'siaga', nama_kompetensi: '', tingkat: '', tahun: new Date().getFullYear() })
 const masterError = ref('')
 const savingMaster = ref(false)
 
@@ -57,7 +57,7 @@ function namaKompetensi(id) {
 function openCreateMaster() {
   isEditMaster.value = false
   editingMasterId.value = null
-  masterForm.value = { jenis: 'SKU', jenjang: 'siaga', nama_kompetensi: '', tingkat: '' }
+  masterForm.value = { jenis: 'SKU', jenjang: 'siaga', nama_kompetensi: '', tingkat: '', tahun: new Date().getFullYear() }
   masterError.value = ''
   showMasterModal.value = true
 }
@@ -65,7 +65,7 @@ function openCreateMaster() {
 function openEditMaster(k) {
   isEditMaster.value = true
   editingMasterId.value = k.id
-  masterForm.value = { jenis: k.jenis, jenjang: k.jenjang, nama_kompetensi: k.nama_kompetensi, tingkat: k.tingkat }
+  masterForm.value = { jenis: k.jenis, jenjang: k.jenjang, nama_kompetensi: k.nama_kompetensi, tingkat: k.tingkat, tahun: k.tahun || new Date().getFullYear() }
   masterError.value = ''
   showMasterModal.value = true
 }
@@ -162,6 +162,7 @@ function formatTanggal(iso) {
             <th>Jenjang</th>
             <th>Nama Kompetensi</th>
             <th>Tingkat</th>
+            <th>Tahun</th>
             <th>Aksi</th>
           </tr>
         </thead>
@@ -172,13 +173,14 @@ function formatTanggal(iso) {
             <td>{{ jenjangLabels[k.jenjang] || k.jenjang }}</td>
             <td>{{ k.nama_kompetensi }}</td>
             <td>{{ k.tingkat }}</td>
+            <td>{{ k.tahun || '-' }}</td>
             <td>
               <button class="btn-small" @click="openEditMaster(k)">Edit</button>
               <button class="btn-small btn-danger" @click="deleteMaster(k)">Hapus</button>
             </td>
           </tr>
           <tr v-if="masterList.length === 0">
-            <td colspan="6" class="empty-row">Belum ada kompetensi master.</td>
+            <td colspan="7" class="empty-row">Belum ada kompetensi master.</td>
           </tr>
         </tbody>
       </table>
@@ -241,6 +243,10 @@ function formatTanggal(iso) {
         <div class="form-group">
           <label for="mk-tingkat">Tingkat</label>
           <input id="mk-tingkat" v-model="masterForm.tingkat" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="mk-tahun">Tahun</label>
+          <input id="mk-tahun" v-model="masterForm.tahun" type="number" min="1900" max="2100" />
         </div>
         <div class="modal-actions">
           <button type="button" class="btn-small" @click="showMasterModal = false">Batal</button>

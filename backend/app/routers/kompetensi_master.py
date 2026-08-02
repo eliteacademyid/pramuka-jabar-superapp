@@ -40,7 +40,7 @@ def list_kompetensi_master(
 
 @router.post("/", response_model=schemas.KompetensiMasterOut, status_code=status.HTTP_201_CREATED)
 def create_kompetensi_master(
-    payload: schemas.KompetensiMasterOut,
+    payload: schemas.KompetensiMasterCreate,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
 ):
@@ -66,6 +66,7 @@ def create_kompetensi_master(
         jenjang=payload.jenjang,
         nama_kompetensi=payload.nama_kompetensi,
         tingkat=payload.tingkat,
+        tahun=payload.tahun,
     )
     db.add(kompetensi)
     db.commit()
@@ -88,7 +89,7 @@ def get_kompetensi_master(
 @router.put("/{kompetensi_id}", response_model=schemas.KompetensiMasterOut)
 def update_kompetensi_master(
     kompetensi_id: int,
-    payload: schemas.KompetensiMasterOut,
+    payload: schemas.KompetensiMasterCreate,
     db: Session = Depends(get_db),
     _: models.User = Depends(get_current_admin),
 ):
@@ -119,6 +120,7 @@ def update_kompetensi_master(
     kompetensi.jenjang = payload.jenjang
     kompetensi.nama_kompetensi = payload.nama_kompetensi
     kompetensi.tingkat = payload.tingkat
+    kompetensi.tahun = payload.tahun
 
     db.commit()
     db.refresh(kompetensi)

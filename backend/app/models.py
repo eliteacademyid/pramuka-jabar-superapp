@@ -113,6 +113,7 @@ class KompetensiMaster(Base):
     jenjang = Column(String, nullable=False)
     nama_kompetensi = Column(String, nullable=False)
     tingkat = Column(String, nullable=False)
+    tahun = Column(Integer, nullable=True)
 
 
 class CapaianKompetensi(Base):
