@@ -24,3 +24,4 @@ backend/.env
 
 # SQLite test artifacts
 *.db
+frontend/certs/

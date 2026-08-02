@@ -38,6 +38,8 @@ services:
       context: ./frontend
       dockerfile: Containerfile
     container_name: javascout-frontend
+    volumes:
+      - ./frontend/certs:/app/certs:ro,Z
     ports:
       - "5173:5173"
     depends_on:
