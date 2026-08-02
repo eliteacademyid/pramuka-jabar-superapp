@@ -11,6 +11,17 @@
       </div>
     </section>
 
+    <section class="catalog-searchbar">
+      <div class="catalog-search">
+        <SearchSuggest
+          v-model="filters.q"
+          placeholder="Cari produk, mis. kopi…"
+          @submit="load(1)"
+        />
+        <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
+      </div>
+    </section>
+
     <section class="cat-cards">
       <button
         class="cat-card"
@@ -37,18 +48,6 @@
     <div class="page-container">
       <div class="catalog-layout">
         <aside class="catalog-sidebar">
-          <div class="sidebar-block">
-            <h3 class="sidebar-title"><i class="fas fa-magnifying-glass"></i> Pencarian</h3>
-            <div class="catalog-search">
-              <SearchSuggest
-                v-model="filters.q"
-                placeholder="Cari produk, mis. kopi…"
-                @submit="load(1)"
-              />
-              <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
-            </div>
-          </div>
-
           <div class="sidebar-block">
             <h3 class="sidebar-title"><i class="fas fa-sliders"></i> Filter</h3>
             <div class="filters">

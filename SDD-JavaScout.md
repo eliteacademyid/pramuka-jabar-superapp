@@ -78,6 +78,11 @@
 > percakapan, nama lawan bicara tampil sebagai pembeli); menu Chat di sidebar
 > akun menampilkan badge jumlah pesan belum dibaca (total & khusus penjual)
 > yang diperbarui otomatis via polling; 82 test otomatis.
+> Pembaruan v1.14: **pencarian katalog pindah ke atas kategori** — bar
+> pencarian tidak lagi di panel samping: kini berupa pil pencarian lebar di
+> tengah, tepat di bawah banner hero dan di atas kartu kategori (overlap tipis
+> pada tepi bawah banner); panel samping katalog hanya berisi filter
+> (kategori, lokasi, urutkan).
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
