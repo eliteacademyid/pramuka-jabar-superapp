@@ -38,8 +38,28 @@ def get_current_user(
 def get_current_admin(
     current_user: models.User = Depends(get_current_user),
 ) -> models.User:
-    if current_user.role != "admin":
+    if current_user.role not in ("admin", "superadmin", "admin_kwarcab"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role admin"
+        )
+    return current_user
+
+
+def get_current_pembina_or_admin(
+    current_user: models.User = Depends(get_current_user),
+) -> models.User:
+    if current_user.role not in ("pembina", "admin", "superadmin", "admin_kwarcab", "admin_gudep"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role admin/pembina"
+        )
+    return current_user
+
+
+def get_current_super_admin(
+    current_user: models.User = Depends(get_current_user),
+) -> models.User:
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Butuh role superadmin"
         )
     return current_user

@@ -16,6 +16,11 @@ __pycache__/
 .env.local
 backend/.env
 
+# Runtime artifacts
+*.pid
+backend/api.db
+backend/api.db-*
+
 # Editor / OS
 .DS_Store
 .idea/

@@ -15,7 +15,7 @@ def seed_default_admin():
                     username=DEFAULT_ADMIN_USERNAME,
                     hashed_password=auth.hash_password(DEFAULT_ADMIN_PASSWORD),
                     nama_lengkap=DEFAULT_ADMIN_FULLNAME,
-                    role="admin",
+                    role="superadmin",
                     is_active=True,
                 )
             )

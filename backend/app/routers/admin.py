@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from app import auth, models, schemas
 from app.database import get_db
-from app.deps import get_current_admin
+from app.deps import get_current_admin, get_current_pembina_or_admin, get_current_super_admin
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -38,10 +38,6 @@ def create_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password minimal 6 karakter",
         )
-    if payload.role not in models.ROLES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Role tidak valid"
-        )
     existing = (
         db.query(models.User)
         .filter(models.User.username == payload.username)
@@ -59,6 +55,7 @@ def create_user(
         nama_lengkap=payload.nama_lengkap,
         role=payload.role,
         is_active=True,
+        wilayah_scope_id=payload.wilayah_scope_id,
     )
     db.add(user)
     db.commit()
@@ -100,11 +97,10 @@ def update_user(
         user.nama_lengkap = payload.nama_lengkap
 
     if payload.role is not None:
-        if payload.role not in models.ROLES:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST, detail="Role tidak valid"
-            )
         user.role = payload.role
+
+    if payload.wilayah_scope_id is not None:
+        user.wilayah_scope_id = payload.wilayah_scope_id
 
     if payload.is_active is not None:
         user.is_active = payload.is_active
