@@ -1,0 +1,2 @@
+BUKTI SEED - bukti transfer marketplace (placeholder)
+Dibuat otomatis oleh seed_marketplace().

@@ -1,0 +1,2 @@
+BUKTI SEED - realisasi anggaran (kwitansi/nota placeholder)
+Dibuat otomatis oleh seed_pelaporan().

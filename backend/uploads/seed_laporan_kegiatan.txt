@@ -1,0 +1,2 @@
+LAPORAN SEED - laporan pelaksanaan kegiatan (placeholder)
+Dibuat otomatis oleh seed_pelaporan().
