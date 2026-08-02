@@ -19,7 +19,11 @@ async function handleSubmit() {
       password: password.value
     })
     localStorage.setItem('token', res.data.access_token)
-    router.push({ name: 'admin-dashboard' })
+    const me = await api.get('/auth/me')
+    localStorage.setItem('role', me.data.role)
+    if (me.data.role === 'kontributor') router.push({ name: 'kontributor-dashboard' })
+    else if (me.data.role === 'penjual') router.push({ name: 'penjual-dashboard' })
+    else router.push({ name: 'admin-dashboard' })
   } catch (err) {
     errorMessage.value =
       err.response?.data?.detail || 'Terjadi kesalahan. Coba lagi.'
