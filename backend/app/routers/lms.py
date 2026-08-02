@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app import models, schemas
@@ -10,9 +10,29 @@ from app.deps import get_current_user
 router = APIRouter(prefix="/lms", tags=["lms"])
 
 
-@router.get("/trainings", response_model=List[schemas.TrainingOut])
-def list_trainings(db: Session = Depends(get_db)):
-    return db.query(models.Training).order_by(models.Training.id.desc()).all()
+@router.get("/trainings")
+def list_trainings(
+    search: Optional[str] = Query(None, description="Cari berdasarkan judul pelatihan"),
+    page: int = Query(1, ge=1, description="Halaman saat ini"),
+    limit: int = Query(6, ge=1, le=50, description="Jumlah item per halaman"),
+    db: Session = Depends(get_db)
+):
+    query = db.query(models.Training).order_by(models.Training.id.desc())
+
+    if search:
+        query = query.filter(models.Training.title.ilike(f"%{search}%"))
+
+    total = query.count()
+    total_pages = (total + limit - 1) // limit
+    items = query.offset((page - 1) * limit).limit(limit).all()
+
+    return {
+        "items": items,
+        "total": total,
+        "page": page,
+        "limit": limit,
+        "total_pages": total_pages
+    }
 
 
 @router.get("/trainings/{training_id}/materials", response_model=List[schemas.TrainingMaterialOut])
