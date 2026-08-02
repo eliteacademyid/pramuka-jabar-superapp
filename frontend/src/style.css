@@ -45,6 +45,47 @@ button {
   min-height: 100vh;
 }
 
+/* Responsive container utility */
+.container-responsive {
+  width: 100%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-responsive { padding-right: 1.5rem; padding-left: 1.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive { padding-right: 2rem; padding-left: 2rem; }
+}
+
+/* Responsive grid helpers */
+.grid-responsive-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+.grid-responsive-4 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+@media (min-width: 1280px) {
+  .grid-responsive-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* Smooth transitions for layout changes */
+.layout-transition {
+  transition: all 0.25s ease;
+}
+
 .btn-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
