@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { fetchStatistikAPI, fetchGrafikAPI, fetchPerbandinganAPI } from '../api/dashboard'
+import { extractErrorMessage, logError } from '../utils/errorHandler'
 
 /**
  * Dashboard store — manages statistik, grafik, and perbandingan data
@@ -42,7 +43,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
         fetchPerbandingan()
       ])
     } catch (err) {
-      error.value = err?.response?.data?.detail || 'Gagal memuat data dashboard.'
+      logError('getDashboard', err)
+      error.value = extractErrorMessage(err, 'Gagal memuat data dashboard.')
     } finally {
       loading.value = false
     }
@@ -55,7 +57,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
     try {
       await fetchStatistik()
     } catch (err) {
-      errorStatistik.value = err?.response?.data?.detail || 'Gagal memuat statistik.'
+      logError('getStatistik', err)
+      errorStatistik.value = extractErrorMessage(err, 'Gagal memuat statistik.')
       throw err
     } finally {
       loadingStatistik.value = false
@@ -75,7 +78,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
     try {
       await fetchGrafik()
     } catch (err) {
-      errorGrafik.value = err?.response?.data?.detail || 'Gagal memuat data grafik.'
+      logError('getGrafik', err)
+      errorGrafik.value = extractErrorMessage(err, 'Gagal memuat data grafik.')
       throw err
     } finally {
       loadingGrafik.value = false
@@ -95,7 +99,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
     try {
       await fetchPerbandingan()
     } catch (err) {
-      errorPerbandingan.value = err?.response?.data?.detail || 'Gagal memuat data perbandingan.'
+      logError('getPerbandingan', err)
+      errorPerbandingan.value = extractErrorMessage(err, 'Gagal memuat data perbandingan.')
       throw err
     } finally {
       loadingPerbandingan.value = false
