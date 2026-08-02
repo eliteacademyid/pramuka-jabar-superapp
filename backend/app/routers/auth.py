@@ -28,6 +28,15 @@ def login(payload: schemas.LoginRequest, db: Session = Depends(get_db)):
     return {"access_token": token, "token_type": "bearer"}
 
 
-@router.get("/me", response_model=schemas.UserOut)
-def me(current_user: models.User = Depends(get_current_user)):
-    return current_user
+@router.get("/me")
+def me(current_user: models.User = Depends(get_current_user), db: Session = Depends(get_db)):
+    data = schemas.UserOut.model_validate(current_user).model_dump()
+    if current_user.tingkat_wilayah and current_user.wilayah_id:
+        from app.hub_utils import nama_wilayah
+
+        data["nama_wilayah"] = nama_wilayah(
+            db, current_user.tingkat_wilayah, current_user.wilayah_id
+        )
+    else:
+        data["nama_wilayah"] = ""
+    return data
