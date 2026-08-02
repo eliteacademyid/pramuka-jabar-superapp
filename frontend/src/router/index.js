@@ -83,6 +83,12 @@ const routes = [
         name: 'program-create',
         component: () => import('../pages/Program/ProgramCreate.vue'),
         meta: { title: 'Tambah Program', breadcrumb: 'Tambah Program' }
+      },
+      {
+        path: ':id/edit',
+        name: 'program-edit',
+        component: () => import('../pages/Program/ProgramEdit.vue'),
+        meta: { title: 'Edit Program', breadcrumb: 'Edit Program' }
       }
     ]
   },
