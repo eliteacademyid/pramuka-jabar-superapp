@@ -13,43 +13,45 @@
 
     <section class="catalog-searchbar">
       <div class="catalog-toolbar">
-        <div class="catalog-search">
+        <div class="tb-search">
+          <i class="fas fa-search tb-search-icon"></i>
           <SearchSuggest
             v-model="filters.q"
             placeholder="Cari produk, mis. kopi…"
             @submit="load(1)"
           />
         </div>
-        <div class="catalog-filters">
-          <div class="filter-group">
-            <select v-model="filters.category" @change="load(1)">
-              <option value="">Semua kategori</option>
-              <option v-for="c in categories" :key="c.id" :value="c.slug">{{ c.name }}</option>
-            </select>
-          </div>
-          <div class="filter-group">
-            <input
-              v-model="filters.city"
-              list="city-list"
-              placeholder="Lokasi…"
-              @keyup.enter="load(1)"
-            />
-            <datalist id="city-list">
-              <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
-            </datalist>
-          </div>
-          <div class="filter-group">
-            <select v-model="filters.sort" @change="load(1)">
-              <option value="newest">Terbaru</option>
-              <option value="bestseller">Terlaris</option>
-              <option value="cheapest">Termurah</option>
-              <option value="expensive">Termahal</option>
-              <option value="rating">Rating Tertinggi</option>
-              <option value="reviewed">Terbanyak Diulas</option>
-            </select>
-          </div>
-          <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="tb-field">
+          <select v-model="filters.category" @change="load(1)">
+            <option value="">Semua kategori</option>
+            <option v-for="c in categories" :key="c.id" :value="c.slug">{{ c.name }}</option>
+          </select>
         </div>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="tb-field tb-city">
+          <input
+            v-model="filters.city"
+            list="city-list"
+            placeholder="Lokasi…"
+            @keyup.enter="load(1)"
+          />
+          <datalist id="city-list">
+            <option v-for="c in cities" :key="c" :value="c">{{ c }}</option>
+          </datalist>
+        </div>
+        <span class="tb-divider" aria-hidden="true"></span>
+        <div class="tb-field">
+          <select v-model="filters.sort" @change="load(1)">
+            <option value="newest">Terbaru</option>
+            <option value="bestseller">Terlaris</option>
+            <option value="cheapest">Termurah</option>
+            <option value="expensive">Termahal</option>
+            <option value="rating">Rating Tertinggi</option>
+            <option value="reviewed">Terbanyak Diulas</option>
+          </select>
+        </div>
+        <button class="catalog-search-btn" @click="load(1)"><i class="fas fa-search"></i> Cari</button>
       </div>
     </section>
 
