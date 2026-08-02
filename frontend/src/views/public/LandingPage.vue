@@ -4,7 +4,7 @@
       <div class="landing-hero-inner">
         <div class="landing-logo"><span>⚜️</span></div>
         <span class="landing-eyebrow">Pramuka Jawa Barat</span>
-        <h1>SuperApps-JavaScout Pramuka<br />Jawa Barat</h1>
+        <h1>SuperApps-JavaScout</h1>
         <p>
           Satu aplikasi anggota pramuka untuk pemberdayaan ekonomi — katalog
           marketplace UMKM &amp; toko anggota Pramuka dalam satu tempat.
