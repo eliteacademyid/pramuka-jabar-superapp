@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from sqlalchemy import (
-    Boolean, Column, DateTime, Date, Integer, String, Text, ForeignKey, Float
+    Boolean, Column, DateTime, Date, Integer, String, Text, ForeignKey
 )
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -25,8 +25,6 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    member_achievements = relationship("MemberAchievement", back_populates="user")
-
 
 class Badge(Base):
     __tablename__ = "badges"
@@ -43,8 +41,6 @@ class Badge(Base):
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    member_achievements = relationship("MemberAchievement", back_populates="badge_ref")
 
 
 class TKK(Base):
@@ -64,8 +60,6 @@ class TKK(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    member_achievements = relationship("MemberAchievement", back_populates="tkk_ref")
-
 
 class Certificate(Base):
     __tablename__ = "certificates"
@@ -84,8 +78,6 @@ class Certificate(Base):
     created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    member_achievements = relationship("MemberAchievement", back_populates="cert_ref")
 
 
 class Achievement(Base):
@@ -108,8 +100,6 @@ class Achievement(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    member_achievements = relationship("MemberAchievement", back_populates="ach_ref")
-
 
 class MemberAchievement(Base):
     __tablename__ = "member_achievements"
@@ -119,24 +109,10 @@ class MemberAchievement(Base):
     achievement_type = Column(String(30), nullable=False)
     achievement_id = Column(Integer, nullable=False)
     earned_date = Column(Date, nullable=False)
-    verified_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    verified_by = Column(Integer, nullable=True)
     verified_at = Column(DateTime, nullable=True)
     status = Column(String(20), default="verified")
     notes = Column(Text, nullable=True)
     evidence_url = Column(String(255), nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = relationship("User", back_populates="member_achievements", foreign_keys=[user_id])
-    badge_ref = relationship("Badge", foreign_keys=[achievement_id],
-                             primaryjoin="and_(MemberAchievement.achievement_type=='badge', MemberAchievement.achievement_id==Badge.id)",
-                             viewonly=True)
-    tkk_ref = relationship("TKK", foreign_keys=[achievement_id],
-                           primaryjoin="and_(MemberAchievement.achievement_type=='tkk', MemberAchievement.achievement_id==TKK.id)",
-                           viewonly=True)
-    cert_ref = relationship("Certificate", foreign_keys=[achievement_id],
-                            primaryjoin="and_(MemberAchievement.achievement_type=='certificate', MemberAchievement.achievement_id==Certificate.id)",
-                            viewonly=True)
-    ach_ref = relationship("Achievement", foreign_keys=[achievement_id],
-                           primaryjoin="and_(MemberAchievement.achievement_type=='achievement', MemberAchievement.achievement_id==Achievement.id)",
-                           viewonly=True)

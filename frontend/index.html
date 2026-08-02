@@ -1,12 +1,670 @@
 <!DOCTYPE html>
 <html lang="id">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Super Apps Pramuka Jawa Barat</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>e-Prestasi - Portofolio Digital Pramuka</title>
+    <style>
+        :root {
+            --primary: #1565c0;
+            --primary-dark: #0d47a1;
+            --primary-light: #42a5f5;
+            --accent: #f9a825;
+            --bg: #f5f7fa;
+            --card: #ffffff;
+            --text: #263238;
+            --text-light: #607d8b;
+            --success: #43a047;
+            --danger: #e53935;
+            --border: #e0e0e0;
+            --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+        /* ─── Login ─── */
+        .login-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); }
+        .login-box { background: var(--card); border-radius: 16px; padding: 40px; width: 400px; max-width: 95%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        .login-box h1 { text-align: center; color: var(--primary); margin-bottom: 8px; font-size: 1.6rem; }
+        .login-box .subtitle { text-align: center; color: var(--text-light); margin-bottom: 24px; font-size: 0.9rem; }
+        .login-box .logo { text-align: center; font-size: 3rem; margin-bottom: 12px; }
+
+        /* ─── Layout ─── */
+        .app { display: none; }
+        .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: var(--primary-dark); color: white; overflow-y: auto; z-index: 100; transition: transform .3s; }
+        .sidebar .brand { padding: 20px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar .brand h2 { font-size: 1.1rem; }
+        .sidebar .brand small { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+        .sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: rgba(255,255,255,0.8); text-decoration: none; transition: all .2s; font-size: 0.9rem; }
+        .sidebar nav a:hover, .sidebar nav a.active { background: rgba(255,255,255,0.15); color: white; }
+        .sidebar nav a .icon { width: 20px; text-align: center; font-size: 1.1rem; }
+        .sidebar .user-info { padding: 16px 20px; border-top: 1px solid rgba(255,255,255,0.1); position: absolute; bottom: 0; width: 100%; background: var(--primary-dark); }
+        .sidebar .user-info .name { font-weight: 600; font-size: 0.9rem; }
+        .sidebar .user-info .role { color: rgba(255,255,255,0.6); font-size: 0.75rem; }
+        .sidebar .user-info button { margin-top: 8px; width: 100%; padding: 6px; border: 1px solid rgba(255,255,255,0.3); background: transparent; color: white; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+        .sidebar .user-info button:hover { background: rgba(255,255,255,0.1); }
+
+        .main { margin-left: 240px; padding: 24px; min-height: 100vh; }
+        .main h1 { font-size: 1.5rem; margin-bottom: 20px; color: var(--primary-dark); }
+        .main h2 { font-size: 1.2rem; margin: 20px 0 12px; color: var(--text); }
+
+        /* ─── Cards ─── */
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); text-align: center; border-top: 3px solid var(--primary); }
+        .stat-card.gold { border-top-color: var(--accent); }
+        .stat-card.green { border-top-color: var(--success); }
+        .stat-card.red { border-top-color: var(--danger); }
+        .stat-card .num { font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .stat-card.gold .num { color: var(--accent); }
+        .stat-card.green .num { color: var(--success); }
+        .stat-card .label { color: var(--text-light); font-size: 0.85rem; margin-top: 4px; }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+        .card { background: var(--card); border-radius: 12px; padding: 20px; box-shadow: var(--shadow); border-left: 4px solid var(--primary); }
+        .card.badge { border-left-color: var(--accent); }
+        .card.tkk { border-left-color: var(--success); }
+        .card.cert { border-left-color: var(--danger); }
+        .card.ach { border-left-color: var(--primary-light); }
+        .card .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; margin-bottom: 6px; }
+        .card .tag.badge { background: #fff8e1; color: #f57f17; }
+        .card .tag.tkk { background: #e8f5e9; color: #2e7d32; }
+        .card .tag.cert { background: #fce4ec; color: #c62828; }
+        .card .tag.ach { background: #e3f2fd; color: #1565c0; }
+        .card .title { font-weight: 600; font-size: 1rem; margin-bottom: 4px; }
+        .card .desc { color: var(--text-light); font-size: 0.85rem; margin-bottom: 8px; }
+        .card .meta { display: flex; gap: 8px; flex-wrap: wrap; }
+        .card .meta span { font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; background: #f5f5f5; color: var(--text-light); }
+
+        /* ─── Table ─── */
+        .table-wrap { background: var(--card); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; margin-bottom: 24px; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--primary); color: white; padding: 12px 16px; text-align: left; font-size: 0.85rem; }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        tr:hover { background: #f8f9ff; }
+        .rank { font-weight: 700; text-align: center; width: 50px; }
+        .rank-1 td:first-child { color: #f9a825; font-size: 1.2rem; }
+        .rank-2 td:first-child { color: #9e9e9e; font-size: 1.1rem; }
+        .rank-3 td:first-child { color: #cd7f32; font-size: 1.1rem; }
+        .points { font-weight: 700; color: var(--primary); text-align: center; }
+
+        /* ─── Form ─── */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 0.85rem; color: var(--text); }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px 14px; border: 2px solid var(--border); border-radius: 8px; font-size: 0.9rem; transition: border .2s; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+        .btn { display: inline-block; padding: 10px 24px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all .2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-sm { padding: 6px 14px; font-size: 0.8rem; }
+
+        /* ─── Tabs ─── */
+        .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; font-size: 0.9rem; color: var(--text-light); border-bottom: 3px solid transparent; transition: all .2s; }
+        .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+        .tab-btn:hover { color: var(--primary); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* ─── Toast ─── */
+        .toast { position: fixed; top: 20px; right: 20px; padding: 14px 24px; border-radius: 10px; color: white; font-weight: 600; z-index: 999; animation: slideIn .3s ease; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* ─── Modal ─── */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; justify-content: center; align-items: center; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--card); border-radius: 16px; padding: 30px; width: 500px; max-width: 95%; max-height: 90vh; overflow-y: auto; }
+        .modal h2 { margin-bottom: 20px; font-size: 1.2rem; }
+
+        .empty { text-align: center; padding: 40px; color: var(--text-light); }
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .stats { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════════════════ LOGIN ═══════════════════ -->
+<div id="loginPage" class="login-page">
+    <div class="login-box">
+        <div class="logo">⭐</div>
+        <h1>e-Prestasi</h1>
+        <p class="subtitle">Portofolio Digital Pramuka Jawa Barat</p>
+        <div id="loginMsg" class="hidden" style="background:#fce4ec;color:#c62828;padding:10px;border-radius:8px;margin-bottom:16px;font-size:0.85rem;text-align:center"></div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="loginUser" required placeholder="Masukkan username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="loginPass" required placeholder="Masukkan password">
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%">Masuk</button>
+        </form>
+        <p style="text-align:center;margin-top:16px;font-size:0.8rem;color:var(--text-light)">
+            Demo: admin/admin123 atau ahmad/member123
+        </p>
+    </div>
+</div>
+
+<!-- ═══════════════════ APP ═══════════════════ -->
+<div id="app" class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <h2>⭐ e-Prestasi</h2>
+            <small>Pramuka Jawa Barat</small>
+        </div>
+        <nav>
+            <a href="#" data-page="dashboard" class="active"><span class="icon">📊</span> Dashboard</a>
+            <a href="#" data-page="badges"><span class="icon">🏅</span> Badge</a>
+            <a href="#" data-page="tkk"><span class="icon">🔧</span> TKK</a>
+            <a href="#" data-page="certificates"><span class="icon">📜</span> Sertifikat</a>
+            <a href="#" data-page="achievements"><span class="icon">🏆</span> Prestasi</a>
+            <a href="#" data-page="leaderboard"><span class="icon">🥇</span> Leaderboard</a>
+            <a href="#" data-page="my-history" id="navMyHistory"><span class="icon">📋</span> Riwayat Saya</a>
+            <a href="#" data-page="admin-award" id="navAdminAward" class="hidden"><span class="icon">🎁</span> Beri Prestasi</a>
+            <a href="#" data-page="admin-users" id="navAdminUsers" class="hidden"><span class="icon">👥</span> Kelola User</a>
+        </nav>
+        <div class="user-info">
+            <div class="name" id="sidebarName">-</div>
+            <div class="role" id="sidebarRole">-</div>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main">
+        <!-- Dashboard -->
+        <div id="page-dashboard" class="page">
+            <h1>📊 Dashboard</h1>
+            <div class="stats" id="statsGrid"></div>
+            <h2>Leaderboard Teratas</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Nama</th><th>Kwarcab</th><th>Poin</th><th>Total</th></tr></thead>
+                    <tbody id="dashLeaderboard"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Badges -->
+        <div id="page-badges" class="page hidden">
+            <h1>🏅 Badge</h1>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="filterBadge('')">Semua</button>
+                <button class="tab-btn" onclick="filterBadge('dasar')">Dasar</button>
+                <button class="tab-btn" onclick="filterBadge('madya')">Madya</button>
+                <button class="tab-btn" onclick="filterBadge('laksana')">Laksana</button>
+                <button class="tab-btn" onclick="filterBadge('garuda')">Garuda</button>
+                <button class="tab-btn" onclick="filterBadge('pandega')">Pandega</button>
+            </div>
+            <div class="grid" id="badgeGrid"></div>
+        </div>
+
+        <!-- TKK -->
+        <div id="page-tkk" class="page hidden">
+            <h1>🔧 TKK (Tanda Kecakapan Khusus)</h1>
+            <div class="tabs" id="tkkTabs"></div>
+            <div class="grid" id="tkkGrid"></div>
+        </div>
+
+        <!-- Certificates -->
+        <div id="page-certificates" class="page hidden">
+            <h1>📜 Sertifikat</h1>
+            <div class="grid" id="certGrid"></div>
+        </div>
+
+        <!-- Achievements -->
+        <div id="page-achievements" class="page hidden">
+            <h1>🏆 Prestasi</h1>
+            <div class="grid" id="achGrid"></div>
+        </div>
+
+        <!-- Leaderboard -->
+        <div id="page-leaderboard" class="page hidden">
+            <h1>🥇 Leaderboard</h1>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Peringkat</th><th>Nama</th><th>NIS</th><th>Kwarcab</th><th>Badge</th><th>TKK</th><th>Sertif</th><th>Prestasi</th><th>Poin</th></tr></thead>
+                    <tbody id="leaderboardBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- My History -->
+        <div id="page-my-history" class="page hidden">
+            <h1>📋 Riwayat Pencapaian Saya</h1>
+            <div class="stats" id="myStats"></div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="filterMyAch('')">Semua</button>
+                <button class="tab-btn" onclick="filterMyAch('badge')">Badge</button>
+                <button class="tab-btn" onclick="filterMyAch('tkk')">TKK</button>
+                <button class="tab-btn" onclick="filterMyAch('certificate')">Sertifikat</button>
+                <button class="tab-btn" onclick="filterMyAch('achievement')">Prestasi</button>
+            </div>
+            <div class="grid" id="myHistoryGrid"></div>
+        </div>
+
+        <!-- Admin: Award -->
+        <div id="page-admin-award" class="page hidden">
+            <h1>🎁 Berikan Prestasi ke Anggota</h1>
+            <div style="max-width:500px;background:var(--card);border-radius:12px;padding:24px;box-shadow:var(--shadow)">
+                <form id="awardForm">
+                    <div class="form-group">
+                        <label>Anggota</label>
+                        <select id="awardUser" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipe Pencapaian</label>
+                        <select id="awardType" required onchange="loadAwardItems()">
+                            <option value="">-- Pilih --</option>
+                            <option value="badge">🏅 Badge</option>
+                            <option value="tkk">🔧 TKK</option>
+                            <option value="certificate">📜 Sertifikat</option>
+                            <option value="achievement">🏆 Prestasi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Pencapaian</label>
+                        <select id="awardItem" required></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tanggal Diperoleh</label>
+                        <input type="date" id="awardDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Catatan</label>
+                        <textarea id="awardNotes" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success">✅ Berikan Prestasi</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin: Users -->
+        <div id="page-admin-users" class="page hidden">
+            <h1>👥 Kelola Pengguna</h1>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>ID</th><th>Username</th><th>Nama Lengkap</th><th>Role</th><th>Kwarcab</th><th>Status</th></tr></thead>
+                    <tbody id="usersBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Award -->
+<div class="modal-overlay" id="awardModal">
+    <div class="modal">
+        <h2 id="awardModalTitle">Berhasil!</h2>
+        <p id="awardModalMsg"></p>
+        <br>
+        <button class="btn btn-primary" onclick="closeModal()">Tutup</button>
+    </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000/api';
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+let allBadges = [], allTKK = [], allCerts = [], allAchs = [], allUsers = [], myAchs = [];
+let currentBadgeFilter = '', currentMyFilter = '';
+
+// ─── API Helper ───
+async function api(path, opts = {}) {
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    const res = await fetch(API + path, { ...opts, headers });
+    if (res.status === 204) return null;
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.detail || 'Error');
+    return data;
+}
+
+// ─── Toast ───
+function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+}
+
+// ─── Modal ───
+function showModal(title, msg) {
+    document.getElementById('awardModalTitle').textContent = title;
+    document.getElementById('awardModalMsg').textContent = msg;
+    document.getElementById('awardModal').classList.add('show');
+}
+function closeModal() { document.getElementById('awardModal').classList.remove('show'); }
+
+// ─── Login ───
+document.getElementById('loginForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const msgEl = document.getElementById('loginMsg');
+    try {
+        const data = await api('/auth/login', {
+            method: 'POST',
+            body: JSON.stringify({
+                username: document.getElementById('loginUser').value,
+                password: document.getElementById('loginPass').value
+            })
+        });
+        token = data.access_token;
+        // get user info
+        const user = await api('/auth/me');
+        currentUser = user;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        msgEl.classList.add('hidden');
+        showApp();
+    } catch (err) {
+        msgEl.textContent = err.message;
+        msgEl.classList.remove('hidden');
+    }
+};
+
+function logout() {
+    token = null; currentUser = null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('loginPage').style.display = 'flex';
+}
+
+// ─── Show App ───
+function showApp() {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('sidebarName').textContent = currentUser.nama_lengkap;
+    document.getElementById('sidebarRole').textContent = currentUser.role === 'admin' ? '👑 Admin' : '🌟 Anggota';
+
+    if (currentUser.role === 'admin') {
+        document.getElementById('navAdminAward').classList.remove('hidden');
+        document.getElementById('navAdminUsers').classList.remove('hidden');
+    }
+
+    loadDashboard();
+}
+
+// ─── Navigation ───
+document.querySelectorAll('.sidebar nav a').forEach(a => {
+    a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = a.dataset.page;
+        document.querySelectorAll('.sidebar nav a').forEach(x => x.classList.remove('active'));
+        a.classList.add('active');
+        document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+        document.getElementById('page-' + page).classList.remove('hidden');
+
+        if (page === 'dashboard') loadDashboard();
+        else if (page === 'badges') loadBadges();
+        else if (page === 'tkk') loadTKK();
+        else if (page === 'certificates') loadCerts();
+        else if (page === 'achievements') loadAchs();
+        else if (page === 'leaderboard') loadLeaderboard();
+        else if (page === 'my-history') loadMyHistory();
+        else if (page === 'admin-award') loadAdminAward();
+        else if (page === 'admin-users') loadUsers();
+    });
+});
+
+// ─── Dashboard ───
+async function loadDashboard() {
+    try {
+        const lb = await api('/member-achievements/leaderboard?limit=5');
+        const el = document.getElementById('dashLeaderboard');
+        el.innerHTML = lb.map((e, i) => `
+            <tr class="rank-${i+1}">
+                <td class="rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)}</td>
+                <td><strong>${e.full_name}</strong></td>
+                <td>${e.kwarcab || '-'}</td>
+                <td class="points">${e.total_points} poin</td>
+                <td>${e.total_achievements} pencapaian</td>
+            </tr>
+        `).join('');
+
+        // Stats
+        const allLb = await api('/member-achievements/leaderboard?limit=100');
+        const totalMembers = allLb.length;
+        const totalBadges = allLb.reduce((s, e) => s + e.badge_count, 0);
+        const totalTKK = allLb.reduce((s, e) => s + e.tkk_count, 0);
+        const totalCerts = allLb.reduce((s, e) => s + e.certificate_count, 0);
+        const totalAchs = allLb.reduce((s, e) => s + e.achievement_count, 0);
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card"><div class="num">${totalMembers}</div><div class="label">Anggota</div></div>
+            <div class="stat-card gold"><div class="num">${totalBadges}</div><div class="label">Badge</div></div>
+            <div class="stat-card green"><div class="num">${totalTKK}</div><div class="label">TKK</div></div>
+            <div class="stat-card red"><div class="num">${totalCerts}</div><div class="label">Sertifikat</div></div>
+            <div class="stat-card"><div class="num">${totalAchs}</div><div class="label">Prestasi</div></div>
+        `;
+    } catch (err) { console.error(err); }
+}
+
+// ─── Badges ───
+async function loadBadges() {
+    allBadges = await api('/badges');
+    renderBadges();
+}
+function filterBadge(level) {
+    currentBadgeFilter = level;
+    document.querySelectorAll('#page-badges .tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderBadges();
+}
+function renderBadges() {
+    const data = currentBadgeFilter ? allBadges.filter(b => b.level === currentBadgeFilter) : allBadges;
+    document.getElementById('badgeGrid').innerHTML = data.map(b => `
+        <div class="card badge">
+            <span class="tag badge">Badge</span>
+            <div class="title">${b.name}</div>
+            <div class="desc">${b.description || '-'}</div>
+            <div class="meta">
+                <span>📋 ${b.code}</span>
+                <span>📊 ${b.level}</span>
+                <span>📁 ${b.category || '-'}</span>
+            </div>
+        </div>
+    `).join('') || '<div class="empty">Tidak ada data</div>';
+}
+
+// ─── TKK ───
+async function loadTKK() {
+    allTKK = await api('/tkk');
+    const bidangs = [...new Set(allTKK.map(t => t.bidang))];
+    document.getElementById('tkkTabs').innerHTML = `<button class="tab-btn active" onclick="filterTKK('')">Semua</button>` +
+        bidangs.map(b => `<button class="tab-btn" onclick="filterTKK('${b}')">${b}</button>`).join('');
+    renderTKK();
+}
+function filterTKK(bidang) {
+    document.querySelectorAll('#page-tkk .tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    const data = bidang ? allTKK.filter(t => t.bidang === bidang) : allTKK;
+    document.getElementById('tkkGrid').innerHTML = data.map(t => `
+        <div class="card tkk">
+            <span class="tag tkk">TKK</span>
+            <div class="title">${t.name}</div>
+            <div class="desc">${t.description || '-'}</div>
+            <div class="meta">
+                <span>📋 ${t.code}</span>
+                <span>🔧 ${t.bidang}</span>
+                <span>📊 ${t.level}</span>
+            </div>
+        </div>
+    `).join('') || '<div class="empty">Tidak ada data</div>';
+}
+
+// ─── Certificates ───
+async function loadCerts() {
+    allCerts = await api('/certificates');
+    document.getElementById('certGrid').innerHTML = allCerts.map(c => `
+        <div class="card cert">
+            <span class="tag cert">Sertifikat</span>
+            <div class="title">${c.name}</div>
+            <div class="desc">${c.description || '-'}</div>
+            <div class="meta">
+                <span>📋 ${c.code}</span>
+                <span>🏛️ ${c.issuing_authority || '-'}</span>
+                <span>📊 ${c.level}</span>
+                <span>📅 ${c.valid_from || '-'} s/d ${c.valid_until || '-'}</span>
+            </div>
+        </div>
+    `).join('') || '<div class="empty">Tidak ada data</div>';
+}
+
+// ─── Achievements ───
+async function loadAchs() {
+    allAchs = await api('/achievements');
+    document.getElementById('achGrid').innerHTML = allAchs.map(a => `
+        <div class="card ach">
+            <span class="tag ach">Prestasi</span>
+            <div class="title">${a.title}</div>
+            <div class="desc">${a.description || '-'}</div>
+            <div class="meta">
+                <span>📋 ${a.code}</span>
+                <span>⭐ ${a.points} poin</span>
+                <span>📊 ${a.level}</span>
+                <span>📅 ${a.event_date || '-'}</span>
+                <span>🏛️ ${a.organizer || '-'}</span>
+            </div>
+        </div>
+    `).join('') || '<div class="empty">Tidak ada data</div>';
+}
+
+// ─── Leaderboard ───
+async function loadLeaderboard() {
+    const data = await api('/member-achievements/leaderboard?limit=50');
+    document.getElementById('leaderboardBody').innerHTML = data.map((e, i) => `
+        <tr class="rank-${i+1}">
+            <td class="rank">${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1)}</td>
+            <td><strong>${e.full_name}</strong></td>
+            <td>${e.nis || '-'}</td>
+            <td>${e.kwarcab || '-'}</td>
+            <td>${e.badge_count}</td>
+            <td>${e.tkk_count}</td>
+            <td>${e.certificate_count}</td>
+            <td>${e.achievement_count}</td>
+            <td class="points">${e.total_points} poin</td>
+        </tr>
+    `).join('');
+}
+
+// ─── My History ───
+async function loadMyHistory() {
+    try {
+        const stats = await api('/member-achievements/my-stats');
+        document.getElementById('myStats').innerHTML = `
+            <div class="stat-card gold"><div class="num">${stats.badges_count}</div><div class="label">Badge</div></div>
+            <div class="stat-card green"><div class="num">${stats.tkk_count}</div><div class="label">TKK</div></div>
+            <div class="stat-card red"><div class="num">${stats.certificates_count}</div><div class="label">Sertifikat</div></div>
+            <div class="stat-card"><div class="num">${stats.achievements_count}</div><div class="label">Prestasi</div></div>
+            <div class="stat-card"><div class="num">${stats.total_points}</div><div class="label">Total Poin</div></div>
+        `;
+        myAchs = await api('/member-achievements/my-achievements');
+        renderMyHistory();
+    } catch (err) {
+        document.getElementById('myStats').innerHTML = '<div class="empty">Gagal memuat data</div>';
+    }
+}
+function filterMyAch(type) {
+    currentMyFilter = type;
+    document.querySelectorAll('#page-my-history .tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+    renderMyHistory();
+}
+function renderMyHistory() {
+    const data = currentMyFilter ? myAchs.filter(a => a.achievement_type === currentMyFilter) : myAchs;
+    const typeLabel = { badge: '🏅 Badge', tkk: '🔧 TKK', certificate: '📜 Sertifikat', achievement: '🏆 Prestasi' };
+    const typeClass = { badge: 'badge', tkk: 'tkk', certificate: 'cert', achievement: 'ach' };
+    document.getElementById('myHistoryGrid').innerHTML = data.map(a => {
+        const name = a.badge_name || a.tkk_name || a.cert_name || a.ach_title || '-';
+        const sub = a.badge_level || a.tkk_bidang || a.cert_type || (a.ach_points ? a.ach_points + ' poin' : '-');
+        return `
+            <div class="card ${typeClass[a.achievement_type] || 'ach'}">
+                <span class="tag ${typeClass[a.achievement_type] || 'ach'}">${typeLabel[a.achievement_type] || a.achievement_type}</span>
+                <div class="title">${name}</div>
+                <div class="meta">
+                    <span>📅 ${a.earned_date}</span>
+                    <span>📊 ${sub}</span>
+                    <span>${a.status === 'verified' ? '✅ Terverifikasi' : '⏳ Pending'}</span>
+                </div>
+                ${a.notes ? `<div class="desc" style="margin-top:6px">💬 ${a.notes}</div>` : ''}
+            </div>
+        `;
+    }).join('') || '<div class="empty">Belum ada pencapaian</div>';
+}
+
+// ─── Admin: Award ───
+async function loadAdminAward() {
+    allUsers = await api('/admin/users');
+    const members = allUsers.filter(u => u.role === 'member');
+    document.getElementById('awardUser').innerHTML = '<option value="">-- Pilih Anggota --</option>' +
+        members.map(u => `<option value="${u.id}">${u.nama_lengkap} (${u.username})</option>`).join('');
+    document.getElementById('awardDate').value = new Date().toISOString().split('T')[0];
+}
+async function loadAwardItems() {
+    const type = document.getElementById('awardType').value;
+    const sel = document.getElementById('awardItem');
+    sel.innerHTML = '<option value="">Memuat...</option>';
+    if (!type) { sel.innerHTML = '<option value="">-- Pilih Tipe Dulu --</option>'; return; }
+    let items = [];
+    if (type === 'badge') items = await api('/badges');
+    else if (type === 'tkk') items = await api('/tkk');
+    else if (type === 'certificate') items = await api('/certificates');
+    else if (type === 'achievement') items = await api('/achievements');
+    sel.innerHTML = '<option value="">-- Pilih --</option>' +
+        items.map(i => `<option value="${i.id}">${i.code} - ${i.name || i.title}</option>`).join('');
+}
+document.getElementById('awardForm').onsubmit = async (e) => {
+    e.preventDefault();
+    try {
+        await api('/member-achievements/award', {
+            method: 'POST',
+            body: JSON.stringify({
+                user_id: parseInt(document.getElementById('awardUser').value),
+                achievement_type: document.getElementById('awardType').value,
+                achievement_id: parseInt(document.getElementById('awardItem').value),
+                earned_date: document.getElementById('awardDate').value,
+                notes: document.getElementById('awardNotes').value || null
+            })
+        });
+        showModal('✅ Berhasil!', 'Prestasi berhasil diberikan ke anggota.');
+        document.getElementById('awardForm').reset();
+        document.getElementById('awardDate').value = new Date().toISOString().split('T')[0];
+    } catch (err) {
+        showModal('❌ Gagal', err.message);
+    }
+};
+
+// ─── Admin: Users ───
+async function loadUsers() {
+    const data = await api('/admin/users');
+    document.getElementById('usersBody').innerHTML = data.map(u => `
+        <tr>
+            <td>${u.id}</td>
+            <td><strong>${u.username}</strong></td>
+            <td>${u.nama_lengkap}</td>
+            <td>${u.role === 'admin' ? '👑 Admin' : '🌟 ' + u.role}</td>
+            <td>${u.kwarcab || '-'}</td>
+            <td>${u.is_active ? '✅ Aktif' : '❌ Nonaktif'}</td>
+        </tr>
+    `).join('');
+}
+
+// ─── Init ───
+if (token && currentUser) {
+    showApp();
+}
+</script>
+</body>
 </html>
