@@ -18,6 +18,31 @@ def list_wilayah(
     return db.query(models.Wilayah).order_by(models.Wilayah.id).all()
 
 
+@router.post("/wilayah", response_model=schemas.WilayahOut, status_code=status.HTTP_201_CREATED)
+def create_wilayah(
+    payload: schemas.WilayahCreate,
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_pembina_or_admin),
+):
+    existing = (
+        db.query(models.Wilayah)
+        .filter(models.Wilayah.nama == payload.nama, models.Wilayah.tingkat == payload.tingkat)
+        .first()
+    )
+    if existing:
+        return existing
+
+    wilayah = models.Wilayah(
+        nama=payload.nama,
+        tingkat=payload.tingkat,
+        parent_id=payload.parent_id,
+    )
+    db.add(wilayah)
+    db.commit()
+    db.refresh(wilayah)
+    return wilayah
+
+
 @router.get("/gudep", response_model=List[schemas.GudepOut])
 def list_gudep(
     db: Session = Depends(get_db),

@@ -6,12 +6,13 @@ const loading = ref(true)
 const errorMessage = ref('')
 const anggotaList = ref([])
 const gudeps = ref([])
+const wilayahs = ref([])
 const selectedJenjang = ref('')
 
 const showModal = ref(false)
 const isEdit = ref(false)
 const editingId = ref(null)
-const form = ref({ nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, gudep_nama: '' })
+const form = ref({ nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, kwarcab: '', kwarran: '', gudep_nama: '' })
 const formError = ref('')
 const saving = ref(false)
 
@@ -20,9 +21,10 @@ const jenjangLabels = { siaga: 'Siaga', penggalang: 'Penggalang', penegak: 'Pene
 
 onMounted(async () => {
   try {
-    const [a, g] = await Promise.all([api.get('/anggota/'), api.get('/gudep')])
+    const [a, g, w] = await Promise.all([api.get('/anggota/'), api.get('/gudep'), api.get('/wilayah')])
     anggotaList.value = a.data
     gudeps.value = g.data
+    wilayahs.value = w.data
   } catch (err) {
     errorMessage.value = err.response?.data?.detail || 'Gagal memuat data.'
   } finally {
@@ -39,10 +41,28 @@ function gudepNama(id) {
   return gudeps.value.find((g) => g.id === id)?.nama || `Gudep #${id}`
 }
 
+function kwarranNama(gudepId) {
+  const g = gudeps.value.find((x) => x.id === gudepId)
+  if (!g) return '-'
+  const wilayah = wilayahs.value.find((w) => w.id === g.wilayah_id)
+  if (!wilayah || wilayah.tingkat !== 'Kwartir Ranting') return '-'
+  return wilayah.nama
+}
+
+function kwarcabNama(gudepId) {
+  const g = gudeps.value.find((x) => x.id === gudepId)
+  if (!g) return '-'
+  const wilayah = wilayahs.value.find((w) => w.id === g.wilayah_id)
+  if (!wilayah) return '-'
+  if (wilayah.tingkat === 'Kwartir Cabang') return wilayah.nama
+  const cabang = wilayahs.value.find((w) => w.id === wilayah.parent_id)
+  return cabang ? cabang.nama : '-'
+}
+
 function openCreate() {
   isEdit.value = false
   editingId.value = null
-  form.value = { nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, gudep_nama: '' }
+  form.value = { nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, kwarcab: '', kwarran: '', gudep_nama: '' }
   formError.value = ''
   showModal.value = true
 }
@@ -57,18 +77,32 @@ function openEdit(a) {
     jenis_kelamin: a.jenis_kelamin,
     jenjang: a.jenjang,
     status_aktif: a.status_aktif,
+    kwarcab: kwarcabNama(a.gudep_id),
+    kwarran: kwarranNama(a.gudep_id),
     gudep_nama: gudepNama(a.gudep_id)
   }
   formError.value = ''
   showModal.value = true
 }
 
-async function resolveGudep(nama) {
+async function resolveWilayah(nama, tingkat, parentId) {
+  const trimmed = (nama || '').trim()
+  if (!trimmed) throw new Error(`${tingkat} wajib diisi`)
+  const found = wilayahs.value.find(
+    (w) => w.nama.toLowerCase() === trimmed.toLowerCase() && w.tingkat === tingkat
+  )
+  if (found) return found.id
+  const res = await api.post('/wilayah', { nama: trimmed, tingkat, parent_id: parentId })
+  wilayahs.value.push(res.data)
+  return res.data.id
+}
+
+async function resolveGudep(nama, kwarranId) {
   const trimmed = (nama || '').trim()
   if (!trimmed) throw new Error('Gudep wajib diisi')
   const found = gudeps.value.find((g) => g.nama.toLowerCase() === trimmed.toLowerCase())
   if (found) return found.id
-  const res = await api.post('/gudep', { nama: trimmed })
+  const res = await api.post('/gudep', { nama: trimmed, wilayah_id: kwarranId })
   gudeps.value.push(res.data)
   return res.data.id
 }
@@ -77,7 +111,10 @@ async function saveAnggota() {
   formError.value = ''
   saving.value = true
   try {
-    const gudepId = await resolveGudep(form.value.gudep_nama)
+    const daerah = wilayahs.value.find((w) => w.tingkat === 'Daerah')
+    const kwarcabId = await resolveWilayah(form.value.kwarcab, 'Kwartir Cabang', daerah?.id || null)
+    const kwarranId = await resolveWilayah(form.value.kwarran, 'Kwartir Ranting', kwarcabId)
+    const gudepId = await resolveGudep(form.value.gudep_nama, kwarranId)
     const payload = {
       nta: form.value.nta,
       nama_lengkap: form.value.nama_lengkap,
@@ -151,6 +188,8 @@ function formatTanggal(iso) {
             <th>Nama Lengkap</th>
             <th>Jenjang</th>
             <th>Jenis Kelamin</th>
+            <th>Kwarcab</th>
+            <th>Kwarran</th>
             <th>Gudep</th>
             <th>Status</th>
             <th>Aksi</th>
@@ -163,6 +202,8 @@ function formatTanggal(iso) {
             <td>{{ a.nama_lengkap }}</td>
             <td>{{ jenjangLabels[a.jenjang] || a.jenjang }}</td>
             <td>{{ a.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+            <td>{{ kwarcabNama(a.gudep_id) }}</td>
+            <td>{{ kwarranNama(a.gudep_id) }}</td>
             <td>{{ gudepNama(a.gudep_id) }}</td>
             <td>
               <span :class="a.status_aktif ? 'status status-active' : 'status status-inactive'">
@@ -175,7 +216,7 @@ function formatTanggal(iso) {
             </td>
           </tr>
           <tr v-if="filtered().length === 0">
-            <td colspan="8" class="empty-row">Belum ada data anggota.</td>
+            <td colspan="10" class="empty-row">Belum ada data anggota.</td>
           </tr>
         </tbody>
       </table>
@@ -215,6 +256,26 @@ function formatTanggal(iso) {
             <select id="m-jenjang" v-model="form.jenjang">
               <option v-for="j in jenjangOptions" :key="j" :value="j">{{ jenjangLabels[j] }}</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="m-kwarcab">Kwarcab (Kwartir Cabang)</label>
+            <input
+              id="m-kwarcab"
+              v-model="form.kwarcab"
+              type="text"
+              placeholder="Contoh: Kota Bandung"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="m-kwarran">Kwarran (Kwartir Ranting)</label>
+            <input
+              id="m-kwarran"
+              v-model="form.kwarran"
+              type="text"
+              placeholder="Contoh: Ranting Cibeunying"
+              required
+            />
           </div>
           <div class="form-group">
             <label for="m-gudep">Gudep</label>

@@ -46,6 +46,12 @@ class Token(BaseModel):
 
 
 # SDD Models
+class WilayahCreate(BaseModel):
+    nama: str
+    tingkat: str
+    parent_id: Optional[int] = None
+
+
 class WilayahOut(BaseModel):
     id: int
     nama: str
