@@ -176,15 +176,33 @@ button {
 /* ---------- Landing page ---------- */
 .landing-hero {
   position: relative;
-  background:
-    linear-gradient(160deg, rgba(92, 64, 51, 0.62) 0%, rgba(92, 26, 20, 0.72) 100%),
-    url('/images/hero-ig.png') center / cover no-repeat;
+  overflow: hidden;
   color: var(--on-accent);
-  padding: 5rem 1.5rem;
+  padding: 5.5rem 1.5rem;
   text-align: center;
 }
 
+.landing-hero::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  background: url('/images/hero-ig.png') center / cover no-repeat;
+  filter: blur(6px) saturate(0.45) brightness(0.92);
+  transform: scale(1.03);
+  z-index: 0;
+}
+
+.landing-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(165deg, rgba(92, 64, 51, 0.5) 0%, rgba(60, 25, 18, 0.68) 100%);
+  z-index: 1;
+}
+
 .landing-hero-inner {
+  position: relative;
+  z-index: 2;
   max-width: 720px;
   margin: 0 auto;
 }
@@ -217,6 +235,7 @@ button {
   font-size: clamp(2rem, 5vw, 3rem);
   line-height: 1.15;
   margin-bottom: 1.1rem;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45);
 }
 
 .landing-hero p {
@@ -224,6 +243,7 @@ button {
   margin: 0 auto 2.2rem;
   color: var(--cream);
   font-size: 1.05rem;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
 }
 
 .landing-actions {
@@ -242,8 +262,8 @@ button {
   margin: 0 auto 1.8rem;
   background: var(--white);
   border-radius: 999px;
-  padding: 0.4rem 0.4rem 0.4rem 1.1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  padding: 0.45rem 0.45rem 0.45rem 1.2rem;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
 }
 
 .landing-search > i {
@@ -357,7 +377,7 @@ button {
 .landing-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 1rem;
+  gap: 1.25rem;
   max-width: 960px;
   margin: -2.4rem auto 0;
   padding: 0 1.5rem;
@@ -369,9 +389,9 @@ button {
   background: var(--white);
   border: 2px solid var(--gold);
   border-radius: 14px;
-  padding: 1.4rem 1rem;
+  padding: 1.5rem 1rem;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
 }
 
 .landing-stat-num {
@@ -390,7 +410,7 @@ button {
 .landing-section {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 3.5rem 1.5rem;
+  padding: 4rem 1.5rem;
 }
 
 .landing-title {
@@ -418,16 +438,16 @@ button {
   color: inherit;
   background: var(--white);
   border: 1px solid #eadfd3;
-  border-radius: 14px;
-  padding: 2rem 1.5rem;
+  border-radius: 16px;
+  padding: 2.2rem 1.6rem;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .landing-feature:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.12);
 }
 
 .landing-feature i {
@@ -442,8 +462,9 @@ button {
 }
 
 .landing-feature p {
-  color: #666;
+  color: #6b625a;
   font-size: 0.9rem;
+  line-height: 1.7;
 }
 
 .landing-section-alt {
@@ -468,17 +489,18 @@ button {
   gap: 0.7rem;
   background: var(--white);
   border: 1px solid var(--gold);
-  border-radius: 14px;
-  padding: 1.75rem 1rem;
+  border-radius: 16px;
+  padding: 1.9rem 1rem;
   text-decoration: none;
   color: var(--brown);
   font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .landing-category:hover {
   transform: translateY(-4px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.12);
 }
 
 .landing-category i {
@@ -490,7 +512,7 @@ button {
   background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
   color: var(--on-accent);
   text-align: center;
-  padding: 3.5rem 1.5rem;
+  padding: 4rem 1.5rem;
 }
 
 .landing-cta h2 {
