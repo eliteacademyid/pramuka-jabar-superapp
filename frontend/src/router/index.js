@@ -67,6 +67,19 @@ const routes = [
       }
     ]
   },
+  {
+    path: '/programs',
+    component: MainLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'programs',
+        component: () => import('../pages/Program/ProgramList.vue'),
+        meta: { title: 'Daftar Program', breadcrumb: 'Daftar Program' }
+      }
+    ]
+  },
   // Catch-all 404 redirect
   {
     path: '/:pathMatch(.*)*',

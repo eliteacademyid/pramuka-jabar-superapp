@@ -15,8 +15,14 @@
       <ProgramSorting @change="onSortChange" />
     </div>
 
-    <!-- Program Table (Placeholder for now) -->
-    <p class="text-gray-600">Table will appear here.</p>
+    <!-- Program Table -->
+    <ProgramTable
+      :programs="programStore.programs"
+      :loading="programStore.loading"
+      @view="onView"
+      @edit="onEdit"
+      @delete="onDelete"
+    />
 
     <!-- Program Pagination -->
     <ProgramPagination
@@ -30,19 +36,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useProgramStore } from '@/store/program'
 import ProgramSearch from '@/components/ProgramSearch.vue'
 import ProgramYearFilter from '@/components/ProgramYearFilter.vue'
 import ProgramStatusFilter from '@/components/ProgramStatusFilter.vue'
 import ProgramSorting from '@/components/ProgramSorting.vue'
 import ProgramPagination from '@/components/ProgramPagination.vue'
+import ProgramTable from '@/components/ProgramTable.vue'
 
-const emit = defineEmits(['search', 'yearFilter', 'statusFilter', 'sortChange', 'pageChange'])
+const router = useRouter()
+const programStore = useProgramStore()
 
 const searchQuery = ref('')
 const selectedYear = ref('')
 const selectedStatus = ref('')
-const sortBy = ref('tahun')
+const sortBy = ref('created_at')
 const sortDir = ref('desc')
 
 // Pagination state
@@ -51,30 +61,74 @@ const totalPages = ref(1)
 const totalItems = ref(0)
 const perPage = ref(10)
 
+async function loadPrograms() {
+  const params = {
+    skip: (currentPage.value - 1) * perPage.value,
+    limit: perPage.value,
+    search: searchQuery.value || undefined,
+    tahun: selectedYear.value ? Number(selectedYear.value) : undefined,
+    status: selectedStatus.value || undefined,
+    sort_by: sortBy.value,
+    order: sortDir.value
+  }
+  try {
+    const data = await programStore.fetchPrograms(params)
+    // Simple pagination estimation
+    if (data.length === perPage.value) {
+      totalPages.value = currentPage.value + 1
+    } else {
+      totalPages.value = currentPage.value
+    }
+    totalItems.value = (currentPage.value - 1) * perPage.value + data.length
+  } catch (err) {
+    console.error('Error loading programs:', err)
+  }
+}
+
+onMounted(() => {
+  loadPrograms()
+})
+
 function onSearch(value) {
   searchQuery.value = value
-  emit('search', value)
+  currentPage.value = 1
+  loadPrograms()
 }
 
 function onYearChange(year) {
   selectedYear.value = year
-  emit('yearFilter', year)
+  currentPage.value = 1
+  loadPrograms()
 }
 
 function onStatusChange(status) {
   selectedStatus.value = status
-  emit('statusFilter', status)
+  currentPage.value = 1
+  loadPrograms()
 }
 
 function onSortChange({ order_by, order_dir }) {
   sortBy.value = order_by
   sortDir.value = order_dir
-  emit('sortChange', { order_by, order_dir })
+  currentPage.value = 1
+  loadPrograms()
 }
 
 function onPageChange(page) {
   currentPage.value = page
-  emit('pageChange', page)
+  loadPrograms()
+}
+
+function onView(id) {
+  router.push({ name: 'program-detail', params: { id } })
+}
+
+function onEdit(id) {
+  router.push({ name: 'program-edit', params: { id } })
+}
+
+function onDelete(id) {
+  console.log('Delete program:', id)
 }
 </script>
 
