@@ -244,3 +244,28 @@ class DashboardAnalyticsResponse(BaseModel):
     statistik: DashboardStatsResponse
     grafik: List[DashboardChartPoint]
     perbandingan: DashboardComparisonResponse
+
+
+# ─── KPI Organisasi ────────────────────────────────────────────────────────────
+
+class KPIMetric(BaseModel):
+    label: str
+    value: float  # Persentase 0-100
+    count: int    # Jumlah kegiatan
+
+
+class OrganisasiKPIResponse(BaseModel):
+    organisasi_id: int
+    organisasi_nama: str
+    total_kegiatan: int
+    completed: KPIMetric       # Program selesai
+    delayed: KPIMetric         # Program terlambat
+    failed: KPIMetric          # Program gagal
+    active: KPIMetric          # Program aktif
+    last_updated: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class AllOrganisasiKPIResponse(BaseModel):
+    kpi_list: List[OrganisasiKPIResponse]
