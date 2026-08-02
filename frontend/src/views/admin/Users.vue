@@ -12,13 +12,56 @@ const errorMessage = ref('')
 const showModal = ref(false)
 const isEdit = ref(false)
 const editingId = ref(null)
-const form = ref({ username: '', nama_lengkap: '', password: '', role: 'staff', is_active: true })
+const form = ref({ username: '', nama_lengkap: '', password: '', role: 'staff', is_active: true, tingkat_wilayah: 'kwaran', wilayah_id: '', anggota_id: '' })
 const formError = ref('')
 const saving = ref(false)
 
-const roles = ['admin', 'staff']
+const roles = ['admin', 'staff', 'kontributor', 'penjual']
 
-onMounted(loadUsers)
+const kwarcabs = ref([])
+const kwarans = ref([])
+const gudeps = ref([])
+
+const tingkatLabels = { kwarcab: 'Kwarcab', kwaran: 'Kwaran', gudep: 'Gugus Depan' }
+
+onMounted(async () => {
+  await loadUsers()
+  await loadWilayah()
+})
+
+async function loadWilayah() {
+  try {
+    const [kc, kr, g] = await Promise.all([
+      api.get('/admin/kwarcab'),
+      api.get('/admin/kwaran'),
+      api.get('/admin/gudep')
+    ])
+    kwarcabs.value = kc.data
+    kwarans.value = kr.data
+    gudeps.value = g.data
+  } catch {
+    // options optional
+  }
+}
+
+function wilayahOptions() {
+  if (form.value.tingkat_wilayah === 'kwarcab') return kwarcabs.value
+  if (form.value.tingkat_wilayah === 'kwaran') return kwarans.value
+  return gudeps.value
+}
+
+function wilayahName(obj) {
+  if (!obj) return ''
+  return obj.nama_pangkalan || obj.nama || ''
+}
+
+function userWilayah(user) {
+  if (!user.tingkat_wilayah) return '-'
+  const list = user.tingkat_wilayah === 'kwarcab' ? kwarcabs.value
+    : user.tingkat_wilayah === 'kwaran' ? kwarans.value : gudeps.value
+  const found = list.find((w) => w.id === user.wilayah_id)
+  return `${tingkatLabels[user.tingkat_wilayah]} ${wilayahName(found)}`
+}
 
 async function loadUsers() {
   loading.value = true
@@ -41,7 +84,7 @@ async function loadUsers() {
 function openCreate() {
   isEdit.value = false
   editingId.value = null
-  form.value = { username: '', nama_lengkap: '', password: '', role: 'staff', is_active: true }
+  form.value = { username: '', nama_lengkap: '', password: '', role: 'staff', is_active: true, tingkat_wilayah: 'kwaran', wilayah_id: '', anggota_id: '' }
   formError.value = ''
   showModal.value = true
 }
@@ -54,7 +97,10 @@ function openEdit(user) {
     nama_lengkap: user.nama_lengkap,
     password: '',
     role: user.role,
-    is_active: user.is_active
+    is_active: user.is_active,
+    tingkat_wilayah: user.tingkat_wilayah || 'kwaran',
+    wilayah_id: user.wilayah_id || '',
+    anggota_id: user.anggota_id || ''
   }
   formError.value = ''
   showModal.value = true
@@ -64,10 +110,29 @@ async function saveUser() {
   formError.value = ''
   saving.value = true
   try {
-    if (isEdit.value) {
-      await api.put(`/admin/users/${editingId.value}`, form.value)
+    const payload = { ...form.value }
+    if (payload.role !== 'kontributor') {
+      payload.tingkat_wilayah = null
+      payload.wilayah_id = null
+    } else if (!payload.wilayah_id) {
+      formError.value = 'Wilayah wajib dipilih untuk user kontributor.'
+      saving.value = false
+      return
+    }
+    if (payload.role === 'penjual') {
+      if (!payload.anggota_id) {
+        formError.value = 'ID Anggota wajib diisi untuk user penjual.'
+        saving.value = false
+        return
+      }
+      payload.anggota_id = parseInt(payload.anggota_id, 10)
     } else {
-      await api.post('/admin/users', form.value)
+      payload.anggota_id = null
+    }
+    if (isEdit.value) {
+      await api.put(`/admin/users/${editingId.value}`, payload)
+    } else {
+      await api.post('/admin/users', payload)
     }
     showModal.value = false
     await loadUsers()
@@ -89,7 +154,9 @@ async function deleteUser(user) {
 }
 
 function roleBadgeClass(role) {
-  return role === 'admin' ? 'badge badge-admin' : 'badge badge-staff'
+  if (role === 'admin') return 'badge badge-admin'
+  if (role === 'penjual') return 'badge badge-penjual'
+  return 'badge badge-staff'
 }
 </script>
 
@@ -113,6 +180,7 @@ function roleBadgeClass(role) {
             <th>Username</th>
             <th>Nama Lengkap</th>
             <th>Role</th>
+            <th>Wilayah</th>
             <th>Status</th>
             <th>Aksi</th>
           </tr>
@@ -125,6 +193,7 @@ function roleBadgeClass(role) {
             <td>
               <span :class="roleBadgeClass(user.role)">{{ user.role }}</span>
             </td>
+            <td>{{ userWilayah(user) }}</td>
             <td>
               <span :class="user.is_active ? 'status status-active' : 'status status-inactive'">
                 {{ user.is_active ? 'Aktif' : 'Nonaktif' }}
@@ -179,6 +248,40 @@ function roleBadgeClass(role) {
             <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
           </select>
         </div>
+
+        <template v-if="form.role === 'kontributor'">
+          <div class="form-group">
+            <label for="modal-tingkat">Tingkat Wilayah</label>
+            <select id="modal-tingkat" v-model="form.tingkat_wilayah">
+              <option value="kwarcab">Kwarcab</option>
+              <option value="kwaran">Kwaran</option>
+              <option value="gudep">Gugus Depan</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="modal-wilayah">Wilayah</label>
+            <select id="modal-wilayah" v-model="form.wilayah_id" required>
+              <option value="">-- Pilih Wilayah --</option>
+              <option
+                v-for="w in wilayahOptions()"
+                :key="w.id"
+                :value="w.id"
+              >
+                {{ w.nama_pangkalan || w.nama }}
+              </option>
+            </select>
+          </div>
+          <p class="form-hint">Kontributor hanya bisa mengirim postingan atas nama wilayah ini.</p>
+        </template>
+
+        <template v-if="form.role === 'penjual'">
+          <div class="form-group">
+            <label for="modal-anggota">ID Anggota (Pemilik Toko)</label>
+            <input id="modal-anggota" v-model="form.anggota_id" type="number" required placeholder="contoh: 9" />
+          </div>
+          <p class="form-hint">Isi ID anggota yang menjadi pemilik toko marketplace.</p>
+        </template>
 
         <div class="form-group checkbox-group">
           <label>
