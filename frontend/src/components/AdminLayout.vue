@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
+import ChatbotWidget from './ChatbotWidget.vue'
 
 const router = useRouter()
 
@@ -68,6 +69,7 @@ function logout() {
 
     <main class="sidebar-content">
       <router-view />
+      <ChatbotWidget />
     </main>
   </div>
 </template>
