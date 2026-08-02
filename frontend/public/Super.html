@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hub Kegiatan Superapp Pramuka Jawa Barat</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            scout: {
+              dark: '#3B2312',
+              darker: '#28170B',
+              gold: '#D97706',
+              goldlight: '#FEF3C7',
+              accent: '#DC2626',
+              cream: '#FFFBEB',
+              bg: '#F8FAFC'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- FontAwesome 6 CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f1f1; }
+    ::-webkit-scrollbar-thumb { background: #D97706; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #3B2312; }
+    .glass-effect { backdrop-filter: blur(8px); background-color: rgba(255, 255, 255, 0.9); }
+  </style>
+</head>
+<body class="min-h-full text-slate-800 flex flex-col font-sans">
+
+  <!-- ================= HEADER NAVIGATION ================= -->
+  <header class="bg-scout-dark text-white sticky top-0 z-40 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 gap-4">
+        
+        <!-- Logo & Title -->
+        <div class="flex items-center gap-3 shrink-0">
+          <div class="w-10 h-10 rounded-full bg-scout-gold flex items-center justify-center text-scout-dark text-xl font-bold shadow-inner">
+            <i class="fa-solid fa-compass"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-lg sm:text-xl tracking-tight text-amber-400 block leading-none">PRAGELAT</span>
+            <span class="text-[10px] text-amber-200 tracking-wider uppercase font-semibold">Hub Kegiatan Pramuka Jabar</span>
+          </div>
+        </div>
+
+        <!-- Global Search Bar (Header Desktop) -->
+        <div class="hidden md:flex flex-1 max-w-md mx-4 relative">
+          <input 
+            type="text" 
+            id="headerSearchInput"
+            placeholder="Cari berita, agenda, atau lokasi kegiatan..." 
+            oninput="handleSearch(this.value)"
+            class="w-full bg-scout-darker text-sm text-slate-100 placeholder-slate-400 rounded-full pl-10 pr-4 py-2 border border-amber-900/50 focus:outline-none focus:ring-2 focus:ring-scout-gold transition-all"
+          >
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-2.5 text-slate-400 text-sm"></i>
+        </div>
+
+        <!-- Action Items (Database Ops, Upload, Notifications, Role) -->
+        <div class="flex items-center gap-2 sm:gap-3">
+          
+          <!-- Database Storage Tools Dropdown -->
+          <div class="relative">
+            <button 
+              onclick="toggleDbMenu()" 
+              class="bg-amber-900/60 hover:bg-amber-900 text-amber-200 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 border border-amber-700/50 transition"
+              title="Kelola Data & Database File"
+            >
+              <i class="fa-solid fa-database text-amber-400"></i>
+              <span class="hidden md:inline">Data</span>
+              <i class="fa-solid fa-chevron-down text-[10px]"></i>
+            </button>
+
+            <!-- Database Dropdown Menu -->
+            <div id="dbDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 text-slate-800 z-50 overflow-hidden text-xs">
+              <div class="px-4 py-2.5 bg-slate-100 border-b border-slate-200 font-bold text-slate-700 flex items-center gap-2">
+                <i class="fa-solid fa-hard-drive text-scout-gold"></i> Database File Manager
+              </div>
+              <div class="p-2 space-y-1">
+                <button onclick="exportDatabaseJSON()" class="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg flex items-center gap-2 text-slate-700 font-medium">
+                  <i class="fa-solid fa-download text-emerald-600"></i> Unduh File Database (.json)
+                </button>
+                
+                <label class="w-full text-left px-3 py-2 hover:bg-slate-100 rounded-lg flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
+                  <i class="fa-solid fa-upload text-blue-600"></i> Impor File Database (.json)
+                  <input type="file" id="jsonFileInput" accept=".json" onchange="importDatabaseJSON(event)" class="hidden">
+                </label>
+
+                <hr class="my-1 border-slate-100">
+                
+                <button onclick="resetToDefaultData()" class="w-full text-left px-3 py-2 hover:bg-red-50 rounded-lg flex items-center gap-2 text-red-600 font-medium">
+                  <i class="fa-solid fa-rotate-left"></i> Reset ke Data Awal
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Upload Button -->
+          <button 
+            onclick="openUploadModal()"
+            class="bg-scout-accent hover:bg-red-700 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-1.5 shadow transition transform active:scale-95"
+          >
+            <i class="fa-solid fa-plus text-xs"></i>
+            <span class="hidden sm:inline">Unggah Kegiatan</span>
+          </button>
+
+          <!-- Notification Dropdown Toggle -->
+          <div class="relative">
+            <button 
+              onclick="toggleNotifications()" 
+              class="relative p-2 text-slate-300 hover:text-white hover:bg-scout-darker rounded-full transition"
+              title="Notifikasi"
+            >
+              <i class="fa-solid fa-bell text-lg"></i>
+              <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-scout-accent rounded-full animate-ping"></span>
+              <span class="absolute top-1 right-1 w-2.5 h-2.5 bg-scout-accent rounded-full"></span>
+            </button>
+
+            <!-- Notifications Dropdown Menu -->
+            <div id="notificationsDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 text-slate-800 z-50 overflow-hidden">
+              <div class="px-4 py-3 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                <span class="font-bold text-xs uppercase tracking-wider text-slate-600">Notifikasi Terbaru</span>
+                <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">2 Baru</span>
+              </div>
+              <div class="divide-y divide-slate-100 max-h-64 overflow-y-auto text-xs">
+                <div class="p-3 hover:bg-slate-50 transition cursor-pointer">
+                  <p class="font-semibold text-slate-800">Jambore Cabang Bandung 2026</p>
+                  <p class="text-slate-500 mt-0.5">RSVP Anda telah terkonfirmasi. Unduh e-tiket Anda!</p>
+                  <span class="text-[10px] text-slate-400 mt-1 block">10 menit yang lalu</span>
+                </div>
+                <div class="p-3 hover:bg-slate-50 transition cursor-pointer">
+                  <p class="font-semibold text-slate-800">Pengumuman Kwarcab Garut</p>
+                  <p class="text-slate-500 mt-0.5">Aksi Pramuka Peduli bencana tanah longsor telah dimulai.</p>
+                  <span class="text-[10px] text-slate-400 mt-1 block">1 jam yang lalu</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Role Switcher & User Profile -->
+          <div class="flex items-center gap-2 pl-2 border-l border-amber-900/60">
+            <button 
+              onclick="toggleRole()"
+              class="px-2.5 py-1 text-xs font-bold rounded-full transition flex items-center gap-1.5 border border-amber-500/40"
+              id="roleBadge"
+            >
+              <!-- Populated by JS -->
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= CASCADING FILTER & NAV BAR ================= -->
+  <section class="bg-white border-b border-slate-200 shadow-sm sticky top-16 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      
+      <!-- Top Row: Location Selectors -->
+      <div class="flex flex-wrap items-center gap-3 mb-3">
+        <div class="flex items-center gap-2 text-xs font-bold text-scout-dark uppercase tracking-wider">
+          <i class="fa-solid fa-filter text-scout-gold"></i>
+          <span>Wilayah Jabar:</span>
+        </div>
+
+        <!-- Kwarcab Select -->
+        <select 
+          id="kwarcabSelect" 
+          onchange="onKwarcabChange(this.value)"
+          class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 focus:ring-scout-gold focus:border-scout-gold min-w-[150px]"
+        >
+          <option value="">-- Semua Kwarcab --</option>
+        </select>
+
+        <!-- Kwarran Select -->
+        <select 
+          id="kwarranSelect" 
+          onchange="onKwarranChange(this.value)"
+          class="bg-slate-50 border border-slate-300 text-slate-700 text-xs rounded-lg p-2 focus:ring-scout-gold focus:border-scout-gold min-w-[150px]"
+          disabled
+        >
+          <option value="">-- Pilih Kwarran --</option>
+        </select>
+
+        <!-- Reset Filter Button -->
+        <button 
+          onclick="resetFilters()"
+          class="text-xs text-slate-500 hover:text-scout-accent font-medium underline ml-auto sm:ml-0"
+        >
+          Reset Filter
+        </button>
+      </div>
+
+      <!-- Bottom Row: Navigation Category Tabs & Mobile Search -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-2 border-t border-slate-100">
+        
+        <!-- Category Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none" id="categoryTabs">
+          <button onclick="setCategory('Semua')" class="cat-tab active-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-scout-dark text-white">
+            <i class="fa-solid fa-border-all mr-1"></i> Semua
+          </button>
+          <button onclick="setCategory('Agenda')" class="cat-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+            <i class="fa-solid fa-calendar-days text-amber-600 mr-1"></i> Agenda
+          </button>
+          <button onclick="setCategory('Warta')" class="cat-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+            <i class="fa-solid fa-newspaper text-blue-600 mr-1"></i> Warta
+          </button>
+          <button onclick="setCategory('Galeri')" class="cat-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+            <i class="fa-solid fa-images text-emerald-600 mr-1"></i> Galeri
+          </button>
+          <button onclick="setCategory('Peta Live')" class="cat-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200">
+            <i class="fa-solid fa-map-location-dot text-red-600 mr-1"></i> Peta Live
+          </button>
+        </div>
+
+        <!-- Mobile Search Input -->
+        <div class="relative sm:hidden">
+          <input 
+            type="text" 
+            placeholder="Cari berita, agenda..." 
+            oninput="handleSearch(this.value)"
+            class="w-full bg-slate-100 text-xs rounded-lg pl-8 pr-3 py-1.5 border border-slate-200 focus:outline-none"
+          >
+          <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-xs"></i>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ================= MAIN CONTENT CONTAINER ================= -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Active Role Banner -->
+    <div id="adminBanner" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-sm flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2 bg-amber-500 text-white rounded-lg">
+          <i class="fa-solid fa-user-shield text-lg"></i>
+        </div>
+        <div>
+          <h4 class="font-bold text-sm text-amber-900">Mode Admin Aktif</h4>
+          <p class="text-xs text-amber-700">Anda memiliki akses untuk melihat data pendaftar agenda dan mengelola konten kegiatan.</p>
+        </div>
+      </div>
+      <span class="text-xs font-semibold bg-amber-200 text-amber-900 px-2.5 py-1 rounded-full">Gudep SMPN 1 Bandung</span>
+    </div>
+
+    <!-- MAIN FEED CONTAINER (GRID) -->
+    <div id="feedContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Dynamic Posts injected here by JS -->
+    </div>
+
+    <!-- PETA LIVE CONTAINER (Hidden by default) -->
+    <div id="mapViewContainer" class="hidden">
+      <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+        
+        <div class="p-4 bg-slate-900 text-white flex justify-between items-center flex-wrap gap-2">
+          <div>
+            <h3 class="font-bold text-base flex items-center gap-2 text-amber-400">
+              <i class="fa-solid fa-map-pin"></i> Peta Sebaran Kegiatan Pramuka Jawa Barat
+            </h3>
+            <p class="text-xs text-slate-400">Klik pin marker untuk melihat pratinjau lokasi dan detail agenda.</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="text-[11px] bg-red-900/80 text-red-200 border border-red-700 px-2 py-1 rounded">🔴 Event Agenda Aktif</span>
+          </div>
+        </div>
+
+        <!-- Interactive Map Visual Canvas -->
+        <div class="relative w-full h-[500px] bg-slate-800 overflow-hidden flex items-center justify-center border-t border-slate-700">
+          
+          <!-- Background Grid / Topo Pattern -->
+          <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#d97706_1px,transparent_1px)] [background-size:16px_16px]"></div>
+          
+          <!-- West Java Map Outline Simulation SVG -->
+          <svg class="absolute inset-0 w-full h-full text-slate-700/40" viewBox="0 0 800 500" fill="currentColor">
+            <path d="M 150 120 Q 250 80 400 100 T 650 140 Q 750 220 700 350 T 500 450 Q 300 420 180 380 T 100 250 Z" />
+          </svg>
+
+          <!-- Interactive Pins (Rendered dynamically) -->
+          <div id="mapPinsContainer" class="absolute inset-0">
+            <!-- Dynamic map pins -->
+          </div>
+
+          <!-- Event Preview Overlay Card (Shown when pin is clicked) -->
+          <div id="mapPreviewCard" class="hidden absolute bottom-4 left-4 right-4 sm:right-auto sm:max-w-sm bg-white p-4 rounded-xl shadow-2xl border border-slate-200 z-20 animate-fade-in">
+            <div id="mapPreviewContent"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Empty State Container -->
+    <div id="emptyState" class="hidden text-center py-16">
+      <div class="w-16 h-16 bg-amber-100 text-scout-gold rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+        <i class="fa-solid fa-folder-open"></i>
+      </div>
+      <h3 class="font-bold text-lg text-slate-700">Tidak ada kegiatan ditemukan</h3>
+      <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">Coba ubah kata kunci pencarian atau sesuaikan filter wilayah Kwarcab/Kwarran Anda.</p>
+    </div>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="bg-scout-dark text-amber-200/80 text-xs py-8 border-t border-amber-950 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+      <div class="flex justify-center items-center gap-2 text-amber-400 font-bold text-sm">
+        <i class="fa-solid fa-compass"></i> PRAGELAT SUPERAPP JABAR
+      </div>
+      <p>© 2026 Kwarda Gerakan Pramuka Jawa Barat. Hak Cipta Dilindungi.</p>
+      <p class="text-[11px] text-slate-500">Ikhlas Bakti Bina Bangsa Berbudi Mawana Karya • Data tersimpan lokal di browser</p>
+    </div>
+  </footer>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. UPLOAD POST MODAL -->
+  <div id="uploadModal" class="hidden fixed inset-0 z-50 glass-effect bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl overflow-hidden my-8">
+      
+      <div class="bg-scout-dark text-white px-6 py-4 flex justify-between items-center">
+        <h3 class="font-bold text-base flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-scout-gold"></i> Unggah Kegiatan Baru
+        </h3>
+        <button onclick="closeModal('uploadModal')" class="text-slate-400 hover:text-white text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="uploadForm" onsubmit="handleUploadSubmit(event)" class="p-6 space-y-4">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Judul Kegiatan *</label>
+          <input type="text" id="upTitle" required placeholder="Contoh: Perkemahan Sabtu Minggu Gudep 01..." class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold focus:border-scout-gold">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Kategori *</label>
+            <select id="upType" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold">
+              <option value="Agenda">🗓️ Agenda Kegiatan</option>
+              <option value="Warta">📰 Warta / Berita</option>
+              <option value="Galeri">📸 Dokumentasi Galeri</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Tanggal *</label>
+            <input type="text" id="upDate" required placeholder="10 - 12 Sep 2026" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Kwarcab *</label>
+            <select id="upKwarcab" onchange="populateUploadKwarran(this.value)" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold">
+              <option value="">Pilih Kwarcab</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Kwarran *</label>
+            <select id="upKwarran" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold">
+              <option value="">Pilih Kwarran</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Lokasi Detail / Nama Tempat *</label>
+          <input type="text" id="upLocation" required placeholder="Contoh: Lapangan Bumi Perkemahan Kiarapayung" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">URL Gambar Header *</label>
+          <input type="url" id="upImage" required placeholder="https://images.unsplash.com/..." class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Deskripsi / Isi Konten *</label>
+          <textarea id="upContent" rows="4" required placeholder="Tuliskan deskripsi lengkap kegiatan..." class="w-full text-xs p-2.5 border border-slate-300 rounded-lg focus:ring-scout-gold"></textarea>
+        </div>
+
+        <div class="pt-3 flex justify-end gap-2 border-t border-slate-100">
+          <button type="button" onclick="closeModal('uploadModal')" class="px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 rounded-lg">Batal</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold text-white bg-scout-gold hover:bg-amber-700 rounded-lg shadow">Terbitkan & Simpan</button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- 2. ARTICLE / NEWS DETAIL MODAL -->
+  <div id="articleModal" class="hidden fixed inset-0 z-50 glass-effect bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
+      <div id="articleModalBody" class="p-6 overflow-y-auto space-y-4">
+        <!-- Content injected dynamically -->
+      </div>
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-right">
+        <button onclick="closeModal('articleModal')" class="px-5 py-2 text-xs font-bold bg-slate-800 text-white rounded-lg">Tutup Article</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. PUBLIC RSVP FORM MODAL -->
+  <div id="rsvpModal" class="hidden fixed inset-0 z-50 glass-effect bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden">
+      <div class="bg-scout-dark text-white px-6 py-4 flex justify-between items-center">
+        <h3 class="font-bold text-sm flex items-center gap-2">
+          <i class="fa-solid fa-id-card text-scout-gold"></i> Form Pendaftaran Agenda
+        </h3>
+        <button onclick="closeModal('rsvpModal')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <form id="rsvpForm" onsubmit="handleRsvpSubmit(event)" class="p-6 space-y-4">
+        <input type="hidden" id="rsvpPostId">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nama Lengkap *</label>
+          <input type="text" id="rsvpName" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Gugus Depan / Utusan *</label>
+          <input type="text" id="rsvpGudep" required class="w-full text-xs p-2.5 border border-slate-300 rounded-lg">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Nomor HP/WA *</label>
+            <input type="tel" id="rsvpPhone" required placeholder="0812..." class="w-full text-xs p-2.5 border border-slate-300 rounded-lg">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Email *</label>
+            <input type="email" id="rsvpEmail" required placeholder="email@domain.com" class="w-full text-xs p-2.5 border border-slate-300 rounded-lg">
+          </div>
+        </div>
+        <div class="pt-2 flex justify-end gap-2">
+          <button type="button" onclick="closeModal('rsvpModal')" class="px-4 py-2 text-xs font-bold text-slate-600">Batal</button>
+          <button type="submit" class="px-5 py-2 text-xs font-bold bg-scout-gold text-white rounded-lg shadow">Konfirmasi & Dapatkan E-Tiket</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. E-TICKET CONFIRMATION QR MODAL -->
+  <div id="ticketModal" class="hidden fixed inset-0 z-50 glass-effect bg-black/60 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl p-6 text-center space-y-4 relative border-t-8 border-scout-gold">
+      <button onclick="closeModal('ticketModal')" class="absolute top-3 right-3 text-slate-400 hover:text-slate-600">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+      <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-circle-check"></i>
+      </div>
+      <h3 class="font-extrabold text-lg text-slate-800">E-Tiket Konfirmasi RSVP</h3>
+      <p class="text-xs text-slate-500">Tunjukkan QR Code ini kepada panitia saat registrasi ulang di lokasi kegiatan.</p>
+      
+      <div class="bg-slate-50 p-4 rounded-xl border border-dashed border-slate-300 inline-block">
+        <img id="ticketQrImage" src="" alt="QR Code E-Tiket" class="w-40 h-40 mx-auto">
+        <span id="ticketCode" class="block text-[11px] font-mono font-bold text-slate-600 mt-2">PG-2026-0000</span>
+      </div>
+
+      <div id="ticketDetails" class="text-xs text-left bg-slate-50 p-3 rounded-lg space-y-1"></div>
+
+      <button onclick="closeModal('ticketModal')" class="w-full py-2 bg-scout-dark text-white rounded-lg text-xs font-bold">Simpan E-Tiket</button>
+    </div>
+  </div>
+
+  <!-- 5. ADMIN PARTICIPANTS DATA MODAL -->
+  <div id="participantsModal" class="hidden fixed inset-0 z-50 glass-effect bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden my-8">
+      <div class="bg-scout-dark text-white px-6 py-4 flex justify-between items-center">
+        <div>
+          <h3 class="font-bold text-sm text-amber-400">Data Pendaftar RSVP (Admin View)</h3>
+          <p id="partModalTitle" class="text-xs text-slate-300 mt-0.5">Judul Agenda</p>
+        </div>
+        <button onclick="closeModal('participantsModal')" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <div class="p-6">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <th class="p-2.5">#</th>
+                <th class="p-2.5">Nama Peserta</th>
+                <th class="p-2.5">Gugus Depan</th>
+                <th class="p-2.5">Kontak WA</th>
+                <th class="p-2.5">Email</th>
+                <th class="p-2.5">Tgl Daftar</th>
+              </tr>
+            </thead>
+            <tbody id="participantsTableBody" class="divide-y divide-slate-100">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="p-4 bg-slate-50 border-t border-slate-200 text-right">
+        <button onclick="closeModal('participantsModal')" class="px-4 py-2 text-xs font-bold bg-slate-700 text-white rounded-lg">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    const STORAGE_KEY = "pragelat_superapp_db";
+
+    // Initial Default Seed Data
+    const defaultData = {
+      currentUser: {
+        name: "Rifki Saputra",
+        role: "Public",
+        gudep: "Gudep SMPN 1 Bandung"
+      },
+      posts: [
+        {
+          id: 1,
+          type: "Agenda",
+          title: "Jambore Cabang Kota Bandung 2026",
+          author: "Kwarcab Kota Bandung",
+          date: "15 - 18 Agustus 2026",
+          location: "Buper Kiarapayung, Sumedang",
+          kwarcab: "Kota Bandung",
+          kwarran: "Coblong",
+          content: "Jambore Cabang Pramuka Penggalang se-Kota Bandung. Menampilkan berbagai kegiatan kepramukaan, persaudaraan, ketangkasan, teknologi perkemahan modern, dan malam keakraban api unggun.",
+          image: "https://images.unsplash.com/photo-1517164850305-99a3e65bb47e?auto=format&fit=crop&w=800&q=80",
+          likes: 42,
+          likedByMe: false,
+          comments: [
+            { user: "Siti Aminah", text: "Gudep SMPN 1 siap mengirimkan 2 regu terbaik!", time: "2 jam lalu" },
+            { user: "Budi Santoso", text: "Lokasi Kiarapayung fasilitas air bersihnya sangat baik.", time: "1 jam lalu" }
+          ],
+          rsvpList: [
+            { name: "Rifki Saputra", gudep: "Gudep SMPN 1 Bandung", email: "rifki@example.com", phone: "081234567890", date: "2026-08-01" },
+            { name: "Andi Wijaya", gudep: "Gudep SMPN 3 Bandung", email: "andi@example.com", phone: "081298765432", date: "2026-08-01" }
+          ],
+          mapCoords: { top: "45%", left: "42%" }
+        },
+        {
+          id: 2,
+          type: "Warta",
+          title: "Pramuka Peduli Jabar Salurkan Bantuan Logistik Bencana Longsor",
+          author: "Humas Kwarda Jabar",
+          date: "30 Juli 2026",
+          location: "Tarogong Kidul, Kab. Garut",
+          kwarcab: "Kab. Garut",
+          kwarran: "Tarogong Kidul",
+          content: "Tim Pramuka Peduli Jawa Barat bersama Kwarcab Garut mendistribusikan bantuan logistik dan mendirikan tenda pengungsian darurat untuk korban bencana. Lebih dari 150 relawan Pramuka Penegak dan Pandega dikerahkan secara bergiliran.",
+          image: "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=800&q=80",
+          likes: 128,
+          likedByMe: true,
+          comments: [
+            { user: "Ahmad Fauzi", text: "Satyaku kudarmakan, darmaku kubaktikan! Tetap semangat para relawan.", time: "1 hari lalu" }
+          ],
+          rsvpList: [],
+          mapCoords: { top: "65%", left: "60%" }
+        },
+        {
+          id: 3,
+          type: "Galeri",
+          title: "Dokumentasi Kursus Pembina Pramuka Mahir Dasar (KMD)",
+          author: "Pusdiklatcab Bogor",
+          date: "28 Juli 2026",
+          location: "Cibinong, Kab. Bogor",
+          kwarcab: "Kab. Bogor",
+          kwarran: "Cibinong",
+          content: "Kehangatan dan semangat para calon pembina Pramuka saat mengikuti orientasi malam, ragam keterampilan kepramukaan, dan teknik pembinaan karakter generasi muda.",
+          image: "https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=800&q=80",
+          likes: 85,
+          likedByMe: false,
+          comments: [],
+          rsvpList: [],
+          mapCoords: { top: "25%", left: "28%" }
+        },
+        {
+          id: 4,
+          type: "Agenda",
+          title: "Lomba Tingkat III (LT-III) Regu Pramuka Penggalang",
+          author: "Kwarcab Kota Bogor",
+          date: "22 - 24 Agustus 2026",
+          location: "Lapangan Sempur, Kota Bogor",
+          kwarcab: "Kota Bogor",
+          kwarran: "Bogor Tengah",
+          content: "Ajang bergengsi unjuk kebolehan regu berprestasi tinggi se-Kota Bogor. Meliputi cabang Lomba Pioneering, Navigation, Semboyan Semaphore, dan PBB Musik.",
+          image: "https://images.unsplash.com/photo-1509114397022-ed747cca3f65?auto=format&fit=crop&w=800&q=80",
+          likes: 64,
+          likedByMe: false,
+          comments: [
+            { user: "Dewi Lestari", text: "Pendaftaran regu ditutup kapan ya Kak?", time: "3 jam lalu" }
+          ],
+          rsvpList: [
+            { name: "Dewi Lestari", gudep: "Gudep SMPN 2 Bogor", email: "dewi@example.com", phone: "081122334455", date: "2026-08-01" }
+          ],
+          mapCoords: { top: "30%", left: "22%" }
+        }
+      ]
+    };
+
+    // --- GLOBAL STATE ---
+    let appState = {
+      currentUser: { name: "Rifki Saputra", role: "Public", gudep: "Gudep SMPN 1 Bandung" },
+      activeFilter: { kwarcab: "", kwarran: "", category: "Semua", search: "" },
+      kwarcabData: {
+        "Kota Bandung": ["Coblong", "Sumur Bandung", "Cicendo", "Lengkong", "Cibeunying Kaler", "Ujungberung"],
+        "Kab. Bandung": ["Soreang", "Ciwidey", "Baleendah", "Cileunyi", "Dayeuhkolot", "Margahayu"],
+        "Kab. Bandung Barat": ["Lembang", "Padalarang", "Parongpong", "Ngamprah", "Cisarua"],
+        "Kota Bogor": ["Bogor Tengah", "Bogor Utara", "Bogor Selatan", "Bogor Timur", "Bogor Barat"],
+        "Kab. Bogor": ["Cibinong", "Ciawi", "Cisarua", "Parung", "Jasinga"],
+        "Kota Depok": ["Beji", "Pancasoran Mas", "Cimanggis", "Sawangan", "Sukmajaya"],
+        "Kab. Garut": ["Tarogong Kidul", "Garut Kota", "Cikajang", "Leles", "Cisurupan"],
+        "Kab. Cirebon": ["Sumber", "Ciledug", "Arjawinangun", "Palimanan", "Astana Japara"]
+      },
+      posts: []
+    };
+
+    // --- LOCALSTORAGE & PERSISTENCE ENGINE ---
+    function loadStateFromLocalStorage() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          appState.posts = parsed.posts || defaultData.posts;
+          if (parsed.currentUser) appState.currentUser = parsed.currentUser;
+        } catch (e) {
+          console.error("Gagal membaca LocalStorage, menggunakan data bawaan:", e);
+          appState.posts = defaultData.posts;
+        }
+      } else {
+        appState.posts = defaultData.posts;
+        saveStateToLocalStorage();
+      }
+    }
+
+    function saveStateToLocalStorage() {
+      const payload = {
+        currentUser: appState.currentUser,
+        posts: appState.posts
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    // --- DATABASE EXPORT / IMPORT FILE HANDLERS ---
+    function exportDatabaseJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appState.posts, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `pragelat_database_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      toggleDbMenu();
+    }
+
+    function importDatabaseJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const importedPosts = JSON.parse(e.target.result);
+          if (Array.isArray(importedPosts)) {
+            appState.posts = importedPosts;
+            saveStateToLocalStorage();
+            renderFeed();
+            alert("Database berhasil dipulihkan dari file JSON!");
+          } else {
+            alert("Format file JSON tidak valid.");
+          }
+        } catch (err) {
+          alert("Gagal membaca file JSON: " + err.message);
+        }
+      };
+      reader.readAsText(file);
+      toggleDbMenu();
+    }
+
+    function resetToDefaultData() {
+      if (confirm("Apakah Anda yakin ingin mengembalikan data ke kondisi awal? Semua data baru akan terhapus.")) {
+        appState.posts = JSON.parse(JSON.stringify(defaultData.posts));
+        saveStateToLocalStorage();
+        renderFeed();
+        alert("Database telah direset ke data awal.");
+        toggleDbMenu();
+      }
+    }
+
+    function toggleDbMenu() {
+      document.getElementById("dbDropdown").classList.toggle("hidden");
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener("DOMContentLoaded", () => {
+      loadStateFromLocalStorage();
+      populateKwarcabDropdowns();
+      renderRoleBadge();
+      renderFeed();
+    });
+
+    // --- ROLE MANAGEMENT ---
+    function toggleRole() {
+      appState.currentUser.role = appState.currentUser.role === "Public" ? "Admin" : "Public";
+      saveStateToLocalStorage();
+      renderRoleBadge();
+      renderFeed();
+    }
+
+    function renderRoleBadge() {
+      const badge = document.getElementById("roleBadge");
+      const banner = document.getElementById("adminBanner");
+      if (appState.currentUser.role === "Admin") {
+        badge.className = "px-2.5 py-1 text-xs font-bold rounded-full bg-amber-500 text-slate-950 flex items-center gap-1.5 shadow";
+        badge.innerHTML = `<i class="fa-solid fa-user-shield"></i> Role: Admin Gudep`;
+        banner.classList.remove("hidden");
+      } else {
+        badge.className = "px-2.5 py-1 text-xs font-bold rounded-full bg-slate-800 text-amber-300 border border-amber-500/30 flex items-center gap-1.5";
+        badge.innerHTML = `<i class="fa-solid fa-user"></i> Role: Anggota Public`;
+        banner.classList.add("hidden");
+      }
+    }
+
+    // --- LOCATION FILTER LOGIC ---
+    function populateKwarcabDropdowns() {
+      const kwarcabSelect = document.getElementById("kwarcabSelect");
+      const upKwarcab = document.getElementById("upKwarcab");
+      const optionsHTML = Object.keys(appState.kwarcabData).map(k => `<option value="${k}">${k}</option>`).join("");
+      
+      kwarcabSelect.innerHTML = `<option value="">-- Semua Kwarcab --</option>` + optionsHTML;
+      upKwarcab.innerHTML = `<option value="">-- Pilih Kwarcab --</option>` + optionsHTML;
+    }
+
+    function onKwarcabChange(selectedKwarcab) {
+      appState.activeFilter.kwarcab = selectedKwarcab;
+      appState.activeFilter.kwarran = "";
+
+      const kwarranSelect = document.getElementById("kwarranSelect");
+      if (selectedKwarcab && appState.kwarcabData[selectedKwarcab]) {
+        kwarranSelect.disabled = false;
+        const list = appState.kwarcabData[selectedKwarcab];
+        kwarranSelect.innerHTML = `<option value="">-- Semua Kwarran --</option>` + list.map(kw => `<option value="${kw}">${kw}</option>`).join("");
+      } else {
+        kwarranSelect.disabled = true;
+        kwarranSelect.innerHTML = `<option value="">-- Pilih Kwarran --</option>`;
+      }
+
+      renderFeed();
+    }
+
+    function onKwarranChange(selectedKwarran) {
+      appState.activeFilter.kwarran = selectedKwarran;
+      renderFeed();
+    }
+
+    function populateUploadKwarran(selectedKwarcab) {
+      const upKwarran = document.getElementById("upKwarran");
+      if (selectedKwarcab && appState.kwarcabData[selectedKwarcab]) {
+        upKwarran.innerHTML = `<option value="">-- Pilih Kwarran --</option>` + appState.kwarcabData[selectedKwarcab].map(kw => `<option value="${kw}">${kw}</option>`).join("");
+      } else {
+        upKwarran.innerHTML = `<option value="">-- Pilih Kwarran --</option>`;
+      }
+    }
+
+    function resetFilters() {
+      appState.activeFilter = { kwarcab: "", kwarran: "", category: "Semua", search: "" };
+      document.getElementById("kwarcabSelect").value = "";
+      document.getElementById("kwarranSelect").value = "";
+      document.getElementById("kwarranSelect").disabled = true;
+      document.getElementById("headerSearchInput").value = "";
+      setCategory("Semua");
+    }
+
+    function setCategory(cat) {
+      appState.activeFilter.category = cat;
+      
+      document.querySelectorAll(".cat-tab").forEach(tab => {
+        if (tab.textContent.includes(cat)) {
+          tab.className = "cat-tab active-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-scout-dark text-white";
+        } else {
+          tab.className = "cat-tab text-xs font-semibold px-3 py-1.5 rounded-full transition whitespace-nowrap bg-slate-100 text-slate-600 hover:bg-slate-200";
+        }
+      });
+
+      if (cat === "Peta Live") {
+        document.getElementById("feedContainer").classList.add("hidden");
+        document.getElementById("emptyState").classList.add("hidden");
+        document.getElementById("mapViewContainer").classList.remove("hidden");
+        renderMap();
+      } else {
+        document.getElementById("mapViewContainer").classList.add("hidden");
+        document.getElementById("feedContainer").classList.remove("hidden");
+        renderFeed();
+      }
+    }
+
+    function handleSearch(query) {
+      appState.activeFilter.search = query.toLowerCase();
+      renderFeed();
+    }
+
+    // --- RENDER MAIN FEED ---
+    function renderFeed() {
+      const feed = document.getElementById("feedContainer");
+      const emptyState = document.getElementById("emptyState");
+      
+      const filteredPosts = appState.posts.filter(post => {
+        const matchesCat = appState.activeFilter.category === "Semua" || post.type === appState.activeFilter.category;
+        const matchesKwarcab = !appState.activeFilter.kwarcab || post.kwarcab === appState.activeFilter.kwarcab;
+        const matchesKwarran = !appState.activeFilter.kwarran || post.kwarran === appState.activeFilter.kwarran;
+        const matchesSearch = !appState.activeFilter.search || 
+          post.title.toLowerCase().includes(appState.activeFilter.search) || 
+          post.content.toLowerCase().includes(appState.activeFilter.search) ||
+          post.location.toLowerCase().includes(appState.activeFilter.search);
+
+        return matchesCat && matchesKwarcab && matchesKwarran && matchesSearch;
+      });
+
+      if (filteredPosts.length === 0) {
+        feed.innerHTML = "";
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      feed.innerHTML = filteredPosts.map(post => {
+        const isAdmin = appState.currentUser.role === "Admin";
+        
+        let badgeColor = "bg-amber-100 text-amber-800 border-amber-300";
+        let badgeIcon = "fa-calendar-days";
+        if (post.type === "Warta") { badgeColor = "bg-blue-100 text-blue-800 border-blue-300"; badgeIcon = "fa-newspaper"; }
+        if (post.type === "Galeri") { badgeColor = "bg-emerald-100 text-emerald-800 border-emerald-300"; badgeIcon = "fa-images"; }
+
+        let actionButtons = "";
+        if (post.type === "Agenda") {
+          actionButtons = `
+            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+              <button 
+                onclick="openRsvpModal(${post.id})"
+                class="flex-1 bg-scout-gold hover:bg-amber-700 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 shadow-sm transition"
+              >
+                <i class="fa-solid fa-user-plus"></i> Daftar / RSVP
+              </button>
+              ${isAdmin ? `
+                <button 
+                  onclick="openParticipantsModal(${post.id})"
+                  class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg flex items-center gap-1 border border-slate-300"
+                  title="Lihat Data Pendaftar"
+                >
+                  <i class="fa-solid fa-users text-amber-700"></i> Pendaftar (${post.rsvpList ? post.rsvpList.length : 0})
+                </button>
+              ` : ''}
+            </div>
+          `;
+        } else if (post.type === "Warta") {
+          actionButtons = `
+            <div class="mt-4 pt-3 border-t border-slate-100">
+              <button 
+                onclick="openArticleModal(${post.id})"
+                class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1 transition"
+              >
+                Baca Selengkapnya <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </button>
+            </div>
+          `;
+        }
+
+        return `
+          <article class="bg-white rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-200/80 overflow-hidden flex flex-col">
+            
+            <div class="relative h-48 bg-slate-200 overflow-hidden">
+              <img src="${post.image}" alt="${post.title}" class="w-full h-full object-cover">
+              <span class="absolute top-3 left-3 text-[11px] font-bold px-2.5 py-1 rounded-full border shadow-sm flex items-center gap-1 ${badgeColor}">
+                <i class="fa-solid ${badgeIcon}"></i> ${post.type}
+              </span>
+              <span class="absolute bottom-3 right-3 text-[10px] bg-slate-900/80 text-white font-medium px-2 py-0.5 rounded backdrop-blur">
+                <i class="fa-solid fa-location-dot text-red-400"></i> ${post.kwarcab}
+              </span>
+            </div>
+
+            <div class="p-5 flex-1 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center gap-2 text-[11px] text-slate-500 mb-1.5">
+                  <span class="font-semibold text-scout-dark">${post.author}</span>
+                  <span>•</span>
+                  <span><i class="fa-regular fa-clock"></i> ${post.date}</span>
+                </div>
+
+                <h3 class="font-extrabold text-base text-slate-800 leading-snug mb-2 line-clamp-2 hover:text-scout-gold transition cursor-pointer" onclick="openArticleModal(${post.id})">
+                  ${post.title}
+                </h3>
+
+                <p class="text-xs text-slate-600 line-clamp-3 leading-relaxed mb-3">
+                  ${post.content}
+                </p>
+
+                <div class="text-[11px] bg-slate-50 p-2 rounded-lg border border-slate-100 text-slate-600 flex items-center gap-1.5">
+                  <i class="fa-solid fa-map-pin text-amber-600"></i>
+                  <span class="truncate">${post.location} (${post.kwarran})</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 text-xs">
+                  <button 
+                    onclick="toggleLike(${post.id})"
+                    class="flex items-center gap-1.5 font-semibold transition ${post.likedByMe ? 'text-red-600' : 'text-slate-500 hover:text-red-600'}"
+                  >
+                    <i class="${post.likedByMe ? 'fa-solid' : 'fa-regular'} fa-heart text-sm"></i>
+                    <span>${post.likes} Suka</span>
+                  </button>
+
+                  <button 
+                    onclick="toggleCommentDrawer(${post.id})"
+                    class="flex items-center gap-1.5 text-slate-500 hover:text-scout-dark font-semibold"
+                  >
+                    <i class="fa-regular fa-comment text-sm"></i>
+                    <span>${post.comments ? post.comments.length : 0} Komentar</span>
+                  </button>
+                </div>
+
+                ${actionButtons}
+
+                <div id="commentDrawer-${post.id}" class="hidden mt-3 pt-3 border-t border-slate-100 space-y-2 bg-slate-50 p-3 rounded-xl">
+                  <div class="space-y-2 max-h-36 overflow-y-auto pr-1">
+                    {(!post.comments || post.comments.length === 0) ? '<p class="text-[11px] text-slate-400 italic">Belum ada komentar. Jadilah yang pertama!</p>' : ''}
+                    ${post.comments ? post.comments.map(c => `
+                      <div class="text-[11px] bg-white p-2 rounded border border-slate-200">
+                        <div class="flex justify-between items-center font-bold text-slate-700">
+                          <span>${c.user}</span>
+                          <span class="text-[9px] font-normal text-slate-400">${c.time}</span>
+                        </div>
+                        <p class="text-slate-600 mt-0.5">${c.text}</p>
+                      </div>
+                    `).join('') : ''}
+                  </div>
+
+                  <form onsubmit="handleAddComment(event, ${post.id})" class="flex gap-1.5 pt-1">
+                    <input 
+                      type="text" 
+                      placeholder="Tulis komentar..." 
+                      required
+                      class="flex-1 text-xs p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-scout-gold"
+                    >
+                    <button type="submit" class="bg-scout-dark text-white px-3 py-1 rounded-lg text-xs font-bold hover:bg-slate-800">
+                      Kirim
+                    </button>
+                  </form>
+                </div>
+
+              </div>
+
+            </div>
+
+          </article>
+        `;
+      }).join("");
+    }
+
+    // --- INTERACTIVE MAP SIMULATION ---
+    function renderMap() {
+      const container = document.getElementById("mapPinsContainer");
+      const agendaPosts = appState.posts.filter(p => p.type === "Agenda" && p.mapCoords);
+
+      container.innerHTML = agendaPosts.map(post => `
+        <div 
+          style="top: ${post.mapCoords.top}; left: ${post.mapCoords.left};"
+          class="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer group"
+          onclick="showMapPreview(${post.id})"
+        >
+          <div class="relative flex items-center justify-center">
+            <span class="animate-ping absolute inline-flex h-8 w-8 rounded-full bg-red-400 opacity-75"></span>
+            <div class="w-7 h-7 bg-scout-accent text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white group-hover:scale-125 transition">
+              <i class="fa-solid fa-location-dot text-xs"></i>
+            </div>
+          </div>
+          <span class="mt-1 bg-slate-900/90 text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded shadow whitespace-nowrap block border border-amber-500/30">
+            ${post.title}
+          </span>
+        </div>
+      `).join("");
+    }
+
+    function showMapPreview(postId) {
+      const post = appState.posts.find(p => p.id === postId);
+      if (!post) return;
+
+      const card = document.getElementById("mapPreviewCard");
+      const content = document.getElementById("mapPreviewContent");
+
+      content.innerHTML = `
+        <div class="flex justify-between items-start gap-2 mb-2">
+          <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2 py-0.5 rounded">${post.kwarcab}</span>
+          <button onclick="document.getElementById('mapPreviewCard').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <h4 class="font-bold text-sm text-slate-800 leading-snug">${post.title}</h4>
+        <p class="text-xs text-slate-500 mt-1"><i class="fa-regular fa-clock"></i> ${post.date}</p>
+        <p class="text-xs text-slate-600 mt-2 line-clamp-2">${post.content}</p>
+        <button onclick="openRsvpModal(${post.id})" class="mt-3 w-full bg-scout-gold hover:bg-amber-700 text-white text-xs font-bold py-2 rounded-lg shadow">
+          Daftar Sekarang
+        </button>
+      `;
+
+      card.classList.remove("hidden");
+    }
+
+    // --- INTERACTION HANDLERS & AUTO-SAVE ---
+    function toggleLike(postId) {
+      const post = appState.posts.find(p => p.id === postId);
+      if (post) {
+        post.likedByMe = !post.likedByMe;
+        post.likes += post.likedByMe ? 1 : -1;
+        saveStateToLocalStorage();
+        renderFeed();
+      }
+    }
+
+    function toggleCommentDrawer(postId) {
+      const drawer = document.getElementById(`commentDrawer-${postId}`);
+      drawer.classList.toggle("hidden");
+    }
+
+    function handleAddComment(e, postId) {
+      e.preventDefault();
+      const input = e.target.querySelector("input");
+      const text = input.value.trim();
+      if (!text) return;
+
+      const post = appState.posts.find(p => p.id === postId);
+      if (post) {
+        if (!post.comments) post.comments = [];
+        post.comments.push({
+          user: appState.currentUser.name,
+          text: text,
+          time: "Baru saja"
+        });
+        saveStateToLocalStorage();
+        renderFeed();
+        document.getElementById(`commentDrawer-${postId}`)?.classList.remove("hidden");
+      }
+    }
+
+    function toggleNotifications() {
+      document.getElementById("notificationsDropdown").classList.toggle("hidden");
+    }
+
+    // --- MODAL CONTROLLERS ---
+    function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+    function openUploadModal() {
+      populateUploadKwarran("");
+      openModal("uploadModal");
+    }
+
+    function handleUploadSubmit(e) {
+      e.preventDefault();
+      const newPost = {
+        id: Date.now(),
+        type: document.getElementById("upType").value,
+        title: document.getElementById("upTitle").value,
+        author: appState.currentUser.gudep,
+        date: document.getElementById("upDate").value,
+        location: document.getElementById("upLocation").value,
+        kwarcab: document.getElementById("upKwarcab").value,
+        kwarran: document.getElementById("upKwarran").value,
+        image: document.getElementById("upImage").value,
+        content: document.getElementById("upContent").value,
+        likes: 0,
+        likedByMe: false,
+        comments: [],
+        rsvpList: [],
+        mapCoords: { top: "50%", left: "50%" }
+      };
+
+      appState.posts.unshift(newPost);
+      saveStateToLocalStorage(); // Persist to LocalStorage
+      
+      closeModal("uploadModal");
+      document.getElementById("uploadForm").reset();
+      renderFeed();
+      alert("Kegiatan berhasil diterbitkan dan tersimpan di database lokal!");
+    }
+
+    function openArticleModal(postId) {
+      const post = appState.posts.find(p => p.id === postId);
+      if (!post) return;
+
+      const body = document.getElementById("articleModalBody");
+      body.innerHTML = `
+        <div class="relative h-64 rounded-xl overflow-hidden mb-4">
+          <img src="${post.image}" class="w-full h-full object-cover">
+          <span class="absolute top-3 left-3 bg-scout-gold text-white font-bold text-xs px-3 py-1 rounded-full shadow">
+            ${post.type}
+          </span>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-slate-500">
+          <span class="font-bold text-scout-dark">${post.author}</span>
+          <span>•</span>
+          <span>${post.date}</span>
+          <span>•</span>
+          <span>${post.kwarcab}, ${post.kwarran}</span>
+        </div>
+        <h2 class="text-xl font-extrabold text-slate-900">${post.title}</h2>
+        <div class="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-900 flex items-center gap-2">
+          <i class="fa-solid fa-location-dot text-red-500"></i>
+          <span>Lokasi: ${post.location}</span>
+        </div>
+        <p class="text-sm text-slate-700 leading-relaxed whitespace-pre-line">${post.content}</p>
+      `;
+
+      openModal("articleModal");
+    }
+
+    function openRsvpModal(postId) {
+      document.getElementById("rsvpPostId").value = postId;
+      document.getElementById("rsvpName").value = appState.currentUser.name;
+      document.getElementById("rsvpGudep").value = appState.currentUser.gudep;
+      openModal("rsvpModal");
+    }
+
+    function handleRsvpSubmit(e) {
+      e.preventDefault();
+      const postId = parseInt(document.getElementById("rsvpPostId").value);
+      const name = document.getElementById("rsvpName").value;
+      const gudep = document.getElementById("rsvpGudep").value;
+      const phone = document.getElementById("rsvpPhone").value;
+      const email = document.getElementById("rsvpEmail").value;
+
+      const post = appState.posts.find(p => p.id === postId);
+      if (post) {
+        if (!post.rsvpList) post.rsvpList = [];
+        post.rsvpList.push({
+          name, gudep, phone, email, date: new Date().toISOString().split('T')[0]
+        });
+
+        saveStateToLocalStorage(); // Persist changes
+        closeModal("rsvpModal");
+        
+        const ticketCode = `PG-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+        document.getElementById("ticketCode").textContent = ticketCode;
+        document.getElementById("ticketQrImage").src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketCode}`;
+        document.getElementById("ticketDetails").innerHTML = `
+          <p><strong>Peserta:</strong> ${name}</p>
+          <p><strong>Gudep:</strong> ${gudep}</p>
+          <p><strong>Agenda:</strong> ${post.title}</p>
+          <p><strong>Tanggal Event:</strong> ${post.date}</p>
+        `;
+
+        openModal("ticketModal");
+        renderFeed();
+      }
+    }
+
+    function openParticipantsModal(postId) {
+      const post = appState.posts.find(p => p.id === postId);
+      if (!post) return;
+
+      document.getElementById("partModalTitle").textContent = post.title;
+      const tbody = document.getElementById("participantsTableBody");
+
+      if (!post.rsvpList || post.rsvpList.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 italic">Belum ada peserta yang mendaftar.</td></tr>`;
+      } else {
+        tbody.innerHTML = post.rsvpList.map((p, idx) => `
+          <tr class="hover:bg-slate-50">
+            <td class="p-2.5 font-bold text-slate-500">${idx + 1}</td>
+            <td class="p-2.5 font-semibold text-slate-800">${p.name}</td>
+            <td class="p-2.5 text-slate-600">${p.gudep}</td>
+            <td class="p-2.5 text-slate-600">${p.phone}</td>
+            <td class="p-2.5 text-slate-600">${p.email}</td>
+            <td class="p-2.5 text-slate-500">${p.date}</td>
+          </tr>
+        `).join("");
+      }
+
+      openModal("participantsModal");
+    }
+  </script>
+</body>
+</html>
