@@ -1,14 +1,23 @@
 <template>
   <div class="p-6">
     <h1 class="text-2xl font-bold mb-4">Program List</h1>
-    <p class="text-gray-600">This page will display the list of programs. Further components (table, search, filters, pagination, sorting) will be added in subsequent tasks.</p>
+    <!-- Year Filter -->
+    <ProgramYearFilter @change="onYearChange" class="mb-4" />
+    <!-- Placeholder for table, will be added in later tasks -->
+    <p class="text-gray-600">Table will appear here.</p>
   </div>
 </template>
 
 <script setup>
-// No script needed for the initial placeholder page.
+import ProgramYearFilter from '@/components/ProgramYearFilter.vue'
+
+const emit = defineEmits(['yearFilter'])
+
+function onYearChange(year) {
+  emit('yearFilter', year)
+}
 </script>
 
 <style scoped>
-/* No additional styles needed; rely on Tailwind utilities. */
+/* No custom styles – rely on Tailwind */
 </style>
