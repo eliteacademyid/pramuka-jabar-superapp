@@ -129,7 +129,52 @@ async function loadOrganisasi() {
 }
 
 function onSubmit() {
-  emit('submit', { ...form.value })
+  errors.value = {
+    nama: '',
+    deskripsi: '',
+    tahun: '',
+    status: '',
+    organisasi_id: ''
+  }
+
+  let isValid = true
+
+  if (!form.value.nama || !form.value.nama.trim()) {
+    errors.value.nama = 'Nama program wajib diisi'
+    isValid = false
+  } else if (form.value.nama.length > 150) {
+    errors.value.nama = 'Nama program tidak boleh lebih dari 150 karakter'
+    isValid = false
+  }
+
+  const tahunNum = Number(form.value.tahun)
+  if (!form.value.tahun) {
+    errors.value.tahun = 'Tahun wajib diisi'
+    isValid = false
+  } else if (isNaN(tahunNum) || tahunNum < 1900 || tahunNum > 2100) {
+    errors.value.tahun = 'Tahun harus berupa angka antara 1900 dan 2100'
+    isValid = false
+  }
+
+  if (!form.value.status) {
+    errors.value.status = 'Status wajib dipilih'
+    isValid = false
+  }
+
+  if (!form.value.organisasi_id) {
+    errors.value.organisasi_id = 'Organisasi wajib dipilih'
+    isValid = false
+  }
+
+  if (isValid) {
+    emit('submit', {
+      nama: form.value.nama.trim(),
+      deskripsi: form.value.deskripsi ? form.value.deskripsi.trim() : null,
+      tahun: tahunNum,
+      status: form.value.status,
+      organisasi_id: Number(form.value.organisasi_id)
+    })
+  }
 }
 </script>
 
