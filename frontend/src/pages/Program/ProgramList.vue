@@ -16,6 +16,15 @@
 
     <!-- Program Table (Placeholder for now) -->
     <p class="text-gray-600">Table will appear here.</p>
+
+    <!-- Program Pagination -->
+    <ProgramPagination
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      :total-items="totalItems"
+      :per-page="perPage"
+      @change="onPageChange"
+    />
   </div>
 </template>
 
@@ -24,12 +33,19 @@ import { ref } from 'vue'
 import ProgramSearch from '@/components/ProgramSearch.vue'
 import ProgramYearFilter from '@/components/ProgramYearFilter.vue'
 import ProgramStatusFilter from '@/components/ProgramStatusFilter.vue'
+import ProgramPagination from '@/components/ProgramPagination.vue'
 
-const emit = defineEmits(['search', 'yearFilter', 'statusFilter'])
+const emit = defineEmits(['search', 'yearFilter', 'statusFilter', 'pageChange'])
 
 const searchQuery = ref('')
 const selectedYear = ref('')
 const selectedStatus = ref('')
+
+// Pagination state
+const currentPage = ref(1)
+const totalPages = ref(1)
+const totalItems = ref(0)
+const perPage = ref(10)
 
 function onSearch(value) {
   searchQuery.value = value
@@ -44,6 +60,11 @@ function onYearChange(year) {
 function onStatusChange(status) {
   selectedStatus.value = status
   emit('statusFilter', status)
+}
+
+function onPageChange(page) {
+  currentPage.value = page
+  emit('pageChange', page)
 }
 </script>
 
