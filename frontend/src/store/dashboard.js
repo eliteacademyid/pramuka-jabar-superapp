@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import api from '../api/axios'
+import { fetchStatistikAPI, fetchGrafikAPI, fetchPerbandinganAPI } from '../api/dashboard'
 
 /**
  * Dashboard store — manages statistik, grafik, and perbandingan data
@@ -58,7 +58,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }
 
   async function fetchStatistik() {
-    const response = await api.get('/dashboard/statistik')
+    const response = await fetchStatistikAPI()
     statistik.value = response.data
     return response.data
   }
@@ -78,7 +78,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }
 
   async function fetchGrafik() {
-    const response = await api.get('/dashboard/grafik')
+    const response = await fetchGrafikAPI()
     grafik.value = response.data
     return response.data
   }
@@ -98,7 +98,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   }
 
   async function fetchPerbandingan() {
-    const response = await api.get('/dashboard/perbandingan')
+    const response = await fetchPerbandinganAPI()
     perbandingan.value = response.data
     return response.data
   }
