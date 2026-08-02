@@ -65,7 +65,7 @@
       <div class="landing-features">
         <router-link :to="{ name: 'catalog' }" class="landing-feature">
           <i class="fas fa-store"></i>
-          <h3>Katalog Marketplace</h3>
+          <h3>Marketplace</h3>
           <p>Jelajahi produk unggulan UMKM dan toko anggota Pramuka Jawa Barat.</p>
         </router-link>
         <router-link :to="{ name: 'wallet' }" class="landing-feature">
