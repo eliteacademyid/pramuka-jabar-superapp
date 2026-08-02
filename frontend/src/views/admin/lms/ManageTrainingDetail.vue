@@ -19,9 +19,11 @@ const loading = ref(true)
 
 // Modals
 const showMaterialModal = ref(false)
+const editingMaterialId = ref(null)
 const newMaterial = ref({ title: '', content: '', media_url: '', order: 1 })
 
 const showQuestionModal = ref(false)
+const editingQuestionId = ref(null)
 const newQuestion = ref({ question_text: '', options: '', correct_answer: '', score_weight: 10 })
 const tempOptions = ref(['', '', '', ''])
 
@@ -36,7 +38,8 @@ async function loadData() {
   try {
     // Load training info
     const resT = await api.get('/lms/trainings')
-    training.value = resT.data.find(t => t.id == trainingId)
+    const allTrainings = resT.data.items ? resT.data.items : resT.data
+    training.value = allTrainings.find(t => t.id == trainingId)
 
     if (!training.value) {
       showNotification('error', 'Gagal', 'Pelatihan tidak ditemukan')
@@ -80,18 +83,39 @@ async function saveTrainingInfo() {
   }
 }
 
-async function addMaterial() {
+function openAddMaterial() {
+  editingMaterialId.value = null
+  newMaterial.value = { title: '', content: '', media_url: '', order: materials.value.length + 1 }
+  showMaterialModal.value = true
+}
+
+function openEditMaterial(m) {
+  editingMaterialId.value = m.id
+  newMaterial.value = { ...m }
+  showMaterialModal.value = true
+}
+
+async function saveMaterial() {
   try {
-    await api.post('/admin/lms/materials', {
+    const payload = {
       ...newMaterial.value,
       training_id: Number(trainingId)
-    })
+    }
+
+    if (editingMaterialId.value) {
+      await api.put(`/admin/lms/materials/${editingMaterialId.value}`, payload)
+      showNotification('success', 'Berhasil', 'Materi berhasil diperbarui')
+    } else {
+      await api.post('/admin/lms/materials', payload)
+      showNotification('success', 'Berhasil', 'Materi berhasil ditambahkan')
+    }
+
     showMaterialModal.value = false
+    editingMaterialId.value = null
     newMaterial.value = { title: '', content: '', media_url: '', order: 1 }
     await loadData()
-    showNotification('success', 'Berhasil', 'Materi berhasil ditambahkan')
   } catch(err) {
-    showNotification('error', 'Gagal', 'Gagal menambah materi')
+    showNotification('error', 'Gagal', 'Gagal menyimpan materi')
   }
 }
 
@@ -120,28 +144,56 @@ async function createQuiz() {
   }
 }
 
-async function addQuestion() {
+function openAddQuestion() {
+  editingQuestionId.value = null
+  newQuestion.value = { question_text: '', options: '', correct_answer: '', score_weight: 10 }
+  tempOptions.value = ['', '', '', '']
+  showQuestionModal.value = true
+}
+
+function openEditQuestion(q) {
+  editingQuestionId.value = q.id
+  newQuestion.value = { ...q }
   try {
-    // Validasi opsi kosong dibuang
+    const opts = JSON.parse(q.options)
+    tempOptions.value = [...opts]
+  } catch (e) {
+    tempOptions.value = []
+  }
+  while (tempOptions.value.length < 4) tempOptions.value.push('')
+  showQuestionModal.value = true
+}
+
+async function saveQuestion() {
+  try {
     const validOptions = tempOptions.value.filter(o => o.trim() !== '')
     if (validOptions.length < 2) {
       return alert('Minimal 2 opsi jawaban!')
     }
 
-    await api.post('/admin/lms/questions', {
+    const payload = {
       quiz_id: quiz.value.id,
       question_text: newQuestion.value.question_text,
       options: JSON.stringify(validOptions),
       correct_answer: newQuestion.value.correct_answer,
       score_weight: newQuestion.value.score_weight
-    })
+    }
+
+    if (editingQuestionId.value) {
+      await api.put(`/admin/lms/questions/${editingQuestionId.value}`, payload)
+      showNotification('success', 'Berhasil', 'Soal berhasil diperbarui')
+    } else {
+      await api.post('/admin/lms/questions', payload)
+      showNotification('success', 'Berhasil', 'Soal berhasil ditambahkan')
+    }
+    
     showQuestionModal.value = false
+    editingQuestionId.value = null
     newQuestion.value = { question_text: '', options: '', correct_answer: '', score_weight: 10 }
     tempOptions.value = ['', '', '', '']
     await loadData()
-    showNotification('success', 'Berhasil', 'Soal berhasil ditambahkan')
   } catch(err) {
-    showNotification('error', 'Gagal', 'Gagal tambah soal')
+    showNotification('error', 'Gagal', 'Gagal menyimpan soal')
   }
 }
 
@@ -218,7 +270,7 @@ onMounted(() => {
       <div class="tab-content" v-if="activeTab === 'materials'">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
           <h3>Daftar Materi</h3>
-          <button class="btn-primary" @click="showMaterialModal = true">+ Tambah Materi</button>
+          <button class="btn-primary" @click="openAddMaterial">+ Tambah Materi</button>
         </div>
         
         <div v-if="materials.length === 0" class="empty-state">Belum ada materi untuk pelatihan ini.</div>
@@ -229,6 +281,7 @@ onMounted(() => {
             <strong>{{ m.title }}</strong>
           </div>
           <div class="item-actions">
+            <button class="btn-secondary btn-sm" @click="openEditMaterial(m)" style="margin-right: 0.5rem;">Edit</button>
             <button class="btn-danger btn-sm" @click="deleteMaterial(m.id)">Hapus</button>
           </div>
         </div>
@@ -243,7 +296,7 @@ onMounted(() => {
         <div v-else>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
             <h3>Soal Kuis Evaluasi</h3>
-            <button class="btn-primary" @click="showQuestionModal = true">+ Tambah Soal</button>
+            <button class="btn-primary" @click="openAddQuestion">+ Tambah Soal</button>
           </div>
 
           <div v-if="questions.length === 0" class="empty-state">Belum ada soal. Tambahkan soal pertama Anda.</div>
@@ -251,7 +304,10 @@ onMounted(() => {
           <div v-for="(q, idx) in questions" :key="q.id" class="card question-card">
             <div class="q-header">
               <strong>{{ idx + 1 }}. {{ q.question_text }}</strong>
-              <button class="btn-danger btn-sm" @click="deleteQuestion(q.id)">Hapus</button>
+              <div>
+                <button class="btn-secondary btn-sm" @click="openEditQuestion(q)" style="margin-right: 0.5rem;">Edit</button>
+                <button class="btn-danger btn-sm" @click="deleteQuestion(q.id)">Hapus</button>
+              </div>
             </div>
             <ul class="q-options">
               <li v-for="opt in JSON.parse(q.options)" :key="opt" :class="{ 'correct': opt === q.correct_answer }">
@@ -269,8 +325,8 @@ onMounted(() => {
     <!-- Material Modal -->
     <div v-if="showMaterialModal" class="modal-overlay">
       <div class="modal-content">
-        <h3>Tambah Materi</h3>
-        <form @submit.prevent="addMaterial" style="margin-top: 1rem;">
+        <h3>{{ editingMaterialId ? 'Edit Materi' : 'Tambah Materi' }}</h3>
+        <form @submit.prevent="saveMaterial" style="margin-top: 1rem;">
           <div class="form-group">
             <label>Judul Materi</label>
             <input type="text" v-model="newMaterial.title" required />
@@ -280,8 +336,12 @@ onMounted(() => {
             <textarea v-model="newMaterial.content" rows="4"></textarea>
           </div>
           <div class="form-group">
-            <label>URL Video Youtube (Opsional)</label>
-            <input type="url" v-model="newMaterial.media_url" placeholder="https://youtube.com/..." />
+            <label>URL Media / Video (Opsional)</label>
+            <input type="url" v-model="newMaterial.media_url"
+                   placeholder="https://youtube.com/watch?v=... atau https://drive.google.com/..." />
+            <small style="color: #9ca3af; font-size: 0.75rem; margin-top: 0.25rem; display:block;">
+              Mendukung: YouTube, Google Drive, file .mp4, .pdf, atau URL lainnya
+            </small>
           </div>
           <div class="form-group">
             <label>Urutan Penampilan</label>
@@ -297,8 +357,8 @@ onMounted(() => {
 
     <div v-if="showQuestionModal" class="modal-overlay">
       <div class="modal-content" style="max-width: 600px;">
-        <h3>Tambah Soal Pilihan Ganda</h3>
-        <form @submit.prevent="addQuestion" style="margin-top: 1rem;">
+        <h3>{{ editingQuestionId ? 'Edit Soal Pilihan Ganda' : 'Tambah Soal Pilihan Ganda' }}</h3>
+        <form @submit.prevent="saveQuestion" style="margin-top: 1rem;">
           <div class="form-group">
             <label>Pertanyaan</label>
             <textarea v-model="newQuestion.question_text" rows="2" required></textarea>
