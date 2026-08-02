@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf3e8"/>
+      <stop offset="1" stop-color="#efe2cf"/>
+    </linearGradient>
+    <linearGradient id="bag" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7a4a24"/>
+      <stop offset="1" stop-color="#5f3a1c"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <ellipse cx="400" cy="545" rx="300" ry="30" fill="#dcc9ad"/>
+  <g transform="translate(400,300)">
+    <rect x="-150" y="-60" width="300" height="240" rx="46" fill="url(#bag)"/>
+    <rect x="-120" y="-92" width="240" height="56" rx="28" fill="#8f5a2e"/>
+    <rect x="-60" y="-66" width="120" height="14" rx="7" fill="#d9c49a"/>
+    <circle cx="0" cy="60" r="34" fill="#8f5a2e"/>
+    <circle cx="0" cy="60" r="14" fill="#d9c49a"/>
+    <rect x="-150" y="-16" width="300" height="12" rx="6" fill="#4a2c12"/>
+    <rect x="18" y="150" width="60" height="40" rx="8" fill="#8f5a2e"/>
+    <rect x="-78" y="150" width="60" height="40" rx="8" fill="#8f5a2e"/>
+  </g>
+</svg>

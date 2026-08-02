@@ -159,6 +159,7 @@ const CATEGORY_ICONS = {
   fashion: 'fa-tshirt',
   jasa: 'fa-handshake',
   perlengkapan: 'fa-campground',
+  camping: 'fa-tent',
   lainnya: 'fa-box'
 }
 

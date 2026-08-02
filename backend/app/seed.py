@@ -22,6 +22,7 @@ CATEGORIES_DEFAULT = [
     ("Fashion", "fashion"),
     ("Jasa", "jasa"),
     ("Perlengkapan Pramuka", "perlengkapan"),
+    ("Peralatan Berkemah", "camping"),
     ("Lainnya", "lainnya"),
 ]
 
@@ -42,6 +43,9 @@ PRODUCT_IMAGES = {
     "Set Seragam Pramuka Lengkap": ["/images/products/perlengkapan-seragam.svg"],
     "Tongkat Pramuka Kayu": ["/images/products/perlengkapan-tongkat.svg"],
     "Bendera Semaphore (Pasang)": ["/images/products/perlengkapan-semaphore.svg"],
+    "Tenda Dome Camping 4 Orang": ["/images/products/camping-tenda.svg"],
+    "Sleeping Bag Pramuka": ["/images/products/camping-sleeping-bag.svg"],
+    "Kompor Portable Camping": ["/images/products/camping-kompor.svg"],
 }
 
 
@@ -207,6 +211,33 @@ def _seed_demo_data(db):
             "pasang",
             "active",
             33,
+        ),
+        (
+            "Tenda Dome Camping 4 Orang",
+            "camping",
+            "450000",
+            20,
+            "unit",
+            "active",
+            18,
+        ),
+        (
+            "Sleeping Bag Pramuka",
+            "camping",
+            "150000",
+            35,
+            "pcs",
+            "active",
+            25,
+        ),
+        (
+            "Kompor Portable Camping",
+            "camping",
+            "120000",
+            30,
+            "unit",
+            "active",
+            12,
         ),
     ]
     for name, cat_slug, price, stock, unit, status, sold in produk:

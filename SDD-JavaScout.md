@@ -89,6 +89,11 @@
 > (Rp30.000/pasang), lengkap dengan ilustrasi SVG lokal
 > (`frontend/public/images/products/perlengkapan-*.svg`); ikon kategori baru
 > (fa-campground) di katalog & landing; 82 test otomatis.
+> Pembaruan v1.16: **kategori Peralatan Berkemah** — kategori baru (slug
+> `camping`, ikon fa-tent) dengan 3 produk contoh: Tenda Dome Camping 4 Orang
+> (Rp450.000/unit), Sleeping Bag Pramuka (Rp150.000/pcs), Kompor Portable
+> Camping (Rp120.000/unit), ilustrasi SVG lokal
+> (`frontend/public/images/products/camping-*.svg`).
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
