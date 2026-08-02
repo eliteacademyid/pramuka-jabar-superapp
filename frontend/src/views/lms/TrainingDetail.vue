@@ -15,7 +15,12 @@ const loading = ref(true)
 const enrolling = ref(false)
 const error = ref('')
 const hasQuiz = ref(false)
+const openMaterial = ref(null) // idx of currently opened material
 const modal = ref({ show: false, type: 'success', title: '', message: '' })
+
+function toggleMaterial(idx) {
+  openMaterial.value = openMaterial.value === idx ? null : idx
+}
 
 function showModal(type, title, message) {
   modal.value = { show: true, type, title, message }
@@ -71,6 +76,40 @@ async function enroll() {
   } finally {
     enrolling.value = false
   }
+}
+
+// ── Media helpers ──────────────────────────────────────────
+function getMediaType(url) {
+  if (!url) return null
+  try {
+    const u = new URL(url)
+    if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) return 'youtube'
+    if (u.hostname.includes('drive.google.com')) return 'gdrive'
+    if (/\.(mp4|webm|ogg)$/i.test(u.pathname)) return 'video'
+    if (/\.(pdf)$/i.test(u.pathname)) return 'pdf'
+    return 'link'
+  } catch { return 'link' }
+}
+
+function getEmbedUrl(url) {
+  if (!url) return ''
+  try {
+    const u = new URL(url)
+    // YouTube watch?v=ID or youtu.be/ID or embed
+    if (u.hostname.includes('youtu.be')) {
+      return `https://www.youtube.com/embed${u.pathname}?rel=0`
+    }
+    if (u.hostname.includes('youtube.com')) {
+      const v = u.searchParams.get('v') || u.pathname.replace('/embed/', '')
+      if (v) return `https://www.youtube.com/embed/${v}?rel=0`
+    }
+    // Google Drive share link → embed
+    if (u.hostname.includes('drive.google.com')) {
+      const m = u.pathname.match(/\/d\/([^/]+)/)
+      if (m) return `https://drive.google.com/file/d/${m[1]}/preview`
+    }
+    return url
+  } catch { return url }
 }
 </script>
 
@@ -149,18 +188,92 @@ async function enroll() {
 
         <div v-else class="materials-list">
           <div v-for="(mat, idx) in materials" :key="mat.id" class="material-card"
+               :class="openMaterial === idx ? 'mat-open' : ''"
                :style="`animation-delay: ${idx * 0.07}s`">
-            <div class="mat-header">
+            <!-- Accordion Header (always visible, clickable) -->
+            <div class="mat-header" @click="toggleMaterial(idx)" style="cursor:pointer">
               <div class="mat-num">{{ idx + 1 }}</div>
               <h4 class="mat-title">{{ mat.title }}</h4>
+              <div class="mat-tags">
+                <span v-if="mat.media_url" class="mat-tag-media">
+                  {{ getMediaType(mat.media_url) === 'youtube' ? 'Video' :
+                     getMediaType(mat.media_url) === 'gdrive' ? 'Drive' :
+                     getMediaType(mat.media_url) === 'pdf' ? 'PDF' : 'Media' }}
+                </span>
+              </div>
+              <svg class="mat-chevron" :class="openMaterial === idx ? 'chevron-up' : ''"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
             </div>
-            <div class="mat-content">{{ mat.content }}</div>
-            <div v-if="mat.media_url" class="mat-media">
-              <a :href="mat.media_url" target="_blank" class="media-link">
-                <span class="media-icon">&#9654;</span>
-                Buka Tautan Media / Video &rarr;
-              </a>
-            </div>
+
+            <!-- Accordion Body (only shown when open) -->
+            <Transition name="accordion">
+              <div v-if="openMaterial === idx" class="mat-body">
+                <div v-if="mat.content" class="mat-content">{{ mat.content }}</div>
+
+                <!-- Smart Media Embed -->
+                <div v-if="mat.media_url" class="mat-media">
+                  <!-- YouTube / Google Drive → iframe embed -->
+                  <div v-if="getMediaType(mat.media_url) === 'youtube' || getMediaType(mat.media_url) === 'gdrive'"
+                       class="media-embed-wrap">
+                    <div class="media-label">
+                      <svg viewBox="0 0 24 24" fill="currentColor" class="media-label-icon">
+                        <path v-if="getMediaType(mat.media_url) === 'youtube'"
+                              d="M23.5 6.2a3 3 0 00-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 00.5 6.2 31 31 0 000 12a31 31 0 00.5 5.8 3 3 0 002.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 002.1-2.1A31 31 0 0024 12a31 31 0 00-.5-5.8zM9.75 15.5V8.5l6.5 3.5-6.5 3.5z"/>
+                        <path v-else d="M19 2H5C3.34 2 2 3.34 2 5v14c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3zM9 17H7v-7h2v7zm-1-8c-.66 0-1.2-.54-1.2-1.2S7.34 6.6 8 6.6s1.2.54 1.2 1.2S8.66 9 8 9zm9 8h-2v-4c0-.55-.45-1-1-1s-1 .45-1 1v4h-2v-7h2v1.07c.52-.8 1.56-1.3 2.5-1.07C17.34 11.28 17 12 17 13v4z"/>
+                      </svg>
+                      {{ getMediaType(mat.media_url) === 'youtube' ? 'YouTube Video' : 'Google Drive' }}
+                    </div>
+                    <iframe
+                      :src="getEmbedUrl(mat.media_url)"
+                      class="media-iframe"
+                      allowfullscreen
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      loading="lazy"
+                      frameborder="0">
+                    </iframe>
+                  </div>
+
+                  <!-- Native video file -->
+                  <div v-else-if="getMediaType(mat.media_url) === 'video'" class="media-embed-wrap">
+                    <div class="media-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="media-label-icon">
+                        <polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>
+                      </svg>
+                      Video
+                    </div>
+                    <video :src="mat.media_url" controls class="media-video">Browser tidak mendukung video.</video>
+                  </div>
+
+                  <!-- PDF embed -->
+                  <div v-else-if="getMediaType(mat.media_url) === 'pdf'" class="media-embed-wrap">
+                    <div class="media-label">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="media-label-icon">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                      </svg>
+                      Dokumen PDF
+                    </div>
+                    <iframe :src="mat.media_url" class="media-iframe media-pdf" frameborder="0"></iframe>
+                  </div>
+
+                  <!-- Fallback link -->
+                  <div v-else class="media-link-row">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="link-icon">
+                      <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                      <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                    </svg>
+                    <a :href="mat.media_url" target="_blank" rel="noopener noreferrer" class="media-ext-link">
+                      Buka Tautan Materi Eksternal &rarr;
+                    </a>
+                  </div>
+                </div>
+
+                <div v-if="!mat.content && !mat.media_url" class="mat-empty">
+                  Konten materi belum tersedia.
+                </div>
+              </div>
+            </Transition>
           </div>
         </div>
 
@@ -345,12 +458,7 @@ async function enroll() {
 }
 .material-card:hover { box-shadow: 0 6px 20px rgba(92, 64, 51, 0.1); }
 
-.mat-header {
-  background: #faf6f0;
-  padding: 1rem 1.5rem;
-  display: flex; align-items: center; gap: 0.875rem;
-  border-bottom: 1px solid #f0ebe4;
-}
+
 .mat-num {
   width: 36px; height: 36px;
   background: var(--brown); color: white;
@@ -363,23 +471,94 @@ async function enroll() {
   padding: 1.25rem 1.5rem;
   color: #374151; line-height: 1.75;
   font-size: 0.9rem; white-space: pre-wrap;
+  border-bottom: 1px solid #f5f0eb;
 }
+.mat-body { overflow: hidden; }
+.mat-empty {
+  padding: 1.25rem 1.5rem;
+  color: #9ca3af; font-style: italic; font-size: 0.85rem;
+}
+
+/* Accordion header extras */
+.mat-header {
+  display: flex; align-items: center; gap: 0.875rem;
+  padding: 1rem 1.5rem;
+  background: #faf6f0;
+  border-bottom: 1px solid #f0ebe4;
+  user-select: none;
+  transition: background 0.15s;
+}
+.mat-header:hover { background: #f5ede0; }
+.mat-open > .mat-header {
+  background: linear-gradient(90deg, #faf0db, #faf6f0);
+  border-left: 3px solid var(--gold);
+  padding-left: calc(1.5rem - 3px);
+}
+.mat-tags { display: flex; gap: 0.35rem; margin-left: auto; }
+.mat-tag-media {
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.06em;
+  padding: 0.15rem 0.5rem; border-radius: 999px;
+  background: #ffe4b5; color: #92400e;
+}
+.mat-chevron {
+  width: 18px; height: 18px; flex-shrink: 0;
+  color: #9ca3af; transition: transform 0.25s ease;
+}
+.chevron-up { transform: rotate(180deg); }
+
+/* Accordion transition */
+.accordion-enter-active { animation: slideDown 0.25s ease-out; }
+.accordion-leave-active { animation: slideDown 0.2s ease-in reverse; }
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .mat-media {
-  background: #faf6f0; padding: 1rem 1.5rem;
-  border-top: 1px solid rgba(212, 172, 13, 0.2);
+  background: #fafafa; 
+  border-top: 1px solid #f0ebe4;
+  padding: 0;
 }
-.media-link {
-  display: inline-flex; align-items: center; gap: 0.5rem;
-  color: var(--maroon); font-weight: 600;
-  text-decoration: none; font-size: 0.875rem;
-  transition: color 0.2s;
+
+/* Media embed wrapper */
+.media-embed-wrap { display: flex; flex-direction: column; }
+.media-label {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: #faf6f0; border-bottom: 1px solid #f0ebe4;
+  font-size: 0.78rem; font-weight: 700;
+  color: var(--brown); letter-spacing: 0.03em;
 }
-.media-link:hover { color: var(--brown); }
-.media-icon {
-  background: white; border-radius: 8px;
-  padding: 0.3rem 0.4rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  font-size: 0.75rem;
+.media-label-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Responsive iframe (16:9) */
+.media-iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  background: #000;
+  display: block;
 }
+.media-pdf { aspect-ratio: auto; height: 480px; }
+
+/* Native video */
+.media-video {
+  width: 100%; max-height: 480px;
+  background: #000; display: block;
+}
+
+/* External link row */
+.media-link-row {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 1rem 1.25rem;
+}
+.link-icon { width: 18px; height: 18px; color: var(--maroon); flex-shrink: 0; }
+.media-ext-link {
+  color: var(--maroon); font-weight: 600; font-size: 0.875rem;
+  text-decoration: none; transition: color 0.2s;
+}
+.media-ext-link:hover { color: var(--brown); text-decoration: underline; }
+
 
 /* Quiz CTA */
 .quiz-cta {
