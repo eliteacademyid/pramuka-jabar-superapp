@@ -63,7 +63,6 @@
       >
         <i class="fas fa-store"></i>
         <h3>Semua Barang</h3>
-        <p>Lihat seluruh produk</p>
       </button>
       <button
         v-for="c in categories"
@@ -74,7 +73,6 @@
       >
         <i :class="categoryIcon(c.slug)"></i>
         <h3>{{ c.name }}</h3>
-        <p>Telusuri produk {{ c.name.toLowerCase() }}</p>
       </button>
     </section>
 
