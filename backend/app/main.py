@@ -14,6 +14,7 @@ from app.routers import kegiatan as kegiatan_router
 from app.routers import organisasi as organisasi_router
 from app.routers import program as program_router
 from app.routers import radit as radit_router
+from app.routers import reminder as reminder_router
 from app.seed import seed_default_admin, seed_realisasi_laporan_approval
 
 Base.metadata.create_all(bind=engine)
@@ -53,6 +54,7 @@ tags_metadata = [
     {"name": "Programs", "description": "Manajemen Program"},
     {"name": "Kegiatans", "description": "Manajemen Kegiatan"},
     {"name": "Realisasi", "description": "Realisasi, Laporan, Approval, Dashboard"},
+    {"name": "Deadline Reminders", "description": "Notifikasi dan monitoring deadline laporan"},
     {"name": "Admin", "description": "Manajemen User (Admin only)"},
 ]
 
@@ -108,6 +110,7 @@ app.include_router(program_router.router, prefix="/api")
 app.include_router(kegiatan_router.router, prefix="/api")
 app.include_router(admin_router.router, prefix="/api")
 app.include_router(radit_router.radit_router, prefix="/api")
+app.include_router(reminder_router.router, prefix="/api")
 
 
 @app.on_event("startup")

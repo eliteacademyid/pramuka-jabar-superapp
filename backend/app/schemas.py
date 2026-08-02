@@ -153,6 +153,7 @@ class LaporanBase(BaseModel):
     periode: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
     deskripsi: Optional[str] = Field(None, max_length=2000)
     status: Optional[LaporanStatusEnum] = LaporanStatusEnum.draft
+    deadline: Optional[datetime] = None
     realisasi_id: Optional[int] = Field(None, gt=0)
 
 
@@ -166,6 +167,7 @@ class LaporanResponse(BaseModel):
     periode: Optional[str] = None
     deskripsi: Optional[str] = None
     status: str
+    deadline: Optional[datetime] = None
     realisasi_id: Optional[int] = None
     created_by_id: int
     approved_by_id: Optional[int] = None
@@ -193,6 +195,27 @@ class ApprovalResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+# ─── Deadline Reminder ─────────────────────────────────────────────────────────
+
+class DeadlineReminderResponse(BaseModel):
+    id: int
+    laporan_id: int
+    user_id: int
+    reminder_type: str  # "3_hari_lagi", "1_hari_lagi", "terlambat"
+    is_sent: bool
+    sent_at: Optional[datetime] = None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class UserDeadlineRemindersResponse(BaseModel):
+    laporan: LaporanResponse
+    reminders: List[DeadlineReminderResponse]
+    reminder_status: str  # "3_hari_lagi", "1_hari_lagi", "terlambat", "none"
+    days_until_deadline: Optional[int] = None
 
 
 # ─── Dashboard ─────────────────────────────────────────────────────────────────
