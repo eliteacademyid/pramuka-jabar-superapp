@@ -1,14 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app import models
 from app.database import Base, engine
-from app.routers import admin as admin_router
-from app.routers import auth as auth_router
+from app.routers import auth, admin, lms, admin_lms, chatbot
 from app.seed import seed_default_admin, seed_lms_dummy_data
 
-Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Super Apps Pramuka Jawa Barat")
+app = FastAPI(title="Pramuka Jabar SuperApp - API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -18,14 +18,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router.router, prefix="/api")
-app.include_router(admin_router.router, prefix="/api")
-
-from app.routers import lms as lms_router
-from app.routers import admin_lms as admin_lms_router
-
-app.include_router(lms_router.router, prefix="/api")
-app.include_router(admin_lms_router.router, prefix="/api")
+app.include_router(auth.router, prefix="/api")
+app.include_router(admin.router, prefix="/api")
+app.include_router(admin_lms.router, prefix="/api")
+app.include_router(lms.router, prefix="/api")
+app.include_router(chatbot.router, prefix="/api")
 
 
 @app.on_event("startup")
