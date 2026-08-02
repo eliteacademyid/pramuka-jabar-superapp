@@ -87,9 +87,20 @@ def generate_kta(
         return _build_detail(existing, db)
 
     nomor_kta = _generate_nomor_kta(db, anggota)
+    gudep = db.query(models.Gudep).filter(models.Gudep.id == anggota.gudep_id).first() if anggota.gudep_id else None
+    wilayah = db.query(models.Wilayah).filter(models.Wilayah.id == gudep.wilayah_id).first() if gudep else None
+    kwarran = wilayah.nama if wilayah and wilayah.tingkat == "Kwartir Ranting" else None
+    kwarcab = None
+    if wilayah:
+        if wilayah.tingkat == "Kwartir Cabang":
+            kwarcab = wilayah.nama
+        elif wilayah.parent_id:
+            cabang = db.query(models.Wilayah).filter(models.Wilayah.id == wilayah.parent_id).first()
+            kwarcab = cabang.nama if cabang else None
     qr_data = (
         f"KTA {nomor_kta} | NTA {anggota.nta} | {anggota.nama_lengkap} | "
-        f"{anggota.jenjang} | {anggota.gudep_id}"
+        f"{anggota.jenjang} | Gudep {gudep.nama if gudep else '-'} | "
+        f"Kwarcab {kwarcab if kwarcab else '-'}"
     )
     kta = models.Kta(
         anggota_id=anggota_id,
