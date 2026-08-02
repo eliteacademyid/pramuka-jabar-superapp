@@ -26,5 +26,8 @@ export default {
   },
   getCertificate(enrollmentId) {
     return api.get(`/lms/enrollments/${enrollmentId}/certificate`)
+  },
+  sendChatMessage(message) {
+    return api.post('/chat', { message })
   }
 }
