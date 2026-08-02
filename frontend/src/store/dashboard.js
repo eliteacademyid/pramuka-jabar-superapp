@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { fetchStatistikAPI, fetchGrafikAPI, fetchPerbandinganAPI } from '../api/dashboard'
 
 /**
@@ -12,11 +12,16 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const grafik = ref({})
   const perbandingan = ref([])
 
-  // Task 6.5 — loading state
+  // Task 6.5 — granular loading state per endpoint + global
   const loading = ref(false)
   const loadingStatistik = ref(false)
   const loadingGrafik = ref(false)
   const loadingPerbandingan = ref(false)
+
+  /** Computed helper: any endpoint is still loading */
+  const isAnyLoading = computed(
+    () => loading.value || loadingStatistik.value || loadingGrafik.value || loadingPerbandingan.value
+  )
 
   // Task 6.6 — error handling state
   const error = ref('')
@@ -123,6 +128,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     loadingStatistik,
     loadingGrafik,
     loadingPerbandingan,
+    isAnyLoading,
     error,
     errorStatistik,
     errorGrafik,
