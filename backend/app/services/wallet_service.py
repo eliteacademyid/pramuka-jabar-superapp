@@ -11,6 +11,7 @@ from app.services.common import (
     record_order_status,
     record_wallet_tx,
 )
+from app.services.notify import notify
 
 
 def _lock_wallet(db: Session, user_id: int) -> models.Wallet:
@@ -62,6 +63,15 @@ def pay_order(db: Session, order: models.Order) -> None:
     order.escrow_status = "held"
     order.paid_at = datetime.utcnow()
     order.commission_rate = Decimal(get_setting(db, "COMMISSION_RATE", "5") or "5")
+
+    notify(
+        db,
+        order.store.owner_id,
+        "order",
+        "Pesanan dibayar",
+        f"Pesanan {order.order_code} sudah dibayar pembeli — siap diproses.",
+        "/account/seller/orders",
+    )
 
     record_wallet_tx(
         db,

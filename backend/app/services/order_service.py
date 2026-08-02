@@ -10,6 +10,7 @@ from app.services.common import (
     get_setting,
     record_order_status,
 )
+from app.services.notify import notify
 from app.services.wallet_service import refund_order, release_escrow
 
 
@@ -127,6 +128,14 @@ def checkout(db: Session, user: models.User, address_id: int) -> list[str]:
             "pending_payment",
             note=f"Ongkir: {_shipping_fee_tier(store, address.city, address.province)}",
         )
+        notify(
+            db,
+            store.owner_id,
+            "order",
+            "Pesanan baru masuk",
+            f"Pesanan {order.order_code} menunggu pembayaran dari {user.username}.",
+            "/account/seller/orders",
+        )
         order_codes.append(order.order_code)
 
         for item in items:
@@ -152,6 +161,14 @@ def cancel_order(db: Session, order: models.Order) -> None:
     else:
         order.status = "cancelled"
         record_order_status(db, order, "cancelled", note="Dibatalkan pembeli")
+    notify(
+        db,
+        order.store.owner_id,
+        "order",
+        "Pesanan dibatalkan",
+        f"Pesanan {order.order_code} dibatalkan oleh pembeli.",
+        "/account/seller/orders",
+    )
 
 
 def confirm_receipt(db: Session, order: models.Order) -> None:
@@ -166,3 +183,11 @@ def confirm_receipt(db: Session, order: models.Order) -> None:
     order.status = "completed"
     record_order_status(db, order, "completed")
     release_escrow(db, order)
+    notify(
+        db,
+        order.store.owner_id,
+        "order",
+        "Pesanan selesai",
+        f"Pesanan {order.order_code} telah diterima pembeli dan dana escrow dirilis.",
+        "/account/seller/orders",
+    )

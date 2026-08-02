@@ -94,6 +94,15 @@
 > (Rp450.000/unit), Sleeping Bag Pramuka (Rp150.000/pcs), Kompor Portable
 > Camping (Rp120.000/unit), ilustrasi SVG lokal
 > (`frontend/public/images/products/camping-*.svg`).
+> Pembaruan v1.17: **sistem notifikasi in-app** — tabel `notifications` +
+> `GET /api/notifications`, `GET /api/notifications/unread-count`, `POST
+> /api/notifications/read-all`, `POST /api/notifications/{id}/read`;
+> notifikasi otomatis untuk: pesanan baru, dibayar, diproses, dikirim (dengan
+> resi), dibatalkan, selesai & escrow dirilis (ke penjual/pembeli sesuai
+> peran), serta pesan chat baru ke lawan bicara; komponen `NotificationBell.vue`
+> (lonceng + badge unread + dropdown daftar, polling 10 detik, tandai semua
+> dibaca) dipasang di topbar halaman publik & header sidebar akun; 87 test
+> otomatis.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -196,7 +205,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 82 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread) |
+| Testing | pytest + httpx (TestClient, SQLite) | 87 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread, notifikasi in-app) |
 
 ---
 
@@ -259,7 +268,17 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
   Pesan Masuk (khusus peran penjual), diperbarui polling 10 detik via
   `AccountLayout.vue`; pada katalog detail, percakapan pesanan menampilkan nama
   toko sedangkan percakapan pra-pesanan menampilkan pembeli.
-- Notifikasi: status pesanan, pembayaran, pengiriman, promosi (in-app/push/email/WhatsApp).
+- **Implementasi v1.17**: notifikasi in-app — tabel `notifications` (user_id,
+  tipe order/chat, judul, isi, link, dibaca); pemicu otomatis: pesanan baru &
+  dibayar (ke penjual), diproses & dikirim + resi & dibatalkan & selesai +
+  escrow dirilis (ke pembeli/penjual sesuai peran), pesan chat baru (ke lawan
+  bicara); API `GET /api/notifications` (30 terbaru), `unread-count`,
+  `read-all`, `{id}/read`; komponen `NotificationBell.vue` — lonceng dengan
+  badge jumlah belum dibaca (polling 10 detik), dropdown daftar notifikasi
+  (ikon per tipe, waktu relatif, sorotan belum dibaca, "Tandai semua dibaca",
+  klik menuju halaman terkait) — dipasang di topbar halaman publik dan header
+  sidebar akun.
+- Notifikasi eksternal (push/email/WhatsApp) tetap rencana pengembangan lanjutan.
 
 #### FR-09 Dashboard Penjual
 - Statistik toko: penjualan, pesanan, produk terlaris, saldo.

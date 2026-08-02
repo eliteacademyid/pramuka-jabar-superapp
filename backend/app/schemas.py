@@ -464,6 +464,18 @@ class ConversationCreate(BaseModel):
     product_id: int
 
 
+class NotificationOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    ntype: str
+    title: str
+    body: Optional[str] = None
+    link: Optional[str] = None
+    is_read: bool
+    created_at: datetime
+
+
 class ConversationOut(BaseModel):
     id: int
     order_code: Optional[str] = None

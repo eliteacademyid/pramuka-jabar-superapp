@@ -333,6 +333,21 @@ class Message(Base):
     sender = relationship("User")
 
 
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    ntype = Column(String, nullable=False)
+    title = Column(String, nullable=False)
+    body = Column(String, nullable=True)
+    link = Column(String, nullable=True)
+    is_read = Column(Boolean, default=False, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    user = relationship("User")
+
+
 class Setting(Base):
     __tablename__ = "settings"
 

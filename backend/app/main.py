@@ -9,6 +9,7 @@ from app.routers import (
     cart,
     chat,
     me as me_router,
+    notifications,
     orders,
     products,
     reviews,
@@ -40,6 +41,7 @@ app.include_router(wallet.router, prefix="/api")
 app.include_router(wallet.admin_router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
+app.include_router(notifications.router, prefix="/api")
 app.include_router(admin_shop.router, prefix="/api")
 app.include_router(admin_shop.seller_router, prefix="/api")
 

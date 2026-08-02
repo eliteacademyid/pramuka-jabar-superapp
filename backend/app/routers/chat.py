@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import get_db
 from app.deps import get_current_user
+from app.services.notify import notify
 
 router = APIRouter(prefix="/conversations", tags=["chat"])
 
@@ -179,6 +180,24 @@ def send_message(
         body=payload.body,
     )
     db.add(msg)
+    recipients = set()
+    if conv.order:
+        recipients.add(conv.order.buyer_id)
+        recipients.add(conv.order.store.owner_id)
+    elif conv.product:
+        recipients.add(conv.product.store.owner_id)
+        if conv.buyer_id:
+            recipients.add(conv.buyer_id)
+    for uid in recipients:
+        if uid != current_user.id:
+            notify(
+                db,
+                uid,
+                "chat",
+                f"Pesan baru dari {current_user.username}",
+                payload.body[:120],
+                f"/account/chat/{conv.id}",
+            )
     db.commit()
     db.refresh(msg)
     return schemas.MessageOut(

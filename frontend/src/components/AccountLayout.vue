@@ -4,6 +4,7 @@
       <div class="sidebar-header">
         <div class="sidebar-logo"></div>
         <div class="sidebar-title">LomaScout</div>
+        <NotificationBell />
       </div>
 
       <nav class="sidebar-nav">
@@ -52,6 +53,7 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchMe, clearSession, hasActiveStore } from '../services/session'
 import api from '../services/api'
+import NotificationBell from './NotificationBell.vue'
 
 const router = useRouter()
 const me = ref(null)

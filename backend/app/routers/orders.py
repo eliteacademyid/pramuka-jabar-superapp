@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app import models, schemas
 from app.database import get_db
 from app.deps import get_active_store, get_current_user
+from app.services.notify import notify
 from app.services.order_service import cancel_order, confirm_receipt
 from app.services.wallet_service import pay_order
 
@@ -202,6 +203,14 @@ def seller_confirm_order(
         )
     order.status = "processed"
     db.add(models.OrderStatusHistory(order_id=order.id, status="processed"))
+    notify(
+        db,
+        order.buyer_id,
+        "order",
+        "Pesanan diproses",
+        f"Pesanan {order.order_code} sedang diproses penjual.",
+        f"/account/orders/{order.order_code}",
+    )
     db.commit()
     db.refresh(order)
     return _order_out(order)
@@ -228,6 +237,14 @@ def seller_ship_order(
     order.tracking_number = payload.tracking_number
     order.shipped_at = datetime.utcnow()
     db.add(models.OrderStatusHistory(order_id=order.id, status="shipped"))
+    notify(
+        db,
+        order.buyer_id,
+        "order",
+        "Pesanan dikirim",
+        f"Pesanan {order.order_code} dikirim — resi: {payload.tracking_number or '-'}.",
+        f"/account/orders/{order.order_code}",
+    )
     db.commit()
     db.refresh(order)
     return _order_out(order)

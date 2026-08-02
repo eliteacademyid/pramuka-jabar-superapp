@@ -1,12 +1,12 @@
 <template>
-  <div class="public-layout">
-    <header class="topbar">
+  <div class="public-layout">    <header class="topbar">
       <router-link to="/" class="topbar-brand">
         <span class="topbar-logo">⚜️</span>
         <span class="topbar-brand-text">SuperApps-JavaScout <small>Pramuka Jabar</small></span>
       </router-link>
       <nav class="topbar-nav">
         <router-link to="/catalog" class="topbar-link">Katalog Marketplace</router-link>
+        <NotificationBell />
         <router-link to="/login" class="topbar-btn-ghost">Masuk</router-link>
         <router-link to="/register" class="topbar-btn-solid">Daftar</router-link>
       </nav>
@@ -29,3 +29,7 @@
     </footer>
   </div>
 </template>
+
+<script setup>
+import NotificationBell from './NotificationBell.vue'
+</script>
