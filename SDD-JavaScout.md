@@ -124,6 +124,19 @@
 > seketika via kelas `dark`/`blue` pada root dokumen (localStorage cache + anti
 > flash), seluruh palet warna (cokelat/merah/emas) diganti via CSS variable;
 > 95 test otomatis.
+> Pembaruan v1.21: **penyempurnaan tampilan landing & katalog** — foto hero
+> landing di-blur + saturasi dilembutkan (filter `blur(6px) saturate(0.45)` di
+> lapisan terpisah dengan overlay gradasi & text-shadow agar teks lega); kartu
+> fitur/kategori/statistik & CTA lebih lapang (radius, padding, shadow halus);
+> teks kartu fitur disederhanakan; banner katalog dipangkas setengah tinggi;
+> kartu kategori katalog diubah jadi **chip kompak satu baris** (ikon kecil +
+> nama, tanpa deskripsi) sehingga hasil pencarian/produk langsung terlihat
+> tanpa scroll.
+> Pembaruan v1.22: **HTTPS untuk pengembangan lokal** — sertifikat lokal via
+> **mkcert** (CA lokal, berlaku untuk `localhost`/`127.0.0.1`/`::1`), Vite dev
+> server melayani `https://localhost:5173/`, folder `frontend/certs` di-mount
+> ke container dan masuk `.gitignore`; backend tetap `http://localhost:8000`
+> (localhost bebas dari pembatasan mixed-content di browser).
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
