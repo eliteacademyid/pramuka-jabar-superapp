@@ -5,6 +5,9 @@
         <h1 class="text-2xl font-bold text-slate-800">Daftar Program</h1>
         <p class="text-sm text-slate-500">Kelola data program kerja Kwarda Jawa Barat</p>
       </div>
+      <BaseButton @click="router.push({ name: 'program-create' })">
+        Tambah Program
+      </BaseButton>
     </div>
 
     <!-- Filter Card -->
@@ -45,6 +48,7 @@ import ProgramStatusFilter from '@/components/ProgramStatusFilter.vue'
 import ProgramSorting from '@/components/ProgramSorting.vue'
 import ProgramPagination from '@/components/ProgramPagination.vue'
 import ProgramTable from '@/components/ProgramTable.vue'
+import BaseButton from '@/components/common/BaseButton.vue'
 
 const router = useRouter()
 const programStore = useProgramStore()
