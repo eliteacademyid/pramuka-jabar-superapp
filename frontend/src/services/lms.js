@@ -1,8 +1,10 @@
 import api from './api'
 
 export default {
-  getTrainings() {
-    return api.get('/lms/trainings')
+  getTrainings({ search = '', page = 1, limit = 6 } = {}) {
+    const params = { page, limit }
+    if (search) params.search = search
+    return api.get('/lms/trainings', { params })
   },
   getTrainingMaterials(trainingId) {
     return api.get(`/lms/trainings/${trainingId}/materials`)
