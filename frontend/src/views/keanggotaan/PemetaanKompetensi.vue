@@ -21,7 +21,7 @@ const capaianForm = ref({ anggota_id: null, kompetensi_id: null, penguji_id: nul
 const capaianError = ref('')
 const savingCapaian = ref(false)
 
-const jenisOptions = ['SKU', 'SKK', 'TKK']
+const jenisOptions = ['SKU', 'SKK', 'TKK', 'KMD', 'KML', 'KPD', 'KPL']
 const jenjangOptions = ['siaga', 'penggalang', 'penegak', 'pandega', 'dewasa']
 const jenjangLabels = { siaga: 'Siaga', penggalang: 'Penggalang', penegak: 'Penegak', pandega: 'Pandega', dewasa: 'Dewasa' }
 
