@@ -1,6 +1,6 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -59,6 +59,10 @@ class ProfileUpdate(BaseModel):
     email: Optional[str] = None
 
 
+class ThemeUpdate(BaseModel):
+    theme: Literal["default", "dark", "blue"]
+
+
 class UserOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -72,6 +76,7 @@ class UserOut(BaseModel):
     golongan: Optional[str] = None
     role: str
     is_active: bool
+    theme: str = "default"
     created_at: datetime
 
 
@@ -97,6 +102,10 @@ class MeOut(BaseModel):
     user: UserOut
     wallet: Optional[WalletOut] = None
     store: Optional[StoreSummary] = None
+
+
+class ThemeOut(BaseModel):
+    theme: str
 
 
 class Token(BaseModel):

@@ -56,6 +56,33 @@ def test_me_requires_token(client):
     assert client.get("/api/auth/me").status_code in (401, 403)
 
 
+def test_theme_default_and_update(client):
+    register(client, "theme_user")
+    token = login(client, "theme_user")
+    r = client.get("/api/me/theme", headers=headers(token))
+    assert r.status_code == 200
+    assert r.json()["theme"] == "default"
+
+    r = client.put("/api/me/theme", json={"theme": "dark"}, headers=headers(token))
+    assert r.status_code == 200
+    assert r.json()["theme"] == "dark"
+
+    r = client.put("/api/me/theme", json={"theme": "blue"}, headers=headers(token))
+    assert r.status_code == 200
+    assert r.json()["theme"] == "blue"
+
+    r = client.put("/api/me/theme", json={"theme": "neon"}, headers=headers(token))
+    assert r.status_code == 422
+
+    r = client.put("/api/me/theme", json={"theme": "default"}, headers=headers(token))
+    assert r.json()["theme"] == "default"
+
+    r = client.get("/api/auth/me", headers=headers(token))
+    assert r.json()["user"]["theme"] == "default"
+
+    assert client.get("/api/me/theme").status_code in (401, 403)
+
+
 def test_update_profile(client):
     register(client, "profile_user")
     token = login(client, "profile_user")

@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '../services/api'
+import ThemeMenu from './ThemeMenu.vue'
 
 const router = useRouter()
 
@@ -74,6 +75,7 @@ function logout() {
       </nav>
 
       <div class="sidebar-footer">
+        <ThemeMenu tone="sidebar" />
         <div class="user-info">
           <span class="user-name">{{ currentUser?.nama_lengkap || 'Memuat...' }}</span>
           <span class="user-role">{{ currentUser?.role }}</span>

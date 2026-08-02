@@ -116,6 +116,14 @@
 > Pembaruan v1.19: **filter katalog pindah di samping pencarian** — toolbar
 > tunggal di bawah banner: pil pencarian + select kategori + input lokasi +
 > select urutkan + tombol Cari sejajar; panel samping katalog dihapus.
+> Pembaruan v1.20: **sistem tema per-user** — pilihan **Default** (terang),
+> **Gelap** (dark), dan **Biru cerah** (blue); preferensi disimpan per akun
+> (kolom `users.theme`, endpoint `GET/PUT /api/me/theme`) dan tersinkron otomatis
+> ke server setelah login; dipasang sebagai menu dropdown di topbar halaman
+> publik (landing & marketplace) serta sidebar akun & admin; tema diterapkan
+> seketika via kelas `dark`/`blue` pada root dokumen (localStorage cache + anti
+> flash), seluruh palet warna (cokelat/merah/emas) diganti via CSS variable;
+> 95 test otomatis.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -218,7 +226,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 94 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread, notifikasi in-app, tiket perselisihan) |
+| Testing | pytest + httpx (TestClient, SQLite) | 95 test: auth (termasuk tema per-user), toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread, notifikasi in-app, tiket perselisihan) |
 
 ---
 

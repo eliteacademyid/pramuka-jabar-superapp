@@ -38,6 +38,24 @@ def update_profile(
     return current_user
 
 
+@router.get("/theme", response_model=schemas.ThemeOut)
+def get_theme(
+    current_user: models.User = Depends(get_current_user),
+):
+    return {"theme": current_user.theme}
+
+
+@router.put("/theme", response_model=schemas.ThemeOut)
+def update_theme(
+    payload: schemas.ThemeUpdate,
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    current_user.theme = payload.theme
+    db.commit()
+    return {"theme": current_user.theme}
+
+
 @router.get("/addresses", response_model=List[schemas.AddressOut])
 def list_addresses(
     current_user: models.User = Depends(get_current_user),

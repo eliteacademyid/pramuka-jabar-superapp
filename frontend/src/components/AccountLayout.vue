@@ -35,6 +35,7 @@
       </nav>
 
       <div class="sidebar-footer">
+        <ThemeMenu tone="sidebar" />
         <div class="user-info">
           <span class="user-name">{{ me?.user?.nama_lengkap }}</span>
           <span class="user-role">{{ me?.user?.role }}</span>
@@ -55,6 +56,7 @@ import { useRouter } from 'vue-router'
 import { fetchMe, clearSession, hasActiveStore } from '../services/session'
 import api from '../services/api'
 import NotificationBell from './NotificationBell.vue'
+import ThemeMenu from './ThemeMenu.vue'
 
 const router = useRouter()
 const me = ref(null)

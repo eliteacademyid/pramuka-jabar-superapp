@@ -66,6 +66,7 @@ class User(Base):
     golongan = Column(String, nullable=True)
     role = Column(String, nullable=False, default="member")
     is_active = Column(Boolean, nullable=False, default=True)
+    theme = Column(String, nullable=False, default="default")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     addresses = relationship(

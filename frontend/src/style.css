@@ -7,6 +7,7 @@
   --cream: #faf6f0;
   --white: #ffffff;
   --text: #3d3a37;
+  --on-accent: #ffffff;
 }
 
 * {
@@ -46,7 +47,7 @@ button {
   gap: 1rem;
   padding: 0.75rem 1.5rem;
   background: var(--brown);
-  color: var(--white);
+  color: var(--on-accent);
   border-bottom: 3px solid var(--gold);
   flex-wrap: wrap;
 }
@@ -55,7 +56,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  color: var(--white);
+  color: var(--on-accent);
   text-decoration: none;
   font-weight: 700;
   font-size: 1.1rem;
@@ -84,7 +85,7 @@ button {
 }
 
 .topbar-link {
-  color: var(--white);
+  color: var(--on-accent);
   text-decoration: none;
   font-weight: 500;
   font-size: 0.95rem;
@@ -106,7 +107,7 @@ button {
 }
 
 .topbar-btn-ghost {
-  color: var(--white);
+  color: var(--on-accent);
   border: 1px solid rgba(255, 255, 255, 0.55);
 }
 
@@ -116,7 +117,7 @@ button {
 
 .topbar-btn-solid {
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   border: 1px solid var(--maroon);
 }
 
@@ -149,7 +150,7 @@ button {
 
 .public-footer-brand {
   font-weight: 700;
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .public-footer-links {
@@ -178,7 +179,7 @@ button {
   background:
     linear-gradient(160deg, rgba(92, 64, 51, 0.62) 0%, rgba(92, 26, 20, 0.72) 100%),
     url('/images/hero-ig.png') center / cover no-repeat;
-  color: var(--white);
+  color: var(--on-accent);
   padding: 5rem 1.5rem;
   text-align: center;
 }
@@ -275,7 +276,7 @@ button {
   border: none;
   border-radius: 999px;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   font-weight: 700;
   font-size: 0.92rem;
   padding: 0.65rem 1.3rem;
@@ -339,7 +340,7 @@ button {
 
 .btn-landing-ghost {
   border: 2px solid rgba(255, 255, 255, 0.6);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .btn-landing-ghost:hover {
@@ -487,7 +488,7 @@ button {
 
 .landing-cta {
   background: linear-gradient(135deg, var(--maroon) 0%, var(--maroon-dark) 100%);
-  color: var(--white);
+  color: var(--on-accent);
   text-align: center;
   padding: 3.5rem 1.5rem;
 }
@@ -531,7 +532,7 @@ button {
   text-align: center;
   padding: 3rem 1.5rem;
   background: linear-gradient(160deg, var(--brown) 0%, var(--brown-dark) 100%);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .logo-circle {
@@ -559,7 +560,7 @@ button {
   padding: 0.9rem 2.8rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: var(--white);
+  color: var(--on-accent);
   background: var(--maroon);
   border: 2px solid var(--gold);
   border-radius: 8px;
@@ -667,7 +668,7 @@ button {
   padding: 0.8rem;
   margin-top: 0.5rem;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   border: none;
   border-radius: 6px;
   font-size: 1rem;
@@ -755,7 +756,7 @@ button {
   display: flex;
   flex-direction: column;
   background: var(--brown-dark);
-  color: var(--white);
+  color: var(--on-accent);
   border-right: 3px solid var(--gold);
 }
 
@@ -819,7 +820,7 @@ button {
 
 .sidebar-link.router-link-active {
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .sidebar-link.disabled {
@@ -863,7 +864,7 @@ button {
   width: 100%;
   padding: 0.55rem;
   background: transparent;
-  color: var(--white);
+  color: var(--on-accent);
   border: 1px solid var(--gold);
   border-radius: 6px;
   font-weight: 600;
@@ -952,7 +953,7 @@ button {
 
 .data-table th {
   background: var(--brown);
-  color: var(--white);
+  color: var(--on-accent);
   font-weight: 600;
 }
 
@@ -1020,12 +1021,12 @@ button {
 
 .badge-admin {
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .badge-staff {
   background: var(--brown);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .status {
@@ -1055,7 +1056,7 @@ button {
 
 .btn-small:hover {
   background: var(--brown);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .btn-danger {
@@ -1065,7 +1066,7 @@ button {
 
 .btn-danger:hover {
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 /* ---------- Marketplace: container & catalog ---------- */
@@ -1087,7 +1088,7 @@ button {
 
 .catalog-hero {
   background: linear-gradient(135deg, var(--brown) 0%, var(--brown-dark) 100%);
-  color: var(--white);
+  color: var(--on-accent);
   padding: 4rem 1.5rem;
   border-bottom: none;
 }
@@ -1206,7 +1207,7 @@ button {
   flex: none;
   border: none;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   font-weight: 700;
   padding: 0.65rem 1.5rem;
   border-radius: 999px;
@@ -1270,7 +1271,7 @@ button {
 }
 
 .cat-card.active h3 {
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .cat-card.active p {
@@ -1303,7 +1304,7 @@ button {
   bottom: 1.5rem;
   z-index: 120;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   padding: 0.8rem 1.4rem;
   border-radius: 10px;
   font-weight: 600;
@@ -1442,7 +1443,7 @@ button {
   top: 0.75rem;
   left: 0.75rem;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   font-size: 0.7rem;
   font-weight: 700;
   padding: 0.25rem 0.7rem;
@@ -1507,7 +1508,7 @@ button {
   border: none;
   border-radius: 8px;
   background: var(--brown);
-  color: var(--white);
+  color: var(--on-accent);
   font-weight: 700;
   transition: background 0.2s ease;
 }
@@ -1639,7 +1640,7 @@ button {
   height: 40px;
   border-radius: 50%;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -1663,7 +1664,7 @@ button {
 
 .chat-list-badge {
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   border-radius: 999px;
   font-size: 0.7rem;
   font-weight: 700;
@@ -1753,7 +1754,7 @@ button {
   align-self: flex-end;
   background: var(--maroon);
   border-color: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .chat-msg-head {
@@ -1834,7 +1835,7 @@ button {
   top: -4px;
   right: -4px;
   background: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
   font-size: 0.65rem;
   font-weight: 700;
   border-radius: 999px;
@@ -2047,7 +2048,7 @@ button {
   align-self: flex-end;
   background: var(--maroon);
   border-color: var(--maroon);
-  color: var(--white);
+  color: var(--on-accent);
 }
 
 .ticket-msg-head {
@@ -2162,4 +2163,201 @@ button {
 .page-header .btn-submit,
 .page-header .btn-small {
   text-decoration: none;
+}
+
+/* ==========================================================
+   TEMA — default, gelap (dark), biru cerah (blue)
+   ========================================================== */
+
+/* ---------- Tema: Gelap ---------- */
+html.dark {
+  --cream: #15120f;
+  --white: #241f1b;
+  --text: #ece5db;
+  --brown: #c9a87c;
+  --brown-dark: #a5835c;
+  --maroon: #b8503c;
+  --maroon-dark: #963f2e;
+  --gold: #e8c14a;
+  --on-accent: #f6efe4;
+}
+
+/* permukaan aksen cokelat dipertahankan gelap agar teks terbaca */
+html.dark .topbar,
+html.dark .hero,
+html.dark .public-footer,
+html.dark .catalog-hero,
+html.dark .data-table th,
+html.dark .badge-staff,
+html.dark .cat-card.active,
+html.dark .btn-small:hover,
+html.dark .btn-landing-search:hover,
+html.dark .pc-btn,
+html.dark .sidebar {
+  background: #322419;
+}
+
+html.dark .sidebar {
+  border-right-color: var(--gold);
+}
+
+html.dark .pc-btn:hover {
+  background: var(--maroon);
+}
+
+html.dark .cat-card.active {
+  box-shadow: none;
+}
+
+html.dark .tb-divider {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+html.dark .data-table tr:hover td {
+  background: #2b241e;
+}
+
+html.dark .catalog-toolbar {
+  border-color: #3a2f26;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  color-scheme: dark;
+}
+
+/* ---------- Tema: Biru cerah ---------- */
+html.blue {
+  --brown: #2563eb;
+  --brown-dark: #1e40af;
+  --maroon: #0284c7;
+  --maroon-dark: #0369a1;
+  --gold: #f59e0b;
+  --cream: #f0f7ff;
+  --white: #ffffff;
+  --text: #1e293b;
+  --on-accent: #ffffff;
+}
+
+html.blue .topbar {
+  border-bottom-color: var(--gold);
+}
+
+html.blue input,
+html.blue select,
+html.blue textarea {
+  color-scheme: light;
+}
+
+/* ---------- Menu tema ---------- */
+.theme-menu {
+  position: relative;
+}
+
+.theme-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--on-accent);
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.theme-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.theme-menu-caret {
+  font-size: 0.7rem;
+  opacity: 0.7;
+}
+
+.theme-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 70;
+  min-width: 210px;
+  background: var(--white);
+  border: 1px solid #e8ddcd;
+  border-radius: 12px;
+  padding: 0.5rem;
+  box-shadow: 0 12px 34px rgba(60, 30, 10, 0.22);
+}
+
+.theme-menu-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9a9188;
+  padding: 0.3rem 0.6rem 0.4rem;
+}
+
+.theme-menu-option {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.6rem;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.theme-menu-option > i:first-child {
+  width: 1.2rem;
+  text-align: center;
+  color: var(--brown);
+}
+
+.theme-menu-option > i:last-child {
+  margin-left: auto;
+  color: var(--maroon);
+}
+
+.theme-menu-option span {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.theme-menu-option small {
+  font-size: 0.72rem;
+  color: #9a9188;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.theme-menu-option:hover {
+  background: var(--cream);
+}
+
+.theme-menu-option.active {
+  background: var(--cream);
+  outline: 1px solid var(--gold);
+}
+
+html.dark .theme-menu-dropdown {
+  border-color: #3a2f26;
+}
+
+html.dark .theme-menu-option:hover,
+html.dark .theme-menu-option.active {
+  background: #2e261f;
+}
+
+html.blue .theme-menu-option > i:first-child {
+  color: var(--brown);
 }

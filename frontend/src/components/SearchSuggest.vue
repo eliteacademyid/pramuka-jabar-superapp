@@ -148,6 +148,11 @@ function fmt(v) {
   overflow: auto;
 }
 
+html.dark .suggest-list {
+  background: #241f1b;
+  border-color: #3a2f26;
+}
+
 .suggest-list li {
   display: flex;
   align-items: center;
@@ -169,6 +174,10 @@ function fmt(v) {
   border-radius: 8px;
   flex: none;
   background: #f0e8dc;
+}
+
+html.dark .suggest-thumb {
+  background: #3a2f26;
 }
 
 .suggest-info {
@@ -212,5 +221,11 @@ function fmt(v) {
   font-size: 0.85rem;
   color: #9a9188;
   box-shadow: 0 12px 34px rgba(60, 30, 10, 0.22);
+}
+
+html.dark .suggest-empty {
+  background: #241f1b;
+  border-color: #3a2f26;
+  color: #b6aca0;
 }
 </style>

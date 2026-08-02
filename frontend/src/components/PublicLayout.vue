@@ -5,7 +5,8 @@
         <span class="topbar-brand-text">SuperApps-JavaScout <small>Pramuka Jabar</small></span>
       </router-link>
       <nav class="topbar-nav">
-        <router-link to="/catalog" class="topbar-link">Katalog Marketplace</router-link>
+        <router-link to="/catalog" class="topbar-link">Marketplace</router-link>
+        <ThemeMenu />
         <NotificationBell />
         <router-link to="/login" class="topbar-btn-ghost">Masuk</router-link>
         <router-link to="/register" class="topbar-btn-solid">Daftar</router-link>
@@ -32,4 +33,5 @@
 
 <script setup>
 import NotificationBell from './NotificationBell.vue'
+import ThemeMenu from './ThemeMenu.vue'
 </script>
