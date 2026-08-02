@@ -5,6 +5,11 @@ import LandingPage from '../views/public/LandingPage.vue'
 import LoginPage from '../views/public/LoginPage.vue'
 import Dashboard from '../views/admin/Dashboard.vue'
 import Users from '../views/admin/Users.vue'
+import DashboardKeanggotaan from '../views/keanggotaan/DashboardKeanggotaan.vue'
+import DataAnggota from '../views/keanggotaan/DataAnggota.vue'
+import PemetaanKompetensi from '../views/keanggotaan/PemetaanKompetensi.vue'
+import Rekapitulasi from '../views/keanggotaan/Rekapitulasi.vue'
+import AdministrasiKeanggotaan from '../views/keanggotaan/AdministrasiKeanggotaan.vue'
 
 const routes = [
   {
@@ -23,6 +28,18 @@ const routes = [
       { path: '', name: 'admin-dashboard', component: Dashboard },
       { path: 'users', name: 'admin-users', component: Users }
     ]
+  },
+  {
+    path: '/keanggotaan',
+    component: AdminLayout,
+    meta: { requiresAuth: true },
+    children: [
+      { path: 'dashboard', name: 'keanggotaan-dashboard', component: DashboardKeanggotaan },
+      { path: 'anggota', name: 'keanggotaan-anggota', component: DataAnggota },
+      { path: 'kompetensi', name: 'keanggotaan-kompetensi', component: PemetaanKompetensi },
+      { path: 'rekap', name: 'keanggotaan-rekap', component: Rekapitulasi },
+      { path: 'administrasi', name: 'keanggotaan-administrasi', component: AdministrasiKeanggotaan }
+    ]
   }
 ]
 
@@ -40,7 +57,7 @@ router.beforeEach((to) => {
   }
 
   if (to.name === 'login' && token) {
-    return { name: 'admin-dashboard' }
+    return { name: 'keanggotaan-dashboard' }
   }
 })
 

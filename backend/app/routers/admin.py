@@ -124,3 +124,11 @@ def delete_user(
     user = _get_user_or_404(db, user_id)
     db.delete(user)
     db.commit()
+
+
+@router.get("/log-audit", response_model=List[schemas.LogAuditOut])
+def list_log_audit(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_admin),
+):
+    return db.query(models.LogAudit).order_by(models.LogAudit.waktu.desc()).all()

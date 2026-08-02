@@ -7,8 +7,6 @@ const router = useRouter()
 
 const currentUser = ref(null)
 
-const comingSoon = ['Berita', 'Anggota', 'Kegiatan', 'Galeri', 'Dokumen', 'Pengaturan']
-
 onMounted(async () => {
   try {
     const res = await api.get('/auth/me')
@@ -34,18 +32,34 @@ function logout() {
 
       <nav class="sidebar-nav">
         <router-link to="/admin" class="sidebar-link">
-          Dashboard
-        </router-link>
-        <router-link to="/admin/users" class="sidebar-link">
-          Manajemen User
+          Dashboard SuperApp
         </router-link>
       </nav>
 
-      <div class="sidebar-section-label">Menu Lainnya (Segera Hadir)</div>
+      <div class="sidebar-section-label">Keanggotaan</div>
       <nav class="sidebar-nav">
-        <span v-for="item in comingSoon" :key="item" class="sidebar-link disabled">
-          {{ item }}
-        </span>
+        <router-link to="/keanggotaan/dashboard" class="sidebar-link">
+          Dashboard Keanggotaan
+        </router-link>
+        <router-link to="/keanggotaan/anggota" class="sidebar-link">
+          Data Anggota
+        </router-link>
+        <router-link to="/keanggotaan/kompetensi" class="sidebar-link">
+          Pemetaan Kompetensi
+        </router-link>
+        <router-link to="/keanggotaan/rekap" class="sidebar-link">
+          Rekapitulasi &amp; Laporan
+        </router-link>
+        <router-link to="/keanggotaan/administrasi" class="sidebar-link">
+          Administrasi Keanggotaan
+        </router-link>
+      </nav>
+
+      <div class="sidebar-section-label">Sistem</div>
+      <nav class="sidebar-nav">
+        <router-link to="/admin/users" class="sidebar-link">
+          Manajemen User
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">

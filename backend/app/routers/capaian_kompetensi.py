@@ -67,21 +67,13 @@ def create_capaian_kompetensi(
             detail="Kompetensi tidak sesuai dengan jenjang anggota",
         )
     
-    # Verifikasi penguji adalah Pembina atau anggota
+    # Verifikasi penguji ada di tabel Anggota
     penguji = db.query(models.Anggota).filter(models.Anggota.id == payload.penguji_id).first()
     if not penguji:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Penguji tidak ditemukan",
         )
-    
-    # Jika penguji adalah anggota biasa, hanya bisa mencatat capaian untuk dirinya sendiri
-    if penguji.role == "anggota":
-        if penguji.id != payload.anggota_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Anggota hanya bisa mencatat capaian untuk dirinya sendiri",
-            )
     
     capaian = models.CapaianKompetensi(
         anggota_id=payload.anggota_id,
