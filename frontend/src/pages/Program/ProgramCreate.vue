@@ -18,18 +18,22 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProgramStore } from '@/store/program'
+import { useGlobalStore } from '@/store/global'
 import ProgramForm from '@/components/ProgramForm.vue'
 
 const router = useRouter()
 const programStore = useProgramStore()
+const globalStore = useGlobalStore()
 const saving = ref(false)
 
 async function onSubmit(payload) {
   saving.value = true
   try {
     await programStore.addProgram(payload)
+    globalStore.toast.success('Program berhasil ditambahkan')
     router.push({ name: 'programs' })
   } catch (err) {
+    globalStore.toast.error(err.response?.data?.detail || 'Gagal menambahkan program')
     console.error('Failed to create program:', err)
   } finally {
     saving.value = false
