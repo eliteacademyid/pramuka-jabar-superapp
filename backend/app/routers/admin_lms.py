@@ -135,6 +135,25 @@ def create_question(
     return question
 
 
+@router.put("/questions/{question_id}", response_model=schemas.QuizQuestionOut)
+def update_question(
+    question_id: int,
+    payload: schemas.QuizQuestionCreate,
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_admin),
+):
+    question = db.query(models.QuizQuestion).filter(models.QuizQuestion.id == question_id).first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Soal tidak ditemukan")
+        
+    for key, value in payload.model_dump().items():
+        setattr(question, key, value)
+        
+    db.commit()
+    db.refresh(question)
+    return question
+
+
 @router.delete("/questions/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_question(
     question_id: int,
