@@ -15,7 +15,7 @@ onMounted(async () => {
   try {
     const [jenjang, wilayah, kompetensi, capaian] = await Promise.all([
       api.get('/rekap/anggota/jenjang'),
-      api.get('/rekap/anggota/wilayah'),
+      api.get('/rekap/anggota/kota-kabupaten'),
       api.get('/rekap/kompetensi/jenjang'),
       api.get('/rekap/capaian/jenjang')
     ])
@@ -49,7 +49,7 @@ function exportRekapJenjang() {
 }
 
 function exportRekapWilayah() {
-  exportCsv('rekap_per_wilayah', ['Wilayah', 'Jumlah'], rekapWilayah.value.map((i) => [i.wilayah, i.jumlah]))
+  exportCsv('rekap_per_kota_kabupaten', ['Kota/Kabupaten', 'Jumlah'], rekapWilayah.value.map((i) => [i.kota_kabupaten, i.jumlah]))
 }
 </script>
 
@@ -85,14 +85,14 @@ function exportRekapWilayah() {
 
       <div class="rekap-card">
         <div class="card-head">
-          <h3>Rekap Anggota per Wilayah</h3>
+          <h3>Rekap Anggota per Kota/Kabupaten</h3>
           <button class="btn-small" @click="exportRekapWilayah">Ekspor CSV</button>
         </div>
         <table class="data-table">
-          <thead><tr><th>Wilayah</th><th>Jumlah</th></tr></thead>
+          <thead><tr><th>Kota/Kabupaten</th><th>Jumlah</th></tr></thead>
           <tbody>
-            <tr v-for="item in rekapWilayah" :key="item.wilayah">
-              <td>{{ item.wilayah }}</td>
+            <tr v-for="item in rekapWilayah" :key="item.kota_kabupaten">
+              <td>{{ item.kota_kabupaten }}</td>
               <td>{{ item.jumlah }}</td>
             </tr>
             <tr v-if="rekapWilayah.length === 0"><td colspan="2" class="empty-row">Belum ada data.</td></tr>

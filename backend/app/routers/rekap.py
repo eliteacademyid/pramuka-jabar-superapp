@@ -23,6 +23,23 @@ def rekap_per_jenjang(
     return [{"jenjang": jenjang, "jumlah": count} for jenjang, count in rows]
 
 
+@router.get("/anggota/kota-kabupaten")
+def rekap_per_kota_kabupaten(
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_user),
+):
+    rows = (
+        db.query(models.Wilayah.nama, func.count(models.Anggota.id))
+        .join(models.Gudep, models.Gudep.wilayah_id == models.Wilayah.id)
+        .join(models.Anggota, models.Anggota.gudep_id == models.Gudep.id)
+        .filter(models.Wilayah.tingkat.in_(["Kwartir Cabang", "Kota", "Kabupaten"]))
+        .group_by(models.Wilayah.nama)
+        .order_by(func.count(models.Anggota.id).desc())
+        .all()
+    )
+    return [{"kota_kabupaten": nama, "jumlah": count} for nama, count in rows]
+
+
 @router.get("/anggota/wilayah")
 def rekap_per_wilayah(
     db: Session = Depends(get_db),

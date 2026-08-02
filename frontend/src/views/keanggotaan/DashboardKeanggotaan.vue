@@ -16,7 +16,7 @@ onMounted(async () => {
       api.get('/wilayah'),
       api.get('/capaian-kompetensi/'),
       api.get('/rekap/anggota/jenjang'),
-      api.get('/rekap/anggota/wilayah')
+      api.get('/rekap/anggota/kota-kabupaten')
     ])
     stats.value.totalAnggota = anggota.data.length
     stats.value.totalGudep = gudep.data.length
@@ -93,14 +93,14 @@ function totalRekap(list) {
       </div>
 
       <div class="rekap-card">
-        <h3>Rekap Anggota per Wilayah</h3>
+        <h3>Rekap Anggota per Kota/Kabupaten</h3>
         <table class="data-table">
           <thead>
-            <tr><th>Wilayah</th><th>Jumlah</th></tr>
+            <tr><th>Kota/Kabupaten</th><th>Jumlah</th></tr>
           </thead>
           <tbody>
-            <tr v-for="item in rekapWilayah" :key="item.wilayah">
-              <td>{{ item.wilayah }}</td>
+            <tr v-for="item in rekapWilayah" :key="item.kota_kabupaten">
+              <td>{{ item.kota_kabupaten }}</td>
               <td>{{ item.jumlah }}</td>
             </tr>
             <tr v-if="rekapWilayah.length === 0">
