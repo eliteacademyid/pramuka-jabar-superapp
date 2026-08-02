@@ -18,7 +18,8 @@ async function fetchTrainings() {
   loading.value = true
   try {
     const res = await api.get('/lms/trainings')
-    trainings.value = res.data
+    // Handle paginated response structure if it exists, otherwise fallback to array
+    trainings.value = res.data.items ? res.data.items : res.data
   } catch (err) {
     console.error(err)
   } finally {
