@@ -14,6 +14,7 @@ from app.routers import (
     products,
     reviews,
     stores,
+    tickets,
     wallet,
 )
 from app.seed import seed_default_admin
@@ -42,6 +43,8 @@ app.include_router(wallet.admin_router, prefix="/api")
 app.include_router(reviews.router, prefix="/api")
 app.include_router(chat.router, prefix="/api")
 app.include_router(notifications.router, prefix="/api")
+app.include_router(tickets.router, prefix="/api")
+app.include_router(tickets.admin_router, prefix="/api")
 app.include_router(admin_shop.router, prefix="/api")
 app.include_router(admin_shop.seller_router, prefix="/api")
 

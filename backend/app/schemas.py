@@ -476,6 +476,58 @@ class NotificationOut(BaseModel):
     created_at: datetime
 
 
+# ---------- Tiket Perselisihan ----------
+
+class TicketCreate(BaseModel):
+    order_code: str
+    issue_type: str = Field(min_length=1, max_length=50)
+    description: str = Field(min_length=10, max_length=2000)
+
+
+class TicketMessageCreate(BaseModel):
+    body: str = Field(min_length=1, max_length=1000)
+
+
+class TicketStatusUpdate(BaseModel):
+    status: str
+    note: Optional[str] = None
+
+
+class TicketMessageOut(BaseModel):
+    id: int
+    ticket_id: int
+    sender_id: int
+    sender_name: Optional[str] = None
+    body: str
+    created_at: datetime
+
+
+class TicketHistoryOut(BaseModel):
+    id: int
+    status: str
+    note: Optional[str] = None
+    actor: Optional[str] = None
+    created_at: datetime
+
+
+class TicketOut(BaseModel):
+    id: int
+    ticket_code: str
+    order_code: str
+    issue_type: str
+    description: str
+    status: str
+    opened_by: Optional[str] = None
+    store_name: Optional[str] = None
+    created_at: datetime
+    updated_at: datetime
+
+
+class TicketDetailOut(TicketOut):
+    messages: List[TicketMessageOut] = []
+    history: List[TicketHistoryOut] = []
+
+
 class ConversationOut(BaseModel):
     id: int
     order_code: Optional[str] = None

@@ -348,6 +348,56 @@ class Notification(Base):
     user = relationship("User")
 
 
+class Ticket(Base):
+    __tablename__ = "tickets"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_code = Column(String, unique=True, index=True, nullable=False)
+    order_id = Column(Integer, ForeignKey("orders.id"), nullable=False, index=True)
+    opened_by_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    issue_type = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    status = Column(String, nullable=False, default="open")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    order = relationship("Order")
+    opened_by = relationship("User", foreign_keys=[opened_by_id])
+    messages = relationship(
+        "TicketMessage", back_populates="ticket", cascade="all, delete-orphan"
+    )
+    history = relationship(
+        "TicketStatusHistory", back_populates="ticket", cascade="all, delete-orphan"
+    )
+
+
+class TicketMessage(Base):
+    __tablename__ = "ticket_messages"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_id = Column(Integer, ForeignKey("tickets.id"), nullable=False, index=True)
+    sender_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    body = Column(String(1000), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    ticket = relationship("Ticket", back_populates="messages")
+    sender = relationship("User")
+
+
+class TicketStatusHistory(Base):
+    __tablename__ = "ticket_status_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ticket_id = Column(Integer, ForeignKey("tickets.id"), nullable=False, index=True)
+    status = Column(String, nullable=False)
+    note = Column(String, nullable=True)
+    actor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    ticket = relationship("Ticket", back_populates="history")
+    actor = relationship("User")
+
+
 class Setting(Base):
     __tablename__ = "settings"
 

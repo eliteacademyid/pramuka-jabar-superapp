@@ -15,6 +15,9 @@ import OrderDetailPage from '../views/account/OrderDetailPage.vue'
 import WalletPage from '../views/account/WalletPage.vue'
 import ProfilePage from '../views/account/ProfilePage.vue'
 import ChatPage from '../views/account/ChatPage.vue'
+import TicketListPage from '../views/account/TicketListPage.vue'
+import TicketNewPage from '../views/account/TicketNewPage.vue'
+import TicketDetailPage from '../views/account/TicketDetailPage.vue'
 import SellerStorePage from '../views/account/SellerStorePage.vue'
 import SellerProductsPage from '../views/account/SellerProductsPage.vue'
 import SellerProductFormPage from '../views/account/SellerProductFormPage.vue'
@@ -28,6 +31,7 @@ import ProductsPage from '../views/admin/ProductsPage.vue'
 import OrdersPage from '../views/admin/OrdersPage.vue'
 import WithdrawalsPage from '../views/admin/WithdrawalsPage.vue'
 import ReportsPage from '../views/admin/ReportsPage.vue'
+import AdminTicketsPage from '../views/admin/AdminTicketsPage.vue'
 import CartsPage from '../views/admin/CartsPage.vue'
 
 const routes = [
@@ -56,6 +60,9 @@ const routes = [
       { path: 'profile', name: 'profile', component: ProfilePage },
       { path: 'chat', name: 'chat', component: ChatPage },
       { path: 'chat/:id(\\d+)', name: 'chat-detail', component: ChatPage },
+      { path: 'tickets', name: 'tickets', component: TicketListPage },
+      { path: 'tickets/new', name: 'ticket-new', component: TicketNewPage },
+      { path: 'tickets/:id(\\d+)', name: 'ticket-detail', component: TicketDetailPage },
       { path: 'seller/store', name: 'seller-store', component: SellerStorePage, meta: { requiresSeller: true } },
       { path: 'seller/products', name: 'seller-products', component: SellerProductsPage, meta: { requiresSeller: true } },
       { path: 'seller/products/new', name: 'seller-product-new', component: SellerProductFormPage, meta: { requiresSeller: true } },
@@ -78,7 +85,9 @@ const routes = [
       { path: 'orders', name: 'admin-orders', component: OrdersPage },
       { path: 'carts', name: 'admin-carts', component: CartsPage },
       { path: 'withdrawals', name: 'admin-withdrawals', component: WithdrawalsPage },
-      { path: 'reports', name: 'admin-reports', component: ReportsPage }
+      { path: 'reports', name: 'admin-reports', component: ReportsPage },
+      { path: 'tickets', name: 'admin-tickets', component: AdminTicketsPage },
+      { path: 'tickets/:id(\\d+)', name: 'admin-ticket-detail', component: TicketDetailPage }
     ]
   }
 ]

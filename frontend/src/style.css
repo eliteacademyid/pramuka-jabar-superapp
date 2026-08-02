@@ -1122,21 +1122,54 @@ button {
 }
 
 .catalog-searchbar {
-  max-width: 640px;
+  max-width: 1080px;
   margin: -1.9rem auto 0;
   padding: 0 1.5rem;
   position: relative;
   z-index: 20;
 }
 
+.catalog-toolbar {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
 .catalog-search {
   display: flex;
   gap: 0.5rem;
+  flex: 1 1 320px;
   background: var(--white);
   border-radius: 999px;
   padding: 0.35rem;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
   border: 1px solid #eadfd3;
+}
+
+.catalog-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.catalog-filters .filter-group select,
+.catalog-filters .filter-group input {
+  height: 100%;
+  padding: 0.65rem 1rem;
+  border: 1px solid #eadfd3;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  min-width: 150px;
+}
+
+.catalog-filters .filter-group select:focus,
+.catalog-filters .filter-group input:focus {
+  outline: 2px solid var(--gold);
 }
 
 .catalog-search input {
@@ -1270,59 +1303,6 @@ button {
   }
 }
 
-.filters {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 0.9rem;
-  margin-bottom: 0;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  min-width: 0;
-}
-
-.filter-group label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--brown);
-}
-
-.filter-group input,
-.filter-group select {
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  background: var(--white);
-  color: var(--text);
-}
-
-.filter-group input:focus,
-.filter-group select:focus {
-  outline: 2px solid var(--gold);
-  border-color: var(--gold);
-}
-
-.btn-filter-apply {
-  padding: 0.6rem 1.6rem;
-  border: none;
-  background: var(--brown);
-  color: var(--white);
-  font-weight: 700;
-  border-radius: 8px;
-  transition: background 0.2s ease;
-}
-
-.btn-filter-apply:hover {
-  background: var(--brown-dark);
-}
-
 .catalog-meta {
   color: #6b7280;
   font-size: 0.9rem;
@@ -1330,74 +1310,9 @@ button {
   margin-bottom: 1rem;
 }
 
-/* ---------- Marketplace: layout sidebar + konten ---------- */
-.catalog-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 1.75rem;
-  align-items: start;
-}
-
-.catalog-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  position: sticky;
-  top: 1.25rem;
-}
-
-.sidebar-block {
-  background: var(--white);
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-}
-
-.sidebar-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.95rem;
-  color: var(--brown);
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.sidebar-title i {
-  color: var(--gold);
-  font-size: 1rem;
-}
-
-.catalog-sidebar .catalog-search {
-  box-shadow: none;
-  border: 1px solid #d1d5db;
-  padding: 0.3rem;
-}
-
-.catalog-sidebar .catalog-search input {
-  padding: 0.55rem 0.9rem;
-  font-size: 0.95rem;
-}
-
-.catalog-sidebar .catalog-search-btn {
-  padding: 0.55rem 1.1rem;
-  font-size: 0.9rem;
-}
-
+/* ---------- Marketplace: katalog ---------- */
 .catalog-main {
   min-width: 0;
-}
-
-@media (max-width: 860px) {
-  .catalog-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .catalog-sidebar {
-    position: static;
-  }
 }
 
 .catalog-empty {
@@ -1406,6 +1321,18 @@ button {
   border-radius: 12px;
   padding: 3rem 1.5rem;
   font-size: 1rem;
+}
+
+@media (max-width: 720px) {
+  .catalog-search {
+    flex-basis: 100%;
+  }
+
+  .catalog-filters .filter-group select,
+  .catalog-filters .filter-group input {
+    min-width: 0;
+    flex: 1 1 140px;
+  }
 }
 
 /* ---------- Marketplace: product grid & card ---------- */
@@ -1990,4 +1917,210 @@ button {
   .notif-dropdown {
     width: min(340px, calc(100vw - 2rem));
   }
+}
+
+/* ---------- Tiket Perselisihan ---------- */
+.status-open {
+  background: #fff3e0;
+  color: #b26a00;
+}
+
+.status-in_review {
+  background: #e8f0fe;
+  color: #1a56b8;
+}
+
+.status-resolved {
+  background: #e6f4ea;
+  color: #1e7d34;
+}
+
+.status-closed {
+  background: #eceae8;
+  color: #555;
+}
+
+.status-pending_payment {
+  background: #fff3e0;
+  color: #b26a00;
+}
+
+.status-paid,
+.status-processed {
+  background: #e8f0fe;
+  color: #1a56b8;
+}
+
+.status-shipped {
+  background: #ede7f6;
+  color: #5e35b1;
+}
+
+.status-delivered,
+.status-completed,
+.status-refunded {
+  background: #e6f4ea;
+  color: #1e7d34;
+}
+
+.status-cancelled {
+  background: #fdecea;
+  color: #c62828;
+}
+
+.ticket-meta {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.4rem 0 1rem;
+}
+
+.ticket-desc {
+  background: var(--cream);
+  border: 1px solid #eadfd3;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.ticket-desc h3 {
+  color: var(--brown);
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+}
+
+.ticket-msgs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.ticket-msg {
+  max-width: 72%;
+  align-self: flex-start;
+  background: var(--cream);
+  border: 1px solid #eadfd3;
+  border-radius: 12px;
+  padding: 0.55rem 0.8rem;
+}
+
+.ticket-msg.mine {
+  align-self: flex-end;
+  background: var(--maroon);
+  border-color: var(--maroon);
+  color: var(--white);
+}
+
+.ticket-msg-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.8rem;
+  font-size: 0.72rem;
+  color: var(--brown);
+  margin-bottom: 0.2rem;
+}
+
+.ticket-msg-head span {
+  color: #999;
+}
+
+.ticket-msg.mine .ticket-msg-head {
+  color: #f3e2c8;
+}
+
+.ticket-msg.mine .ticket-msg-head span {
+  color: #d9c4a5;
+}
+
+.ticket-msg-body {
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ticket-input {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ticket-input input {
+  flex: 1;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d8c9b5;
+  border-radius: 999px;
+}
+
+.ticket-status-box {
+  background: var(--cream);
+  border: 1px solid #eadfd3;
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.2rem;
+}
+
+.ticket-status-box h3 {
+  color: var(--brown);
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+}
+
+.ticket-status-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.ticket-status-actions .btn-small {
+  margin-right: 0;
+}
+
+.ticket-history ul {
+  margin-bottom: 0;
+}
+
+.form-stack {
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-stack .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.form-stack label {
+  font-weight: 600;
+  color: var(--brown);
+  font-size: 0.9rem;
+}
+
+.form-stack input,
+.form-stack select,
+.form-stack textarea {
+  padding: 0.6rem 0.9rem;
+  border: 1px solid #d8c9b5;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+
+.form-stack textarea {
+  resize: vertical;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.page-header .btn-submit,
+.page-header .btn-small {
+  text-decoration: none;
 }

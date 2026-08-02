@@ -50,6 +50,14 @@
           <button v-if="order.status === 'shipped'" class="btn-submit" style="max-width: 220px" @click="confirmReceipt">
             Saya Sudah Terima
           </button>
+          <router-link
+            v-if="['paid', 'processed', 'shipped', 'delivered', 'completed'].includes(order.status)"
+            :to="{ name: 'ticket-new', query: { order: order.order_code } }"
+            class="btn-small"
+            style="text-decoration: none"
+          >
+            <i class="fas fa-life-ring"></i> Ajukan Perselisihan
+          </router-link>
         </div>
 
         <div v-if="canReview" class="review-box">

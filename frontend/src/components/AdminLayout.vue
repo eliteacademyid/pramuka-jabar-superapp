@@ -61,6 +61,9 @@ function logout() {
         <router-link to="/admin/reports" class="sidebar-link">
           Laporan
         </router-link>
+        <router-link to="/admin/tickets" class="sidebar-link">
+          Perselisihan
+        </router-link>
       </nav>
 
       <div class="sidebar-section-label">Menu Lainnya (Segera Hadir)</div>

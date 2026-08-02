@@ -103,6 +103,19 @@
 > (lonceng + badge unread + dropdown daftar, polling 10 detik, tandai semua
 > dibaca) dipasang di topbar halaman publik & header sidebar akun; 87 test
 > otomatis.
+> Pembaruan v1.18: **ticketing perselisihan penjual–pembeli** — tabel
+> `tickets`, `ticket_messages`, `ticket_status_history`; pembeli/penjual dari
+> pesanan yang sudah dibayar dapat membuka tiket (`POST /api/tickets`, maks.
+> 1 tiket aktif per pesanan, kode `TKT-XXXXXXXX`), balas pesan, dan menutup
+> tiket sendiri; admin meninjau (`in_review`), menyelesaikan (`resolved`),
+> atau menutup (`closed`) dengan catatan; setiap perubahan status tercatat di
+> riwayat beserta pelaku & waktu (status tracking + history transaksi); notifikasi
+> otomatis ke kedua pihak & admin; halaman `/account/tickets` (daftar, buat
+> tiket dari detail pesanan, detail dgn thread + timeline status) dan
+> `/admin/tickets`; 94 test otomatis.
+> Pembaruan v1.19: **filter katalog pindah di samping pencarian** — toolbar
+> tunggal di bawah banner: pil pencarian + select kategori + input lokasi +
+> select urutkan + tombol Cari sejajar; panel samping katalog dihapus.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -205,7 +218,7 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
 | Database | PostgreSQL 16 (docker) | 16 tabel inti; transaksi atomic untuk escrow & wallet |
 | Frontend | Vue 3 (Composition API) + Vite + vue-router + axios | SPA; baseURL API dinamis (`VITE_API_URL` atau host halaman:8000) agar dapat diakses via LAN |
 | Deployment | Docker Compose (db, backend:8000, frontend:5173) | Seed otomatis akun admin & demo data saat startup |
-| Testing | pytest + httpx (TestClient, SQLite) | 87 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread, notifikasi in-app) |
+| Testing | pytest + httpx (TestClient, SQLite) | 94 test: auth, toko/produk, keranjang, order, wallet, ulasan, chat, admin (termasuk RBAC staff, monitor keranjang user, lokasi & sort harga, saran pencarian, sort rating & banyak ulasan, chat mandiri pra-pesanan & unread, notifikasi in-app, tiket perselisihan) |
 
 ---
 

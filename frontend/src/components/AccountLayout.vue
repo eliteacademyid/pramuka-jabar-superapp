@@ -17,6 +17,7 @@
           <span v-if="totalUnread" class="sidebar-badge">{{ totalUnread }}</span>
         </router-link>
         <router-link class="sidebar-link" to="/account/wallet">Wallet</router-link>
+        <router-link class="sidebar-link" to="/account/tickets">Perselisihan</router-link>
         <router-link class="sidebar-link" to="/account/profile">Profil & Alamat</router-link>
 
         <template v-if="me && hasActiveStore(me)">
