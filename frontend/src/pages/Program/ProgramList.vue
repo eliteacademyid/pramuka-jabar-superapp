@@ -8,10 +8,11 @@
     </div>
 
     <!-- Filter Card -->
-    <div class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-soft md:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-soft md:grid-cols-4">
       <ProgramSearch @search="onSearch" />
       <ProgramYearFilter @change="onYearChange" />
       <ProgramStatusFilter @change="onStatusChange" />
+      <ProgramSorting @change="onSortChange" />
     </div>
 
     <!-- Program Table (Placeholder for now) -->
@@ -33,13 +34,16 @@ import { ref } from 'vue'
 import ProgramSearch from '@/components/ProgramSearch.vue'
 import ProgramYearFilter from '@/components/ProgramYearFilter.vue'
 import ProgramStatusFilter from '@/components/ProgramStatusFilter.vue'
+import ProgramSorting from '@/components/ProgramSorting.vue'
 import ProgramPagination from '@/components/ProgramPagination.vue'
 
-const emit = defineEmits(['search', 'yearFilter', 'statusFilter', 'pageChange'])
+const emit = defineEmits(['search', 'yearFilter', 'statusFilter', 'sortChange', 'pageChange'])
 
 const searchQuery = ref('')
 const selectedYear = ref('')
 const selectedStatus = ref('')
+const sortBy = ref('tahun')
+const sortDir = ref('desc')
 
 // Pagination state
 const currentPage = ref(1)
@@ -60,6 +64,12 @@ function onYearChange(year) {
 function onStatusChange(status) {
   selectedStatus.value = status
   emit('statusFilter', status)
+}
+
+function onSortChange({ order_by, order_dir }) {
+  sortBy.value = order_by
+  sortDir.value = order_dir
+  emit('sortChange', { order_by, order_dir })
 }
 
 function onPageChange(page) {
