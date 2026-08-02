@@ -10,6 +10,7 @@ import DataAnggota from '../views/keanggotaan/DataAnggota.vue'
 import PemetaanKompetensi from '../views/keanggotaan/PemetaanKompetensi.vue'
 import Rekapitulasi from '../views/keanggotaan/Rekapitulasi.vue'
 import AdministrasiKeanggotaan from '../views/keanggotaan/AdministrasiKeanggotaan.vue'
+import EKta from '../views/keanggotaan/EKta.vue'
 
 const routes = [
   {
@@ -38,7 +39,8 @@ const routes = [
       { path: 'anggota', name: 'keanggotaan-anggota', component: DataAnggota },
       { path: 'kompetensi', name: 'keanggotaan-kompetensi', component: PemetaanKompetensi },
       { path: 'rekap', name: 'keanggotaan-rekap', component: Rekapitulasi },
-      { path: 'administrasi', name: 'keanggotaan-administrasi', component: AdministrasiKeanggotaan }
+      { path: 'administrasi', name: 'keanggotaan-administrasi', component: AdministrasiKeanggotaan },
+      { path: 'e-kta', name: 'keanggotaan-e-kta', component: EKta }
     ]
   }
 ]

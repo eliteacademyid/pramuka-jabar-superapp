@@ -11,6 +11,7 @@ from app.routers import kompetensi_master as kompetensi_router
 from app.routers import capaian_kompetensi as capaian_router
 from app.routers import referensi as referensi_router
 from app.routers import rekap as rekap_router
+from app.routers import kta as kta_router
 from app.seed import seed_default_admin
 
 Base.metadata.create_all(bind=engine)
@@ -33,6 +34,7 @@ app.include_router(kompetensi_router.router, prefix="/api")
 app.include_router(capaian_router.router, prefix="/api")
 app.include_router(referensi_router.router, prefix="/api")
 app.include_router(rekap_router.router, prefix="/api")
+app.include_router(kta_router.router, prefix="/api")
 
 
 @app.on_event("startup")

@@ -172,6 +172,29 @@ class PotensiMinatOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class KtaOut(BaseModel):
+    id: int
+    anggota_id: int
+    nomor_kta: str
+    tanggal_terbit: datetime
+    tanggal_berlaku: datetime
+    qr_data: Optional[str] = None
+    status: str
+
+    model_config = {"from_attributes": True}
+
+
+class KtaDetailOut(KtaOut):
+    nta: str
+    nama_lengkap: str
+    jenjang: str
+    jenis_kelamin: str
+    alamat: Optional[str] = None
+    gudep: Optional[str] = None
+    kwarran: Optional[str] = None
+    kwarcab: Optional[str] = None
+
+
 class LogAuditOut(BaseModel):
     id: int
     pengguna_id: int

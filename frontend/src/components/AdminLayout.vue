@@ -53,6 +53,9 @@ function logout() {
         <router-link to="/keanggotaan/administrasi" class="sidebar-link">
           Administrasi Keanggotaan
         </router-link>
+        <router-link to="/keanggotaan/e-kta" class="sidebar-link">
+          e-KTA Anggota
+        </router-link>
       </nav>
 
       <div class="sidebar-section-label">Sistem</div>

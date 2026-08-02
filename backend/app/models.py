@@ -143,6 +143,21 @@ class PotensiMinat(Base):
     anggota = relationship("Anggota", back_populates="potensi_minat")
 
 
+class Kta(Base):
+    __tablename__ = "kta"
+
+    id = Column(Integer, primary_key=True, index=True)
+    anggota_id = Column(Integer, ForeignKey("anggota.id"), nullable=False)
+    nomor_kta = Column(String, unique=True, index=True, nullable=False)
+    tanggal_terbit = Column(DateTime, default=datetime.utcnow)
+    tanggal_berlaku = Column(DateTime, nullable=False)
+    qr_data = Column(Text, nullable=True)
+    status = Column(String, default="aktif")
+
+    # Relationships
+    anggota = relationship("Anggota")
+
+
 class LogAudit(Base):
     __tablename__ = "log_audit"
 
