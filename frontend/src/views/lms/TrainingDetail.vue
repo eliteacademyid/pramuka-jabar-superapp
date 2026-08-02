@@ -30,7 +30,8 @@ async function fetchTrainingData() {
   error.value = ''
   try {
     const tRes = await lmsService.getTrainings()
-    training.value = tRes.data.find(t => t.id == trainingId)
+    const allTrainings = tRes.data.items || tRes.data
+    training.value = allTrainings.find(t => t.id == trainingId)
 
     if (!training.value) {
       error.value = 'Pelatihan tidak ditemukan'

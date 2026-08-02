@@ -13,8 +13,9 @@ onMounted(async () => {
     enrollments.value = eRes.data
 
     if (enrollments.value.length > 0) {
-      const tRes = await lmsService.getTrainings()
-      tRes.data.forEach(t => {
+      const tRes = await lmsService.getTrainings({ limit: 100 })
+      const allTrainings = tRes.data.items || tRes.data
+      allTrainings.forEach(t => {
         trainings.value[t.id] = t
       })
     }
