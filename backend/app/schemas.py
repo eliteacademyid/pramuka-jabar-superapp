@@ -176,12 +176,18 @@ class KtaOut(BaseModel):
     id: int
     anggota_id: int
     nomor_kta: str
+    nomor_kta_nasional: Optional[str] = None
     tanggal_terbit: datetime
     tanggal_berlaku: datetime
     qr_data: Optional[str] = None
     status: str
 
     model_config = {"from_attributes": True}
+
+
+class KtaUpdate(BaseModel):
+    nomor_kta_nasional: Optional[str] = None
+    status: Optional[str] = None
 
 
 class KtaDetailOut(KtaOut):

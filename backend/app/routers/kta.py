@@ -51,6 +51,7 @@ def _build_detail(kta: models.Kta, db: Session) -> dict:
         "id": kta.id,
         "anggota_id": kta.anggota_id,
         "nomor_kta": kta.nomor_kta,
+        "nomor_kta_nasional": kta.nomor_kta_nasional,
         "tanggal_terbit": kta.tanggal_terbit,
         "tanggal_berlaku": kta.tanggal_berlaku,
         "qr_data": kta.qr_data,
@@ -64,6 +65,29 @@ def _build_detail(kta: models.Kta, db: Session) -> dict:
         "kwarran": kwarran,
         "kwarcab": kwarcab,
     }
+
+
+def _qr_data(db: Session, kta: models.Kta, anggota: models.Anggota) -> str:
+    gudep = db.query(models.Gudep).filter(models.Gudep.id == anggota.gudep_id).first() if anggota.gudep_id else None
+    wilayah = db.query(models.Wilayah).filter(models.Wilayah.id == gudep.wilayah_id).first() if gudep else None
+    kwarcab = None
+    if wilayah:
+        if wilayah.tingkat == "Kwartir Cabang":
+            kwarcab = wilayah.nama
+        elif wilayah.parent_id:
+            cabang = db.query(models.Wilayah).filter(models.Wilayah.id == wilayah.parent_id).first()
+            kwarcab = cabang.nama if cabang else None
+    parts = [
+        f"KTA {kta.nomor_kta}",
+        f"NTA {anggota.nta}",
+        anggota.nama_lengkap,
+        anggota.jenjang,
+        f"Gudep {gudep.nama if gudep else '-'}",
+        f"Kwarcab {kwarcab if kwarcab else '-'}",
+    ]
+    if kta.nomor_kta_nasional:
+        parts.insert(1, f"KTA Nasional {kta.nomor_kta_nasional}")
+    return " | ".join(parts)
 
 
 @router.get("/", response_model=List[schemas.KtaDetailOut])
@@ -87,29 +111,14 @@ def generate_kta(
         return _build_detail(existing, db)
 
     nomor_kta = _generate_nomor_kta(db, anggota)
-    gudep = db.query(models.Gudep).filter(models.Gudep.id == anggota.gudep_id).first() if anggota.gudep_id else None
-    wilayah = db.query(models.Wilayah).filter(models.Wilayah.id == gudep.wilayah_id).first() if gudep else None
-    kwarran = wilayah.nama if wilayah and wilayah.tingkat == "Kwartir Ranting" else None
-    kwarcab = None
-    if wilayah:
-        if wilayah.tingkat == "Kwartir Cabang":
-            kwarcab = wilayah.nama
-        elif wilayah.parent_id:
-            cabang = db.query(models.Wilayah).filter(models.Wilayah.id == wilayah.parent_id).first()
-            kwarcab = cabang.nama if cabang else None
-    qr_data = (
-        f"KTA {nomor_kta} | NTA {anggota.nta} | {anggota.nama_lengkap} | "
-        f"{anggota.jenjang} | Gudep {gudep.nama if gudep else '-'} | "
-        f"Kwarcab {kwarcab if kwarcab else '-'}"
-    )
     kta = models.Kta(
         anggota_id=anggota_id,
         nomor_kta=nomor_kta,
         tanggal_terbit=datetime.utcnow(),
         tanggal_berlaku=datetime.utcnow() + timedelta(days=365 * 3),
-        qr_data=qr_data,
         status="aktif",
     )
+    kta.qr_data = _qr_data(db, kta, anggota)
     db.add(kta)
     db.commit()
     db.refresh(kta)
@@ -123,4 +132,23 @@ def get_kta(
     _: models.User = Depends(get_current_user),
 ):
     kta = _kta_or_404(db, kta_id)
+    return _build_detail(kta, db)
+
+
+@router.put("/{kta_id}", response_model=schemas.KtaDetailOut)
+def update_kta(
+    kta_id: int,
+    payload: schemas.KtaUpdate,
+    db: Session = Depends(get_db),
+    _: models.User = Depends(get_current_user),
+):
+    kta = _kta_or_404(db, kta_id)
+    if payload.nomor_kta_nasional is not None:
+        kta.nomor_kta_nasional = payload.nomor_kta_nasional.strip() or None
+    if payload.status is not None:
+        kta.status = payload.status
+    anggota = db.query(models.Anggota).filter(models.Anggota.id == kta.anggota_id).first()
+    kta.qr_data = _qr_data(db, kta, anggota)
+    db.commit()
+    db.refresh(kta)
     return _build_detail(kta, db)

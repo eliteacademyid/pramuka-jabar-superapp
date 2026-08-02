@@ -10,6 +10,9 @@ const ktaList = ref([])
 const selectedKta = ref(null)
 const showModal = ref(false)
 const qrDataUrl = ref('')
+const ktaNasionalInput = ref({})
+
+const AYO_PRAMUKA_URL = 'https://ayopramuka-kwarnas.id/'
 
 const jenjangLabels = { siaga: 'Siaga', penggalang: 'Penggalang', penegak: 'Penegak', pandega: 'Pandega', dewasa: 'Dewasa' }
 
@@ -29,10 +32,21 @@ async function loadData() {
     ])
     anggotaList.value = anggota.data
     ktaList.value = kta.data
+    for (const k of kta.data) ktaNasionalInput.value[k.id] = k.nomor_kta_nasional || ''
   } catch (err) {
     errorMessage.value = err.response?.data?.detail || 'Gagal memuat data anggota.'
   } finally {
     loading.value = false
+  }
+}
+
+async function saveKtaNasional(ktaId) {
+  errorMessage.value = ''
+  try {
+    await api.put(`/kta/${ktaId}`, { nomor_kta_nasional: ktaNasionalInput.value[ktaId] || '' })
+    await loadData()
+  } catch (err) {
+    errorMessage.value = err.response?.data?.detail || 'Gagal menyimpan No. KTA Nasional.'
   }
 }
 
@@ -106,6 +120,7 @@ function printCard() {
         <div class="right">
           <h1>${k.nama_lengkap || ''}</h1>
           <div class="field"><span class="label">Nomor KTA</span><span class="val">${k.nomor_kta}</span></div>
+          ${k.nomor_kta_nasional ? `<div class="field"><span class="label">KTA Nasional</span><span class="val">${k.nomor_kta_nasional}</span></div>` : ''}
           <div class="field"><span class="label">NTA</span><span class="val">${k.nta || '-'}</span></div>
           <div class="field"><span class="label">Jenjang</span><span class="val">${jenjangLabels[k.jenjang] || k.jenjang || '-'}</span></div>
           <div class="field"><span class="label">Gugus Depan</span><span class="val">${k.gudep || '-'}</span></div>
@@ -148,7 +163,7 @@ onMounted(loadData)
           <th>Jenjang</th>
           <th>Gudep</th>
           <th>Nomor KTA</th>
-          <th>Masa Berlaku</th>
+          <th>No. KTA Nasional (Ayo Pramuka)</th>
           <th class="ta-right">Aksi</th>
         </tr>
       </thead>
@@ -159,7 +174,17 @@ onMounted(loadData)
           <td>{{ jenjangLabels[anggota.jenjang] || anggota.jenjang }}</td>
           <td>{{ anggota.gudep?.nama || '-' }}</td>
           <td>{{ ktaByAnggota[anggota.id]?.nomor_kta || '-' }}</td>
-          <td>{{ ktaByAnggota[anggota.id] ? formatDate(ktaByAnggota[anggota.id].tanggal_berlaku) : '-' }}</td>
+          <td>
+            <div v-if="hasKta(anggota)" class="kta-nasional-cell">
+              <input
+                v-model="ktaNasionalInput[ktaByAnggota[anggota.id].id]"
+                class="input-nas"
+                placeholder="contoh: KTA-2026-xxxxx"
+              />
+              <button class="btn-small" @click="saveKtaNasional(ktaByAnggota[anggota.id].id)">Simpan</button>
+            </div>
+            <span v-else>-</span>
+          </td>
           <td class="ta-right">
             <template v-if="hasKta(anggota)">
               <button class="btn-small" @click="showCard(ktaByAnggota[anggota.id].id)">Lihat Kartu</button>
@@ -169,7 +194,7 @@ onMounted(loadData)
             </template>
           </td>
         </tr>
-        <tr v-if="anggotaList.length === 0"><td colspan="7" class="empty-row">Belum ada data anggota.</td></tr>
+        <tr v-if="anggotaList.length === 0"><td colspan="8" class="empty-row">Belum ada data anggota.</td></tr>
       </tbody>
     </table>
     <p v-else class="greeting">Memuat data...</p>
@@ -191,6 +216,7 @@ onMounted(loadData)
               <div class="kta-right">
                 <h1>{{ selectedKta.nama_lengkap }}</h1>
                 <div class="kta-field"><span class="kta-label">Nomor KTA</span><span>{{ selectedKta.nomor_kta }}</span></div>
+                <div class="kta-field" v-if="selectedKta.nomor_kta_nasional"><span class="kta-label">KTA Nasional</span><span>{{ selectedKta.nomor_kta_nasional }}</span></div>
                 <div class="kta-field"><span class="kta-label">NTA</span><span>{{ selectedKta.nta || '-' }}</span></div>
                 <div class="kta-field"><span class="kta-label">Jenjang</span><span>{{ jenjangLabels[selectedKta.jenjang] || selectedKta.jenjang }}</span></div>
                 <div class="kta-field"><span class="kta-label">Gugus Depan</span><span>{{ selectedKta.gudep || '-' }}</span></div>
@@ -202,6 +228,9 @@ onMounted(loadData)
             <div class="kta-footer">Berlaku s.d. {{ formatDate(selectedKta.tanggal_berlaku) }} — {{ selectedKta.status.toUpperCase() }}</div>
           </div>
           <div class="modal-actions">
+            <a class="btn-small btn-link" :href="AYO_PRAMUKA_URL" target="_blank" rel="noopener">
+              Verifikasi di Ayo Pramuka ↗
+            </a>
             <button class="btn-small" @click="printCard">Cetak</button>
             <button class="btn-small" @click="showModal = false">Tutup</button>
           </div>
@@ -225,6 +254,27 @@ onMounted(loadData)
 
 .ta-right {
   text-align: right;
+}
+
+.kta-nasional-cell {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.input-nas {
+  width: 130px;
+  padding: 5px 8px;
+  border: 1px solid #c9a24b;
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.btn-link {
+  text-decoration: none;
+  border-color: #2e5e2e;
+  color: #2e5e2e;
+  background: #eef4ee;
 }
 
 .modal-overlay {
