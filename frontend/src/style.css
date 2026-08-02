@@ -1111,7 +1111,7 @@ button {
 .catalog-hero {
   background: linear-gradient(135deg, var(--brown) 0%, var(--brown-dark) 100%);
   color: var(--on-accent);
-  padding: 4rem 1.5rem;
+  padding: 2rem 1.5rem;
   border-bottom: none;
 }
 
@@ -1123,22 +1123,23 @@ button {
 
 .catalog-eyebrow {
   display: inline-block;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .catalog-hero h1 {
-  font-size: clamp(1.8rem, 4vw, 2.5rem);
-  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 3.5vw, 2.1rem);
+  margin-bottom: 0.4rem;
 }
 
 .catalog-hero p {
   color: var(--cream);
-  margin-bottom: 1.75rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -1253,11 +1254,11 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
+  gap: 0.6rem;
   background: var(--white);
   border: none;
   border-radius: 999px;
-  padding: 0.55rem 1rem;
+  padding: 0.65rem 1.1rem;
   text-align: center;
   cursor: pointer;
   font-family: inherit;
@@ -1271,14 +1272,14 @@ button {
 }
 
 .cat-card i {
-  font-size: 1rem;
+  font-size: 1.2rem;
   color: var(--brown);
   flex: none;
 }
 
 .cat-card h3 {
   color: #1a1a1a;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   white-space: nowrap;
 }
 
