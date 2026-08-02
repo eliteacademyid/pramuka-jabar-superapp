@@ -190,6 +190,7 @@ class Laporan(Base):
     periode = Column(String(50), nullable=True)
     deskripsi = Column(Text, nullable=True)
     status = Column(String(20), nullable=False, default=LaporanStatus.draft.value, index=True)
+    deadline = Column(DateTime, nullable=True, index=True)
     realisasi_id = Column(Integer, ForeignKey("realisasi.id"), nullable=True, index=True)
     created_by_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     approved_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
@@ -229,3 +230,24 @@ class Approval(Base):
 
     laporan = relationship("Laporan", back_populates="approvals")
     reviewer = relationship("User", back_populates="approvals")
+
+
+class DeadlineReminder(Base):
+    __tablename__ = "deadline_reminders"
+
+    id = Column(Integer, primary_key=True, index=True)
+    laporan_id = Column(Integer, ForeignKey("laporans.id"), nullable=False, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    reminder_type = Column(String(20), nullable=False, index=True)  # "3_hari_lagi", "1_hari_lagi", "terlambat"
+    is_sent = Column(Boolean, nullable=False, default=False, index=True)
+    sent_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    # Composite index untuk filter user + reminder status
+    __table_args__ = (
+        Index("ix_deadline_reminders_user_sent", "user_id", "is_sent"),
+        Index("ix_deadline_reminders_laporan_type", "laporan_id", "reminder_type"),
+    )
+
+    laporan = relationship("Laporan")
+    user = relationship("User")
