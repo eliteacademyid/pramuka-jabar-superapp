@@ -1,15 +1,6 @@
-import axios from 'axios'
-
-const api = axios.create({
-  baseURL: 'http://localhost:8000/api'
-})
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
-  }
-  return config
-})
-
-export default api
+/**
+ * @deprecated Use src/api/axios.js instead.
+ * This file is kept for backward compatibility only.
+ * All new code should import from '../api/axios'.
+ */
+export { default } from '../api/axios'
