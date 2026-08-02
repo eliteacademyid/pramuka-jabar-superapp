@@ -61,6 +61,7 @@ def create_anggota(
         tanggal_lahir=payload.tanggal_lahir,
         jenis_kelamin=payload.jenis_kelamin,
         jenjang=payload.jenjang,
+        alamat=payload.alamat,
         status_aktif=payload.status_aktif,
         gudep_id=payload.gudep_id,
     )
@@ -181,6 +182,7 @@ def update_anggota(
     anggota.tanggal_lahir = payload.tanggal_lahir
     anggota.jenis_kelamin = payload.jenis_kelamin
     anggota.jenjang = payload.jenjang
+    anggota.alamat = payload.alamat
     anggota.status_aktif = payload.status_aktif
     
     # Check gudep scope

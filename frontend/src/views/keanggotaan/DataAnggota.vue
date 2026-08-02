@@ -12,7 +12,7 @@ const selectedJenjang = ref('')
 const showModal = ref(false)
 const isEdit = ref(false)
 const editingId = ref(null)
-const form = ref({ nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, kwarcab: '', kwarran: '', gudep_nama: '' })
+const form = ref({ nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', alamat: '', status_aktif: true, kwarcab: '', kwarran: '', gudep_nama: '' })
 const formError = ref('')
 const saving = ref(false)
 
@@ -62,7 +62,7 @@ function kwarcabNama(gudepId) {
 function openCreate() {
   isEdit.value = false
   editingId.value = null
-  form.value = { nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, kwarcab: '', kwarran: '', gudep_nama: '' }
+  form.value = { nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', alamat: '', status_aktif: true, kwarcab: '', kwarran: '', gudep_nama: '' }
   formError.value = ''
   showModal.value = true
 }
@@ -76,6 +76,7 @@ function openEdit(a) {
     tanggal_lahir: a.tanggal_lahir.slice(0, 10),
     jenis_kelamin: a.jenis_kelamin,
     jenjang: a.jenjang,
+    alamat: a.alamat || '',
     status_aktif: a.status_aktif,
     kwarcab: kwarcabNama(a.gudep_id),
     kwarran: kwarranNama(a.gudep_id),
@@ -121,6 +122,7 @@ async function saveAnggota() {
       tanggal_lahir: new Date(form.value.tanggal_lahir).toISOString(),
       jenis_kelamin: form.value.jenis_kelamin,
       jenjang: form.value.jenjang,
+      alamat: form.value.alamat,
       status_aktif: form.value.status_aktif,
       gudep_id: gudepId
     }
@@ -186,6 +188,7 @@ function formatTanggal(iso) {
             <th>ID</th>
             <th>NTA</th>
             <th>Nama Lengkap</th>
+            <th>Alamat</th>
             <th>Jenjang</th>
             <th>Jenis Kelamin</th>
             <th>Kwarcab</th>
@@ -200,6 +203,7 @@ function formatTanggal(iso) {
             <td>{{ a.id }}</td>
             <td>{{ a.nta }}</td>
             <td>{{ a.nama_lengkap }}</td>
+            <td>{{ a.alamat || '-' }}</td>
             <td>{{ jenjangLabels[a.jenjang] || a.jenjang }}</td>
             <td>{{ a.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
             <td>{{ kwarcabNama(a.gudep_id) }}</td>
@@ -216,7 +220,7 @@ function formatTanggal(iso) {
             </td>
           </tr>
           <tr v-if="filtered().length === 0">
-            <td colspan="10" class="empty-row">Belum ada data anggota.</td>
+            <td colspan="11" class="empty-row">Belum ada data anggota.</td>
           </tr>
         </tbody>
       </table>
@@ -236,6 +240,15 @@ function formatTanggal(iso) {
         <div class="form-group">
           <label for="m-nama">Nama Lengkap</label>
           <input id="m-nama" v-model="form.nama_lengkap" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="m-alamat">Alamat</label>
+          <input
+            id="m-alamat"
+            v-model="form.alamat"
+            type="text"
+            placeholder="Contoh: Jl. Merdeka No. 1, Kota Bandung"
+          />
         </div>
         <div class="form-grid">
           <div class="form-group">

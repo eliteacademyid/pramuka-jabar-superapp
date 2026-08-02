@@ -82,6 +82,7 @@ class AnggotaCreate(BaseModel):
     tanggal_lahir: datetime
     jenis_kelamin: str
     jenjang: Jenjang
+    alamat: Optional[str] = None
     status_aktif: bool = True
     gudep_id: int
 
@@ -93,6 +94,7 @@ class AnggotaOut(BaseModel):
     tanggal_lahir: datetime
     jenis_kelamin: str
     jenjang: Jenjang
+    alamat: Optional[str] = None
     status_aktif: bool
     gudep_id: int
     user_id: Optional[int] = None

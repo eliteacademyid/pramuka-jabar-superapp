@@ -77,6 +77,7 @@ class Anggota(Base):
     tanggal_lahir = Column(DateTime, nullable=False)
     jenis_kelamin = Column(String, nullable=False)
     jenjang = Column(String, nullable=False)
+    alamat = Column(Text, nullable=True)
     status_aktif = Column(Boolean, default=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     gudep_id = Column(Integer, ForeignKey("gudep.id"), nullable=False)
