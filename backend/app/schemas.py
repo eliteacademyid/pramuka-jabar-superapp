@@ -476,6 +476,7 @@ class ConversationOut(BaseModel):
     last_message: Optional[str] = None
     last_message_at: Optional[datetime] = None
     unread_count: int = 0
+    i_am_seller: bool = False
     created_at: datetime
 
 

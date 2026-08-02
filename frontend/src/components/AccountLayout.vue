@@ -11,7 +11,10 @@
         <router-link class="sidebar-link" to="/catalog">Katalog</router-link>
         <router-link class="sidebar-link" to="/account/cart">Keranjang</router-link>
         <router-link class="sidebar-link" to="/account/orders">Pesanan Saya</router-link>
-        <router-link class="sidebar-link" to="/account/chat">Chat</router-link>
+        <router-link class="sidebar-link" to="/account/chat">
+          Chat
+          <span v-if="totalUnread" class="sidebar-badge">{{ totalUnread }}</span>
+        </router-link>
         <router-link class="sidebar-link" to="/account/wallet">Wallet</router-link>
         <router-link class="sidebar-link" to="/account/profile">Profil & Alamat</router-link>
 
@@ -21,6 +24,10 @@
           <router-link class="sidebar-link" to="/account/seller/dashboard">Dashboard Penjual</router-link>
           <router-link class="sidebar-link" to="/account/seller/products">Produk</router-link>
           <router-link class="sidebar-link" to="/account/seller/orders">Pesanan Masuk</router-link>
+          <router-link class="sidebar-link" to="/account/seller/chat">
+            Pesan Masuk
+            <span v-if="sellerUnread" class="sidebar-badge">{{ sellerUnread }}</span>
+          </router-link>
           <router-link class="sidebar-link" to="/account/seller/withdraw">Pencairan Dana</router-link>
         </template>
       </nav>
@@ -41,16 +48,37 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { fetchMe, clearSession, hasActiveStore } from '../services/session'
+import api from '../services/api'
 
 const router = useRouter()
 const me = ref(null)
+const convs = ref([])
+let timer = null
+
+const totalUnread = computed(() => convs.value.reduce((n, c) => n + (c.unread_count || 0), 0))
+const sellerUnread = computed(() =>
+  convs.value.filter((c) => c.i_am_seller).reduce((n, c) => n + (c.unread_count || 0), 0)
+)
+
+async function loadUnread() {
+  try {
+    const { data } = await api.get('/conversations')
+    convs.value = data
+  } catch {
+    /* ignore */
+  }
+}
 
 onMounted(async () => {
   me.value = await fetchMe()
+  loadUnread()
+  timer = setInterval(loadUnread, 10000)
 })
+
+onBeforeUnmount(() => clearInterval(timer))
 
 function logout() {
   clearSession()

@@ -43,6 +43,7 @@ def _get_conv_or_403(
 def _conv_out(db: Session, conv: models.Conversation, user: models.User) -> schemas.ConversationOut:
     order = conv.order
     product = conv.product
+    store = order.store if order else (product.store if product else None)
     last = (
         db.query(models.Message)
         .filter(models.Message.conversation_id == conv.id)
@@ -73,12 +74,13 @@ def _conv_out(db: Session, conv: models.Conversation, user: models.User) -> sche
         order_status=order.status if order else None,
         product_name=product.name if product else None,
         product_slug=product.slug if product else None,
-        store_name=(order.store.name if order else (product.store.name if product else None)),
-        store_slug=(order.store.slug if order else (product.store.slug if product else None)),
+        store_name=store.name if store else None,
+        store_slug=store.slug if store else None,
         participants=participants,
         last_message=last.body if last else None,
         last_message_at=last.created_at if last else None,
         unread_count=unread,
+        i_am_seller=(store.owner_id == user.id if store else False),
         created_at=conv.created_at,
     )
 

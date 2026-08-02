@@ -790,7 +790,10 @@ button {
 }
 
 .sidebar-link {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
   padding: 0.7rem 1rem;
   color: #e8ddd3;
   text-decoration: none;
@@ -798,6 +801,16 @@ button {
   font-weight: 600;
   font-size: 0.95rem;
   transition: background 0.2s ease;
+}
+
+.sidebar-badge {
+  flex: none;
+  background: var(--gold);
+  color: var(--brown);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.1rem 0.5rem;
 }
 
 .sidebar-link:hover {

@@ -72,6 +72,12 @@
 > menampilkan nama toko, produk, pratinjau pesan terakhir, jumlah pesan belum
 > dibaca, dan pembaruan otomatis (polling); akses dibatasi pembeli–penjual–
 > admin; 82 test otomatis.
+> Pembaruan v1.13: **inbox penjual & badge pesan belum dibaca** — menu "Pesan
+> Masuk" khusus penjual di sidebar Toko Saya (`/account/seller/chat`)
+> menampilkan percakapan dari pembeli saja (filter `i_am_seller` per
+> percakapan, nama lawan bicara tampil sebagai pembeli); menu Chat di sidebar
+> akun menampilkan badge jumlah pesan belum dibaca (total & khusus penjual)
+> yang diperbarui otomatis via polling; 82 test otomatis.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.
@@ -229,6 +235,14 @@ Pendekatan arsitektur: **API-first modular monolith** (monolitik modular dengan 
   dengan balon kiri/kanan); polling otomatis 4–5 detik untuk pesan & daftar;
   read receipt (`read_at`) ditandai saat percakapan dibuka; akses pembeli,
   pemilik toko, dan admin.
+- **Implementasi v1.13**: inbox penjual — menu "Pesan Masuk" pada sidebar Toko
+  Saya (`/account/seller/chat`, butuh toko aktif) menampilkan hanya percakapan
+  yang user-nya berperan penjual (filter `i_am_seller` dari `GET
+  /api/conversations`), dengan nama lawan bicara pembeli; sidebar akun menampilkan
+  badge angka pesan belum dibaca pada menu Chat (semua percakapan) dan pada menu
+  Pesan Masuk (khusus peran penjual), diperbarui polling 10 detik via
+  `AccountLayout.vue`; pada katalog detail, percakapan pesanan menampilkan nama
+  toko sedangkan percakapan pra-pesanan menampilkan pembeli.
 - Notifikasi: status pesanan, pembayaran, pengiriman, promosi (in-app/push/email/WhatsApp).
 
 #### FR-09 Dashboard Penjual
@@ -615,7 +629,7 @@ Pola API RESTful (JSON), seluruh endpoint di bawah prefix `/api`. Implementasi I
 |---|---|---|
 | POST | `/api/reviews` | Ulasan per item pesanan selesai (rating 1–5, UI bintang v1.7) |
 | POST | `/api/conversations` | Mulai chat ke penjual dari produk (pra-pesanan, idempotent) |
-| GET | `/api/conversations` | Daftar percakapan milik saya (pesan terakhir, unread, urut aktivitas) |
+| GET | `/api/conversations` | Daftar percakapan milik saya (pesan terakhir, unread, peran saya `i_am_seller`, urut aktivitas) |
 | GET/POST | `/api/conversations/{id}/messages` | Baca (tandai dibaca) / kirim pesan (pembeli–penjual–admin) |
 
 ### Admin

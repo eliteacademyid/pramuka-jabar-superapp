@@ -62,7 +62,8 @@ const routes = [
       { path: 'seller/products/:id', name: 'seller-product-edit', component: SellerProductFormPage, meta: { requiresSeller: true } },
       { path: 'seller/orders', name: 'seller-orders', component: SellerOrdersPage, meta: { requiresSeller: true } },
       { path: 'seller/dashboard', name: 'seller-dashboard', component: SellerDashboardPage, meta: { requiresSeller: true } },
-      { path: 'seller/withdraw', name: 'seller-withdraw', component: WithdrawPage, meta: { requiresSeller: true } }
+      { path: 'seller/withdraw', name: 'seller-withdraw', component: WithdrawPage, meta: { requiresSeller: true } },
+      { path: 'seller/chat', name: 'seller-chat', component: ChatPage, props: { sellerOnly: true }, meta: { requiresSeller: true } }
     ]
   },
   {

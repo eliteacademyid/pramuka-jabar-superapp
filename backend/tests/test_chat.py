@@ -105,11 +105,13 @@ def test_create_product_conversation(client):
     assert conv["order_code"] is None
     assert "chat_buyer" in conv["participants"]
     assert "member_budi" in conv["participants"]
+    assert conv["i_am_seller"] is False
 
     st = seller_token(client)
     convs = client.get("/api/conversations", headers=headers(st)).json()
     assert len(convs) == 1
     assert convs[0]["id"] == conv["id"]
+    assert convs[0]["i_am_seller"] is True
 
 
 def test_create_conversation_reuses_existing(client):
