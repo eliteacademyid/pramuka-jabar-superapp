@@ -55,6 +55,12 @@ class WilayahOut(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class GudepCreate(BaseModel):
+    nama: str
+    pangkalan: Optional[str] = None
+    wilayah_id: Optional[int] = None
+
+
 class GudepOut(BaseModel):
     id: int
     nama: str

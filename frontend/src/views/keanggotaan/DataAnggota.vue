@@ -11,7 +11,7 @@ const selectedJenjang = ref('')
 const showModal = ref(false)
 const isEdit = ref(false)
 const editingId = ref(null)
-const form = ref({ nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, gudep_id: null })
+const form = ref({ nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, gudep_nama: '' })
 const formError = ref('')
 const saving = ref(false)
 
@@ -42,7 +42,7 @@ function gudepNama(id) {
 function openCreate() {
   isEdit.value = false
   editingId.value = null
-  form.value = { nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, gudep_id: gudeps.value[0]?.id || null }
+  form.value = { nta: '', nama_lengkap: '', tanggal_lahir: '', jenis_kelamin: 'L', jenjang: 'siaga', status_aktif: true, gudep_nama: '' }
   formError.value = ''
   showModal.value = true
 }
@@ -57,17 +57,36 @@ function openEdit(a) {
     jenis_kelamin: a.jenis_kelamin,
     jenjang: a.jenjang,
     status_aktif: a.status_aktif,
-    gudep_id: a.gudep_id
+    gudep_nama: gudepNama(a.gudep_id)
   }
   formError.value = ''
   showModal.value = true
+}
+
+async function resolveGudep(nama) {
+  const trimmed = (nama || '').trim()
+  if (!trimmed) throw new Error('Gudep wajib diisi')
+  const found = gudeps.value.find((g) => g.nama.toLowerCase() === trimmed.toLowerCase())
+  if (found) return found.id
+  const res = await api.post('/gudep', { nama: trimmed })
+  gudeps.value.push(res.data)
+  return res.data.id
 }
 
 async function saveAnggota() {
   formError.value = ''
   saving.value = true
   try {
-    const payload = { ...form.value, tanggal_lahir: new Date(form.value.tanggal_lahir).toISOString() }
+    const gudepId = await resolveGudep(form.value.gudep_nama)
+    const payload = {
+      nta: form.value.nta,
+      nama_lengkap: form.value.nama_lengkap,
+      tanggal_lahir: new Date(form.value.tanggal_lahir).toISOString(),
+      jenis_kelamin: form.value.jenis_kelamin,
+      jenjang: form.value.jenjang,
+      status_aktif: form.value.status_aktif,
+      gudep_id: gudepId
+    }
     if (isEdit.value) {
       await api.put(`/anggota/${editingId.value}`, payload)
     } else {
@@ -199,9 +218,13 @@ function formatTanggal(iso) {
           </div>
           <div class="form-group">
             <label for="m-gudep">Gudep</label>
-            <select id="m-gudep" v-model="form.gudep_id" required>
-              <option v-for="g in gudeps" :key="g.id" :value="g.id">{{ g.nama }} - {{ g.pangkalan }}</option>
-            </select>
+            <input
+              id="m-gudep"
+              v-model="form.gudep_nama"
+              type="text"
+              placeholder="Contoh: Gudep 01"
+              required
+            />
           </div>
         </div>
         <div class="form-group checkbox-group">
