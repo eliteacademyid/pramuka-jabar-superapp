@@ -83,6 +83,12 @@
 > tengah, tepat di bawah banner hero dan di atas kartu kategori (overlap tipis
 > pada tepi bawah banner); panel samping katalog hanya berisi filter
 > (kategori, lokasi, urutkan).
+> Pembaruan v1.15: **kategori Perlengkapan Pramuka** — kategori baru dengan
+> 3 produk contoh di toko demo: Set Seragam Pramuka Lengkap (Rp185.000/set),
+> Tongkat Pramuka Kayu (Rp45.000/batang), Bendera Semaphore Pasang
+> (Rp30.000/pasang), lengkap dengan ilustrasi SVG lokal
+> (`frontend/public/images/products/perlengkapan-*.svg`); ikon kategori baru
+> (fa-campground) di katalog & landing; 82 test otomatis.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.

@@ -192,7 +192,7 @@ def test_seller_dashboard(client):
     r = client.get("/api/seller/dashboard", headers=headers(token))
     assert r.status_code == 200
     dash = r.json()
-    assert dash["active_products"] == 8
+    assert dash["active_products"] == 11
     assert dash["orders_by_status"]["completed"] == 1
     assert float(dash["total_sales"]) == total
     assert float(dash["balance"]) == round(total * 0.95, 2)

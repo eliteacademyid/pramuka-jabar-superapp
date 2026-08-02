@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#faf3e8"/>
+      <stop offset="1" stop-color="#efe2cf"/>
+    </linearGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9c6b3a"/>
+      <stop offset="0.5" stop-color="#b07c45"/>
+      <stop offset="1" stop-color="#8a5c33"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="600" fill="url(#bg)"/>
+  <ellipse cx="400" cy="540" rx="300" ry="30" fill="#dcc9ad"/>
+  <g transform="translate(400,300)">
+    <rect x="-22" y="-240" width="44" height="470" rx="18" fill="url(#wood)"/>
+    <ellipse cx="0" cy="-240" rx="22" ry="10" fill="#b07c45"/>
+    <ellipse cx="0" cy="230" rx="22" ry="10" fill="#8a5c33"/>
+    <rect x="-22" y="120" width="44" height="18" rx="8" fill="#7a4a24"/>
+    <circle cx="0" cy="-170" r="20" fill="#5f3a1c"/>
+    <circle cx="0" cy="-170" r="10" fill="#d9c49a"/>
+    <circle cx="0" cy="-170" r="4" fill="#b23a2e"/>
+    <rect x="-34" y="-60" width="68" height="14" rx="7" fill="#7a4a24"/>
+    <rect x="-34" y="40" width="68" height="14" rx="7" fill="#7a4a24"/>
+    <path d="M-26,-52 L-40,-30 L-26,-8 Z" fill="#5f3a1c"/>
+    <path d="M26,-52 L40,-30 L26,-8 Z" fill="#5f3a1c"/>
+    <path d="M-26,48 L-40,70 L-26,92 Z" fill="#5f3a1c"/>
+    <path d="M26,48 L40,70 L26,92 Z" fill="#5f3a1c"/>
+  </g>
+</svg>

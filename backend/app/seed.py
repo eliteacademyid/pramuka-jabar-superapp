@@ -21,6 +21,7 @@ CATEGORIES_DEFAULT = [
     ("Kerajinan", "kerajinan"),
     ("Fashion", "fashion"),
     ("Jasa", "jasa"),
+    ("Perlengkapan Pramuka", "perlengkapan"),
     ("Lainnya", "lainnya"),
 ]
 
@@ -38,6 +39,9 @@ PRODUCT_IMAGES = {
     "Jasa Fotografi Kegiatan Pramuka": ["/images/products/jasa-fotografi.jpg"],
     "Jasa Desain Logo & Umbul-umbul": ["/images/products/jasa-desain.jpg"],
     "Jasa Sewa Tenda & Perlengkapan": ["/images/products/jasa-tenda.jpg"],
+    "Set Seragam Pramuka Lengkap": ["/images/products/perlengkapan-seragam.svg"],
+    "Tongkat Pramuka Kayu": ["/images/products/perlengkapan-tongkat.svg"],
+    "Bendera Semaphore (Pasang)": ["/images/products/perlengkapan-semaphore.svg"],
 }
 
 
@@ -176,6 +180,33 @@ def _seed_demo_data(db):
             "paket",
             "active",
             6,
+        ),
+        (
+            "Set Seragam Pramuka Lengkap",
+            "perlengkapan",
+            "185000",
+            25,
+            "set",
+            "active",
+            41,
+        ),
+        (
+            "Tongkat Pramuka Kayu",
+            "perlengkapan",
+            "45000",
+            50,
+            "batang",
+            "active",
+            27,
+        ),
+        (
+            "Bendera Semaphore (Pasang)",
+            "perlengkapan",
+            "30000",
+            70,
+            "pasang",
+            "active",
+            33,
         ),
     ]
     for name, cat_slug, price, stock, unit, status, sold in produk:

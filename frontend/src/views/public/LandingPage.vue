@@ -136,6 +136,7 @@ const cats = [
   { slug: 'kerajinan', name: 'Kerajinan', icon: 'fas fa-hand-sparkles' },
   { slug: 'fashion', name: 'Fashion', icon: 'fas fa-tshirt' },
   { slug: 'jasa', name: 'Jasa', icon: 'fas fa-handshake' },
+  { slug: 'perlengkapan', name: 'Perlengkapan Pramuka', icon: 'fas fa-campground' },
   { slug: 'lainnya', name: 'Lainnya', icon: 'fas fa-box' }
 ]
 </script>

@@ -158,6 +158,7 @@ const CATEGORY_ICONS = {
   kerajinan: 'fa-hand-sparkles',
   fashion: 'fa-tshirt',
   jasa: 'fa-handshake',
+  perlengkapan: 'fa-campground',
   lainnya: 'fa-box'
 }
 
