@@ -1,7 +1,8 @@
 ## 10. Pengujian
 
-**Terimplementasi (pytest + TestClient, 78 test lulus):**
-1. **Unit/Integration (API level)**: auth (registrasi, login, akses), toko & produk
+**Terimplementasi (pytest + TestClient, 100 test lulus):**
+1. **Unit/Integration (API level)**: auth (registrasi, login, akses, **tema
+   per-user v1.20**), toko & produk
    (katalog, filter q/kategori/lokasi parsial, sort termurah–termahal, **sort
    rating tertinggi & terbanyak diulas v1.9** — urut rata-rata bintang/jumlah
    ulasan visible dengan produk tanpa ulasan di akhir, **saran
@@ -13,7 +14,10 @@
    alur lengkap penjual s.d. komisi), wallet (top-up, mutasi, withdraw +
    approve/reject, saldo penjual bertambah 95%), ulasan (setelah selesai, duplikat
    ditolak, rating 1–5, tampil di detail produk), chat (auto-buat saat checkout,
-   akses peserta), admin (moderasi toko/produk, RBAC admin+staff, monitor
+   akses peserta), notifikasi in-app & tiket perselisihan (akses buyer/seller/admin,
+   status tracking), **Bantuan AI `/api/ai/chat` v1.23** (wajib auth, pesan kosong/terlalu
+   panjang 422, key belum dikonfigurasi 503, jawaban 200 via mock Gemini),
+   admin (moderasi toko/produk, RBAC admin+staff, monitor
    keranjang user, laporan, dashboard penjual).
 2. **UI (manual, per fitur)**: rating bintang — input klik 1–5 di form ulasan
    detail pesanan (menggantikan dropdown), tampilan readonly di detail produk

@@ -36,6 +36,7 @@
 
       <div class="sidebar-footer">
         <ThemeMenu tone="sidebar" />
+        <AiChatWidget />
         <div class="user-info">
           <span class="user-name">{{ me?.user?.nama_lengkap }}</span>
           <span class="user-role">{{ me?.user?.role }}</span>
@@ -57,6 +58,7 @@ import { fetchMe, clearSession, hasActiveStore } from '../services/session'
 import api from '../services/api'
 import NotificationBell from './NotificationBell.vue'
 import ThemeMenu from './ThemeMenu.vue'
+import AiChatWidget from './AiChatWidget.vue'
 
 const router = useRouter()
 const me = ref(null)

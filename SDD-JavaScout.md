@@ -1,7 +1,7 @@
 # SDD (Software Design Document) — JavaScout SuperApp
 
 **Nama Sistem** : JavaScout — SuperApp Pemberdayaan Ekonomi Pramuka & UMKM Lokal
-**Versi Dokumen** : 1.22
+**Versi Dokumen** : 1.23
 **Tanggal** : 2 Agustus 2026
 **Status** : Draft — Iterasi 1 (modul marketplace inti telah diimplementasikan)
 

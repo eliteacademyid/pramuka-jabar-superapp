@@ -137,6 +137,14 @@
 > server melayani `https://localhost:5173/`, folder `frontend/certs` di-mount
 > ke container dan masuk `.gitignore`; backend tetap `http://localhost:8000`
 > (localhost bebas dari pembatasan mixed-content di browser).
+> Pembaruan v1.23: **Bantuan AI berbasis Gemini** — widget chat "Bantuan AI"
+> di sidebar akun (tombol di sidebar-footer membuka panel mengambang di pojok
+> kanan bawah); endpoint `POST /api/ai/chat` (auth member, pesan maks. 2000
+> karakter) memanggil Google Gemini (`gemini-2.0-flash`, system prompt asisten
+> marketplace JavaScout, jawaban Bahasa Indonesia) via `GEMINI_API_KEY` &
+> `GEMINI_MODEL` di env; konteks user (nama, peran) disertakan; error ramah
+> bila key belum dikonfigurasi (503) atau layanan terganggu (502); chip saran
+> pertanyaan, indikator mengetik, riwayat percakapan per sesi; 100 test otomatis.
 > Deskripsi pada dokumen ini mengikuti implementasi aktual pada bagian yang sudah
 > dibangun; bagian lain (payment gateway, ekspedisi pihak ketiga, kupon, varian
 > produk, notifikasi) tetap merupakan rencana pengembangan lanjutan.

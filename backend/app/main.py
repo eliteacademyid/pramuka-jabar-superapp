@@ -5,6 +5,7 @@ from app.database import Base, engine
 from app.routers import (
     admin as admin_router,
     admin_shop,
+    ai as ai_router,
     auth as auth_router,
     cart,
     chat,
@@ -47,6 +48,7 @@ app.include_router(tickets.router, prefix="/api")
 app.include_router(tickets.admin_router, prefix="/api")
 app.include_router(admin_shop.router, prefix="/api")
 app.include_router(admin_shop.seller_router, prefix="/api")
+app.include_router(ai_router.router, prefix="/api")
 
 
 @app.on_event("startup")

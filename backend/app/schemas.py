@@ -108,6 +108,14 @@ class ThemeOut(BaseModel):
     theme: str
 
 
+class AiChatRequest(BaseModel):
+    message: str = Field(min_length=1, max_length=2000)
+
+
+class AiChatOut(BaseModel):
+    reply: str
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
