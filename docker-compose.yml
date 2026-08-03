@@ -1,0 +1,44 @@
+name: pramuka-jabar
+
+services:
+  db:
+    image: docker.io/library/postgres:16-alpine
+    container_name: pramuka-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db_pramuka_jabar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d db_pramuka_jabar"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: pramuka-backend
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/db_pramuka_jabar
+      SECRET_KEY: ${SECRET_KEY:-super-apps-pramuka-jabar-secret}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-120}
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    container_name: pramuka-frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
